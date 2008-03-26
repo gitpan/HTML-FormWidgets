@@ -1,0 +1,372 @@
+Name
+    HTML::FormWidgets - Create HTML form markup
+
+Version
+    0.1.$Rev: 28 $
+
+Synopsis
+       package MyApp::View::HTML;
+
+       use base qw(CatalystX::Usul::View::HTML);
+       use HTML::FormWidgets;
+
+       sub build_form {
+          my ($me, $c) = @_;
+          my $s        = $c->stash;
+          my $form     = [ $s->{iFrame} ];
+          my $config   = {};
+
+          $config->{root       } = $c->config->{root};
+          $config->{base       } = $c->req->base;
+          $config->{url        } = $c->req->path;
+          $config->{assets     } = $s->{assets};
+          $config->{fields     } = $s->{fields} || {};
+          $config->{form       } = $s->{form};
+          $config->{hide       } = $s->{iFrame}->{hidden};
+          $config->{messages   } = $s->{messages};
+          $config->{swidth     } = $s->{width} if ($s->{width});
+          $config->{templatedir} = $c->config->{dynamic_templates};
+
+          HTML::FormWidgets->build( $config, $form );
+          return;
+       }
+
+Description
+    Transforms a Perl data structure which defines one or more "widgets"
+    into XHTML. Each widget is comprised of these optional components: a
+    line or question number, a prompt string, a separator, an input field,
+    additional field help, and Ajax field error string.
+
+    Input fields are selected by the widget "type" attribute. A factory
+    subclass implements the method that generates the XHTML for that input
+    field type. Adding more widget types is straightforward
+
+    This module is using the MooTools Javascript library
+    <http://mootools.net/> to modify default browser behaviour
+
+    This module is used by CatalystX::Usul::View::HTML and as such its main
+    use is a form generator within a Catalyst application
+
+Subroutines/Methods
+  build
+    The "build" method iterates over a data structure that represents the
+    form. One or more lists of widgets are processed in turn. New widgets
+    are created and their rendered output replaces their definitions in the
+    data structure
+
+  new
+    Construct a widget. Mostly this is called by the "build" method. It
+    requires the factory subclass for the widget type.
+
+    This method takes a large number of options with each widget using only
+    few of them. Each option is described in the factory subclasses which
+    use that option
+
+  msg
+    Use the supplied key to return a value from the "$me->messages" hash.
+    This hash was passed to the constructor and should contain any literal
+    text used by any of the widgets
+
+  render
+    Assemble the components of the generated widget. Each component is
+    concatenated onto a scalar which is the returned value. This method
+    calls "_render" which should be defined in the factory subclass for this
+    widget type.
+
+    This method uses these attributes:
+
+    "$me->clear"
+       If set to left the widget begins with an <br> element
+
+    "$me->stepno"
+       If true it's value is wrapped in a span element of class lineNumber
+       and appended to the return value
+
+    "$me->prompt"
+       If true it's value is wrapped in a label element of class prompt and
+       appended to the return value. The "$me->id" attribute is used to set
+       the for attribute of the label element. The "$me->palign" attribute
+       sets the text align style for the label element. The "$me->nowrap"
+       attribute sets whitespace style to nowrap in the label element. The
+       "$me->pwidth" attribute sets the width style attribute in the label
+       element
+
+    "$me->sep"
+       If true it's value is wrapped in a div element of class separator and
+       appended to the return value
+
+    "$me->container"
+       If true the value return by the "_render" method is wrapped in div
+       element of classes container and "$me->align"
+
+    "$me->tip"
+       The text of the field help. If "$me->tiptype" is set to dagger (which
+       is the default) then a dagger symbol "$me->nb_symbol" is wrapped in a
+       span of class help tips and this is appended to the returned input
+       field. The tip text is used as the title attribute. If the tiptype is
+       not set to dagger then the help text is wrapped around the input
+       field itself
+
+    "$me->ajaxid"
+       The text of the message which is displayed if the field's value fails
+       server side validation
+
+  _arg_list
+    Accepts either a single argument of a hash ref or a list of key/value
+    pairs. Returns a hash ref in either case.
+
+  _group_fields
+    Wraps the top nitems widgets on the build stack in a fieldset element
+    with a legend
+
+  _merge_config
+    Does a simple merging of the two hash refs that are passed as arguments.
+    The second argument takes precedence over the first
+
+  _render
+    This should have been overridden in the factory subclass. If it gets
+    called its probably an error so return the value of our "text" attribute
+    if set or an error message otherwise
+
+Configuration and Environment
+    The following are passed to "build" in the config hash (they reflect
+    this modules primary use within a Catalyst application):
+
+    "$c->config->{root}"
+       The path to the document root for this application ("$config->root")
+
+    "$c->config->{dynamic_templates}"
+       The path to template files used by the "::Template" subclass
+       ("$config->templatedir")
+
+    "$c->req->base"
+       This is the prefix for our URI ("$config->base")
+
+    "$c->req->path"
+       Only used by the "::Tree" subclass to create self referential URIs
+       ("$config->url")
+
+    "$c->stash->{assets}"
+       Some of the widgets require image files. This attribute is used to
+       create the URI for those images ("$config->assets")
+
+    "$c->stash->{fields}"
+       This hash ref contains the fields definitions. Static parameters for
+       each widget can be stored in configuration files. This reduces the
+       number of attributes that have to be passed in the call to the
+       constructor
+
+    "$c->stash->{form}"
+       Used by the "::Chooser" subclass ("$config->form")
+
+    "$c->stash->{iFrame}->{hidden}"
+       So that the "::File" and "::Table" subclasses can store the number of
+       rows added as the hidden form variable nRows ("$config->hide")
+
+    "$c->stash->{messages}"
+       Many of the subclasses use this hash to supply literal text in a
+       language of the users choosing
+
+    "$c->stash->{width}"
+       Width in pixels of the browser window. This is used to calculate the
+       width of the field prompt. The field prompt needs to be a fixed
+       length so that the separator colons align vertically
+       ("$config->swidth")
+
+    Sensible defaults are provided by "new" if any of the above are
+    undefined
+
+Factory Subclasses
+    These are the possible values for the "type" attribute which defaults to
+    textfield. Each subclass implements the "_render" method, it receives a
+    hash ref of options an returns a scalar containing some XHTML.
+
+    The distribution ships with the following factory subclasses:
+
+  Anchor
+    Returns an anchor element of class "$me->class" or linkFade with it's
+    href attribute set to "$me->href". The anchor body is set to "$me->text"
+
+  Checkbox
+    Return a checkbox element of value "$me->value". Use the element's value
+    as key to the "$me->labels" hash. The hash value (which defaults null)
+    is used as the displayed label. The "$me->checked" attribute determines
+    the checkbox's initial setting
+
+  Chooser
+    Creates a popup window which allows one item to be selected from a long
+    list of items
+
+  Date
+    Return another text field, this time with a calendar icon which when
+    clicked pops up a Javascript date picker. Requires the appropriate JS
+    library to have been loaded by the page. Attribute "$me->width" controls
+    the size of the textfield (default 10 characters) and "$me->format"
+    defaults to *dd/mm/yyyy*
+
+  File
+    Display the contents of a file pointed to by "$me->path". Supports the
+    following subtypes:
+
+    csv
+       Return a table containing the CSV formatted file. This and the *file*
+       subtype are selectable if "$me->select" >= 0 and represents the
+       column number of the key field
+
+    file
+       Default subtype. Like the logfile subtype but without the pre tags
+
+    html
+       The "_render" method returns an iframe tag whose src attribute is set
+       to "$me->path". Paths that begin with "$me->root" will have that
+       replaced with "$me->base". Paths that do not begin with "http:" will
+       have "$me->base" prepended to them
+
+    logfile
+       The "_render" method returns a table where each line of the logfile
+       appears as a separate row containing one cell. The logfile lines are
+       each wrapped in pre tags
+
+    source
+       The module "Syntax::Highlight::Perl" is used to provide colour
+       highlights for the Perl source code. Tabs are expanded to
+       "$me->tabstop" spaces and the result is returned wrapped in pre tags
+
+  Freelist
+    New values entered into a text field can be added to the list. Existing
+    list values (passed in "$me->values") can be removed. The height of the
+    list is set by "$me->height".
+
+  GroupMembership
+    Displays two lists which allow for membership of a group. The first
+    scrolling list contains "all" values ("$me->all"), the second contains
+    those values currently selected ("$me->current"). The height of the
+    scrolling lists is set by "$me->height"
+
+  ImageButton
+    Generates an image button where "$me->name" identifies the image file in
+    "$me->assets" and is also used as the return value. The button name is
+    set to *_verb*
+
+  Label
+    Calls "$me->msg" with "$me->name" as the message key. If the text does
+    not exist "$me->text" is used. If "$me->dropcap" is true the first
+    character of the text is wrapped in a span of class *dropcap*
+
+  Note
+    Calls "$me->msg" with "$me->name" as the message key. If the text does
+    not exist "$me->text" is used. The text is wrapped in a div of class
+    *note* with "$me->align" setting the style text alignment and
+    "$me->width" setting the style width
+
+  Password
+    Returns a password field of width "$me->width" which defaults to twenty
+    characters. If "$me->subtype" equals *verify* then the message
+    *vPasswordPrompt* and another password field are appended. The fields
+    "$me->id" and "$me->name" are expected to contain the digit 1 which will
+    be substituted for the digit 2 in the attributes of the second field
+
+  PopupMenu
+    Returns a list of option elements wrapped in a select element. The list
+    of options is passed in "$me->values" with the display labels in
+    "$me->labels". The onchange event handler will be set to "$me->onchange"
+
+  RadioGroup
+    The attribute "$me->columns" sets the number of columns for the returned
+    table of radio buttons. The list of button values is passed in
+    "$me->values" with the display labels in "$me->labels". The onchange
+    event handler will be set to "$me->onchange"
+
+  ScrollingList
+    The "$me->height" attribute controls the height of the scrolling list.
+    The list of options is passed in "$me->values" with the display labels
+    in "$me->labels". The onchange event handler will be set to
+    "$me->onchange"
+
+  Table
+    The input data is in "$me->data->{values}" which is an array ref for
+    which each element is an array ref containing the list of field values.
+
+  Template
+    Look in "$me->templatedir" for a Template::Toolkit template called
+    "$me->id" with a *.tt* extension. Slurp it in and return it as the
+    content for this widget. This provides for a "user defined" widget type
+
+  Textarea
+    A text area. It defaults to five lines high ("$me->height") and sixty
+    characters wide ("$me->width")
+
+  Textfield
+    This is the default widget type. Your basic text field which defaults to
+    sixty characters wide ("$me->width")
+
+  Tree
+    Implements an expanding tree of selectable objects. See "Bugs and
+    Limitations"
+
+Diagnostics
+    None
+
+Dependencies
+    Class::Data::Accessor
+    HTML::Accessors
+    Readonly
+    Syntax::Highlight::Perl
+    Text::ParseWords
+    Text::Tabs
+
+    Included in the distribution are the Javascript files whose functions
+    are called by the event handlers associated with these widgets
+
+  mootools.js
+       Mootools - My Object Oriented javascript.
+       License: MIT-style license.
+       WWW: http://mootools.net/
+
+    Implements the Ajax methods used to perform server side field
+    validation. The included copy has a few hacks that improve the Accordion
+    widget
+
+  calendar.js
+       Author: Matt Kruse <matt@mattkruse.com>
+       WWW: http://www.mattkruse.com/
+
+    which has a license restriction that prevents inclusion in other
+    distributions so I'll drop this at the next release. Only used by
+    "::Date" subclass
+
+  behaviour.js
+    Is included from the App::Munchies default skin. It uses the MooTools
+    library to implement the server side field validation
+
+    Also included in the "images" subdirectory of the distribution are
+    example PNG files used by some of the widgets.
+
+Incompatibilities
+    There are no known incompatibilities in this module.
+
+Bugs and Limitations
+    The Javascript for the tree widget is not included due to copyright
+    issues, so that widget doesn't work. Same for the date widget except
+    that there is a link in Dependencies to a web site where the Javascript
+    might be available
+
+    The installation script does nothing with the Javascript or PNG files
+    which are included in the distribution for completeness
+
+    There are no known bugs in this module. Please report problems to the
+    address below. Patches are welcome.
+
+Author
+    Peter Flanigan, "<Support at RoxSoft.co.uk>"
+
+License and Copyright
+    Copyright (c) 2008 Peter Flanigan. All rights reserved.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself. See perlartistic.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT WARRANTY; without even the implied warranty of MERCHANTABILITY
+    or FITNESS FOR A PARTICULAR PURPOSE.
+

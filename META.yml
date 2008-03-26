@@ -1,0 +1,83 @@
+---
+name: HTML-FormWidgets
+version: 0.1.28
+author:
+  - 'Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>'
+abstract: Create HTML form markup
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
+  Class::Data::Accessor: 0.04001
+  HTML::Accessors: 0.1.0
+  Readonly: 1.03
+  Syntax::Highlight::Perl: 1.00
+  Text::ParseWords: 3.22
+  Text::Tabs: 98.112801
+  perl: 5.8
+  version: 0.74
+provides:
+  HTML::FormWidgets:
+    file: lib/HTML/FormWidgets.pm
+    version: 0.1.28
+  HTML::FormWidgets::Anchor:
+    file: lib/HTML/FormWidgets/Anchor.pm
+    version: 0.1.28
+  HTML::FormWidgets::Checkbox:
+    file: lib/HTML/FormWidgets/Checkbox.pm
+    version: 0.1.28
+  HTML::FormWidgets::Chooser:
+    file: lib/HTML/FormWidgets/Chooser.pm
+    version: 0.1.28
+  HTML::FormWidgets::Date:
+    file: lib/HTML/FormWidgets/Date.pm
+    version: 0.1.26
+  HTML::FormWidgets::File:
+    file: lib/HTML/FormWidgets/File.pm
+    version: 0.1.24
+  HTML::FormWidgets::Freelist:
+    file: lib/HTML/FormWidgets/Freelist.pm
+    version: 0.1.23
+  HTML::FormWidgets::GroupMembership:
+    file: lib/HTML/FormWidgets/GroupMembership.pm
+    version: 0.1.16
+  HTML::FormWidgets::ImageButton:
+    file: lib/HTML/FormWidgets/ImageButton.pm
+    version: 0.1.16
+  HTML::FormWidgets::Label:
+    file: lib/HTML/FormWidgets/Label.pm
+    version: 0.1.13
+  HTML::FormWidgets::Note:
+    file: lib/HTML/FormWidgets/Note.pm
+    version: 0.1.24
+  HTML::FormWidgets::Password:
+    file: lib/HTML/FormWidgets/Password.pm
+    version: 0.1.14
+  HTML::FormWidgets::PopupMenu:
+    file: lib/HTML/FormWidgets/PopupMenu.pm
+    version: 0.1.5
+  HTML::FormWidgets::RadioGroup:
+    file: lib/HTML/FormWidgets/RadioGroup.pm
+    version: 0.1.5
+  HTML::FormWidgets::ScrollingList:
+    file: lib/HTML/FormWidgets/ScrollingList.pm
+    version: 0.1.5
+  HTML::FormWidgets::Table:
+    file: lib/HTML/FormWidgets/Table.pm
+    version: 0.1.26
+  HTML::FormWidgets::Template:
+    file: lib/HTML/FormWidgets/Template.pm
+    version: 0.1.24
+  HTML::FormWidgets::Textarea:
+    file: lib/HTML/FormWidgets/Textarea.pm
+    version: 0.1.7
+  HTML::FormWidgets::Textfield:
+    file: lib/HTML/FormWidgets/Textfield.pm
+    version: 0.1.7
+  HTML::FormWidgets::Tree:
+    file: lib/HTML/FormWidgets/Tree.pm
+    version: 0.1.5
+generated_by: Module::Build version 0.2808
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2
