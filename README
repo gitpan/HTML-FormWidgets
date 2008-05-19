@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    0.1.$Rev: 28 $
+    0.1.$Rev: 37 $
 
 Synopsis
        package MyApp::View::HTML;
@@ -16,16 +16,17 @@ Synopsis
           my $form     = [ $s->{iFrame} ];
           my $config   = {};
 
-          $config->{root       } = $c->config->{root};
-          $config->{base       } = $c->req->base;
-          $config->{url        } = $c->req->path;
-          $config->{assets     } = $s->{assets};
-          $config->{fields     } = $s->{fields} || {};
-          $config->{form       } = $s->{form};
-          $config->{hide       } = $s->{iFrame}->{hidden};
-          $config->{messages   } = $s->{messages};
-          $config->{swidth     } = $s->{width} if ($s->{width});
-          $config->{templatedir} = $c->config->{dynamic_templates};
+          $config->{root        } = $c->config->{root};
+          $config->{base        } = $c->req->base;
+          $config->{content_type} = $c->config->{content_type};
+          $config->{url         } = $c->req->path;
+          $config->{assets      } = $s->{assets};
+          $config->{fields      } = $s->{fields} || {};
+          $config->{form        } = $s->{form};
+          $config->{hide        } = $s->{iFrame}->{hidden};
+          $config->{messages    } = $s->{messages};
+          $config->{swidth      } = $s->{width} if ($s->{width});
+          $config->{templatedir } = $c->config->{dynamic_templates};
 
           HTML::FormWidgets->build( $config, $form );
           return;
@@ -33,13 +34,13 @@ Synopsis
 
 Description
     Transforms a Perl data structure which defines one or more "widgets"
-    into XHTML. Each widget is comprised of these optional components: a
-    line or question number, a prompt string, a separator, an input field,
-    additional field help, and Ajax field error string.
+    into HTML or XHTML. Each widget is comprised of these optional
+    components: a line or question number, a prompt string, a separator, an
+    input field, additional field help, and Ajax field error string.
 
     Input fields are selected by the widget "type" attribute. A factory
-    subclass implements the method that generates the XHTML for that input
-    field type. Adding more widget types is straightforward
+    subclass implements the method that generates the HTML or XHTML for that
+    input field type. Adding more widget types is straightforward
 
     This module is using the MooTools Javascript library
     <http://mootools.net/> to modify default browser behaviour
@@ -132,46 +133,47 @@ Configuration and Environment
     The following are passed to "build" in the config hash (they reflect
     this modules primary use within a Catalyst application):
 
-    "$c->config->{root}"
-       The path to the document root for this application ("$config->root")
-
-    "$c->config->{dynamic_templates}"
-       The path to template files used by the "::Template" subclass
-       ("$config->templatedir")
-
-    "$c->req->base"
-       This is the prefix for our URI ("$config->base")
-
-    "$c->req->path"
-       Only used by the "::Tree" subclass to create self referential URIs
-       ("$config->url")
-
-    "$c->stash->{assets}"
+    assets
        Some of the widgets require image files. This attribute is used to
-       create the URI for those images ("$config->assets")
+       create the URI for those images
 
-    "$c->stash->{fields}"
+    base
+       This is the prefix for our URI
+
+    content_type
+       Either *application/xhtml+xml* which generates XHTML 1.1 and is the
+       default or *text/html* which generates HTML 4.01
+
+    fields
        This hash ref contains the fields definitions. Static parameters for
        each widget can be stored in configuration files. This reduces the
        number of attributes that have to be passed in the call to the
        constructor
 
-    "$c->stash->{form}"
-       Used by the "::Chooser" subclass ("$config->form")
+    form
+       Used by the "::Chooser" subclass
 
-    "$c->stash->{iFrame}->{hidden}"
+    hide
        So that the "::File" and "::Table" subclasses can store the number of
-       rows added as the hidden form variable nRows ("$config->hide")
+       rows added as the hidden form variable nRows
 
-    "$c->stash->{messages}"
+    messages
        Many of the subclasses use this hash to supply literal text in a
        language of the users choosing
 
-    "$c->stash->{width}"
+    root
+       The path to the document root for this application
+
+    swidth
        Width in pixels of the browser window. This is used to calculate the
        width of the field prompt. The field prompt needs to be a fixed
        length so that the separator colons align vertically
-       ("$config->swidth")
+
+    templatedir
+       The path to template files used by the "::Template" subclass
+
+    url
+       Only used by the "::Tree" subclass to create self referential URIs
 
     Sensible defaults are provided by "new" if any of the above are
     undefined
@@ -196,6 +198,9 @@ Factory Subclasses
   Chooser
     Creates a popup window which allows one item to be selected from a long
     list of items
+
+  Cloud
+    Creates list of links from the data set supplied in "$me->data"
 
   Date
     Return another text field, this time with a calendar icon which when

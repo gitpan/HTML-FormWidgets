@@ -1,6 +1,6 @@
 ---
 name: HTML-FormWidgets
-version: 0.1.28
+version: 0.1.37
 author:
   - 'Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>'
 abstract: Create HTML form markup
@@ -9,7 +9,7 @@ resources:
   license: http://dev.perl.org/licenses/
 requires:
   Class::Data::Accessor: 0.04001
-  HTML::Accessors: 0.1.0
+  HTML::Accessors: 0.1.22
   Readonly: 1.03
   Syntax::Highlight::Perl: 1.00
   Text::ParseWords: 3.22
@@ -19,7 +19,7 @@ requires:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: 0.1.28
+    version: 0.1.37
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
     version: 0.1.28
@@ -29,12 +29,15 @@ provides:
   HTML::FormWidgets::Chooser:
     file: lib/HTML/FormWidgets/Chooser.pm
     version: 0.1.28
+  HTML::FormWidgets::Cloud:
+    file: lib/HTML/FormWidgets/Cloud.pm
+    version: 0.1.37
   HTML::FormWidgets::Date:
     file: lib/HTML/FormWidgets/Date.pm
     version: 0.1.26
   HTML::FormWidgets::File:
     file: lib/HTML/FormWidgets/File.pm
-    version: 0.1.24
+    version: 0.1.33
   HTML::FormWidgets::Freelist:
     file: lib/HTML/FormWidgets/Freelist.pm
     version: 0.1.23

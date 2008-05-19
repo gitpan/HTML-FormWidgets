@@ -7,7 +7,7 @@ WriteMakefile
           'VERSION_FROM' => 'lib/HTML/FormWidgets.pm',
           'PREREQ_PM' => {
                            'Class::Data::Accessor' => '0.04001',
-                           'HTML::Accessors' => '0.1.0',
+                           'HTML::Accessors' => '0.1.22',
                            'Readonly' => '1.03',
                            'Syntax::Highlight::Perl' => '1.00',
                            'Text::ParseWords' => '3.22',

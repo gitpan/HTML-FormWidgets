@@ -1,6 +1,6 @@
 package HTML::FormWidgets::File;
 
-# @(#)$Id: File.pm 24 2008-03-20 13:57:08Z pjf $
+# @(#)$Id: File.pm 33 2008-05-17 23:36:47Z pjf $
 
 use strict;
 use warnings;
@@ -12,7 +12,7 @@ use Syntax::Highlight::Perl;
 use Text::ParseWords;
 use Text::Tabs;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 24 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 33 $ =~ /\d+/gmx );
 
 Readonly my %SCHEME =>
    ( Variable_Scalar   => [ '<font color="#CC6600">', '</font>' ],
@@ -59,7 +59,7 @@ sub _render {
 
       $path  = $path =~ m{ \A http: }msx ? $path : $me->base.$path;
       $text  = 'border: 0px; bottom: 0px; position: absolute; ';
-      $text .= 'top: 0px; width: 100%; '.$me->style;
+      $text .= 'top: 0px; width: 100%; height: 100%; '.$me->style;
 
       return $htag->iframe( { src       => $path,
                               scrolling => q(auto),
