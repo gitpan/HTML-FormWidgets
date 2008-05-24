@@ -1,6 +1,6 @@
 package HTML::FormWidgets;
 
-# @(#)$Id: FormWidgets.pm 37 2008-05-19 22:19:56Z pjf $
+# @(#)$Id: FormWidgets.pm 41 2008-05-24 23:04:10Z pjf $
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use File::Spec::Functions;
 use HTML::Accessors;
 use Readonly;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 37 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 41 $ =~ /\d+/gmx );
 
 Readonly my $NUL   => q();
 Readonly my $TTS   => q( ~ );
@@ -169,7 +169,7 @@ sub new {
    $self->{nodeId} = q(node_0); # Define accessor by hand to auto increment
 
    # Pander to lazy filling out of static definitions
-   $self->container( $self->type =~ m{ file|label|note }mx ? 0 : 1 )
+   $self->container( $self->type =~ m{ chooser|file|label|note }mx ? 0 : 1 )
       unless (defined $self->container);
 
    if ($self->ajaxid) {
@@ -340,7 +340,7 @@ HTML::FormWidgets - Create HTML form markup
 
 =head1 Version
 
-0.1.$Rev: 37 $
+0.1.$Rev: 41 $
 
 =head1 Synopsis
 

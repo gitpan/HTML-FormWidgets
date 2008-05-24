@@ -1,6 +1,6 @@
 ---
 name: HTML-FormWidgets
-version: 0.1.37
+version: 0.1.41
 author:
   - 'Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>'
 abstract: Create HTML form markup
@@ -19,10 +19,10 @@ requires:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: 0.1.37
+    version: 0.1.41
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
-    version: 0.1.28
+    version: 0.1.41
   HTML::FormWidgets::Checkbox:
     file: lib/HTML/FormWidgets/Checkbox.pm
     version: 0.1.28
