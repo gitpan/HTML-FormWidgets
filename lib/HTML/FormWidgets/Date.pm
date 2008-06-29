@@ -1,13 +1,13 @@
 package HTML::FormWidgets::Date;
 
-# @(#)$Id: Date.pm 26 2008-03-24 19:14:41Z pjf $
+# @(#)$Id: Date.pm 62 2008-06-29 09:30:34Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 use Readonly;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 26 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 62 $ =~ /\d+/gmx );
 
 Readonly my $TTS => q( ~ );
 
@@ -20,24 +20,30 @@ sub _render {
    $text            = $htag->textfield( $ref );
    $html            = $htag->div( { class => q(container) }, $text );
    $html           .= $htag->div( { class => q(separator) }, q(&nbsp;) );
-   $text            = 'var cal_'.$me->name.' = new CalendarPopup(\'';
-   $text           .= $me->name.'_calendar\');';
-   $text            = $htag->script( { type => q(text/javascript) }, $text );
+   $text            = 'function getAnchorPosition(anchorname) {';
+   $text           .= 'var coordinates = new Object();';
+	$text           .= 'coordinates.x = 0; coordinates.y = 0;';
+	$text           .= 'return coordinates; }';
+   $text           .= 'var '.$me->name."_cal = new CalendarPopup('";
+   $text           .= $me->name."_calendar'); ";
+   $text           .= $me->name."_cal.offsetX = 0; ";
+   $text           .= $me->name."_cal.offsetY = 0; ";
+   $html           .= $htag->script( { type => q(text/javascript) }, $text );
    $ref             = { alt => q(Calendar), class => q(icon) };
    $ref->{src    }  = $me->assets.'calendar.png';
-   $text           .= $htag->img( $ref );
+   $text            = $htag->img( $ref );
    $ref             = {};
    $ref->{class  }  = q(tips);
    $ref->{href   }  = q();
-   $ref->{id     }  = 'anchor_'.$me->name;
-   $ref->{onclick}  = 'cal_'.$me->name.'.select( document.forms[0].'.$me->name;
-   $ref->{onclick} .= ', '.'\'anchor_'.$me->name.'\', \''.$format.'\' ); ';
+   $ref->{id     }  = $me->name.'_anchor';
+   $ref->{onclick}  = $me->name.'_cal.select( document.forms[0].'.$me->name;
+   $ref->{onclick} .= ", '".$me->name."_anchor', '".$format."' ); ";
    $ref->{onclick} .= 'return false;';
    $ref->{title  }  = $me->hint_title.$TTS.$me->msg( q(dateWidgetTip) );
    $text            = $htag->a( $ref, $text );
-   $html           .= $htag->div( { class => q(container) }, $text );
-   $html           .= $htag->div( { class => q(calendar hidden),
+   $text           .= $htag->div( { class => q(calendar hidden),
                                     id    => $me->name.'_calendar' } );
+   $html           .= $htag->div( { class => q(container) }, $text );
    return $html;
 }
 

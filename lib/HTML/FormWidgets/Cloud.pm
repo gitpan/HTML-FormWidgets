@@ -1,12 +1,12 @@
 package HTML::FormWidgets::Cloud;
 
-# @(#)$Id: Cloud.pm 37 2008-05-19 22:19:56Z pjf $
+# @(#)$Id: Cloud.pm 44 2008-06-02 10:53:51Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 37 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 44 $ =~ /\d+/gmx );
 
 sub _render {
    my ($me, $ref) = @_;
@@ -29,8 +29,8 @@ sub _render {
       $style     .= 'color: #'.$item->{colour}.'; '    if ($item->{colour});
 
       if (!$href && !$onclick ) {
-         $href     = 'javascript:windowObj.Expand_Collapse()';
-         $onclick  = "gridObj.Table('$id_pref', '".$ref->{name};
+         $href     = 'javascript:Expand_Collapse()';
+         $onclick  = "tableObj.liveGrid('$id_pref', '".$ref->{name};
          $onclick .= "', 'a~b', $ref->{table_len}, 1)";
       }
 

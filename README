@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    0.1.$Rev: 41 $
+    0.1.$Rev: 63 $
 
 Synopsis
        package MyApp::View::HTML;
@@ -64,9 +64,9 @@ Subroutines/Methods
     use that option
 
   msg
-    Use the supplied key to return a value from the "$me->messages" hash.
-    This hash was passed to the constructor and should contain any literal
-    text used by any of the widgets
+    Use the supplied key to return a value from the messages hash. This hash
+    was passed to the constructor and should contain any literal text used
+    by any of the widgets
 
   render
     Assemble the components of the generated widget. Each component is
@@ -76,39 +76,37 @@ Subroutines/Methods
 
     This method uses these attributes:
 
-    "$me->clear"
+    clear
        If set to left the widget begins with an <br> element
 
-    "$me->stepno"
+    stepno
        If true it's value is wrapped in a span element of class lineNumber
        and appended to the return value
 
-    "$me->prompt"
+    prompt
        If true it's value is wrapped in a label element of class prompt and
-       appended to the return value. The "$me->id" attribute is used to set
-       the for attribute of the label element. The "$me->palign" attribute
-       sets the text align style for the label element. The "$me->nowrap"
-       attribute sets whitespace style to nowrap in the label element. The
-       "$me->pwidth" attribute sets the width style attribute in the label
-       element
+       appended to the return value. The id attribute is used to set the for
+       attribute of the label element. The palign attribute sets the text
+       align style for the label element. The nowrap attribute sets
+       whitespace style to nowrap in the label element. The pwidth attribute
+       sets the width style attribute in the label element
 
-    "$me->sep"
+    sep
        If true it's value is wrapped in a div element of class separator and
        appended to the return value
 
-    "$me->container"
+    container
        If true the value return by the "_render" method is wrapped in div
-       element of classes container and "$me->align"
+       element of classes container and align
 
-    "$me->tip"
-       The text of the field help. If "$me->tiptype" is set to dagger (which
-       is the default) then a dagger symbol "$me->nb_symbol" is wrapped in a
-       span of class help tips and this is appended to the returned input
-       field. The tip text is used as the title attribute. If the tiptype is
-       not set to dagger then the help text is wrapped around the input
-       field itself
+    tip
+       The text of the field help. If tiptype is set to dagger (which is the
+       default) then a dagger symbol nb_symbol is wrapped in a span of class
+       help tips and this is appended to the returned input field. The tip
+       text is used as the title attribute. If the tiptype is not set to
+       dagger then the help text is wrapped around the input field itself
 
-    "$me->ajaxid"
+    ajaxid
        The text of the message which is displayed if the field's value fails
        server side validation
 
@@ -179,53 +177,54 @@ Configuration and Environment
     undefined
 
 Factory Subclasses
-    These are the possible values for the "type" attribute which defaults to
-    textfield. Each subclass implements the "_render" method, it receives a
-    hash ref of options an returns a scalar containing some XHTML.
+    These are the possible values for the type attribute which defaults to
+    *textfield*. Each subclass implements the "_render" method, it receives
+    a hash ref of options an returns a scalar containing some XHTML.
 
     The distribution ships with the following factory subclasses:
 
   Anchor
-    Returns an anchor element of class "$me->class" or linkFade with it's
-    href attribute set to "$me->href". The anchor body is set to "$me->text"
+    Returns an anchor element of class option class (which defaults to
+    *linkFade*) with it's href attribute set to the href option. The anchor
+    body is set to the text option
 
   Checkbox
-    Return a checkbox element of value "$me->value". Use the element's value
-    as key to the "$me->labels" hash. The hash value (which defaults null)
-    is used as the displayed label. The "$me->checked" attribute determines
-    the checkbox's initial setting
+    Return a checkbox element of value value. Use the element's value as key
+    to the labels hash. The hash value (which defaults null) is used as the
+    displayed label. The checked option determines the checkbox's initial
+    setting
 
   Chooser
     Creates a popup window which allows one item to be selected from a long
     list of items
 
   Cloud
-    Creates list of links from the data set supplied in "$me->data"
+    Creates list of links from the data set supplied in the *data* option
 
   Date
     Return another text field, this time with a calendar icon which when
     clicked pops up a Javascript date picker. Requires the appropriate JS
-    library to have been loaded by the page. Attribute "$me->width" controls
-    the size of the textfield (default 10 characters) and "$me->format"
-    defaults to *dd/mm/yyyy*
+    library to have been loaded by the page. Attribute width controls the
+    size of the textfield (default 10 characters) and format defaults to
+    *dd/mm/yyyy*
 
   File
-    Display the contents of a file pointed to by "$me->path". Supports the
+    Display the contents of a file pointed to by path. Supports the
     following subtypes:
 
     csv
        Return a table containing the CSV formatted file. This and the *file*
-       subtype are selectable if "$me->select" >= 0 and represents the
-       column number of the key field
+       subtype are selectable if select >= 0 and represents the column
+       number of the key field
 
     file
        Default subtype. Like the logfile subtype but without the pre tags
 
     html
        The "_render" method returns an iframe tag whose src attribute is set
-       to "$me->path". Paths that begin with "$me->root" will have that
-       replaced with "$me->base". Paths that do not begin with "http:" will
-       have "$me->base" prepended to them
+       to path. Paths that begin with root will have that replaced with
+       base. Paths that do not begin with "http:" will have base prepended
+       to them
 
     logfile
        The "_render" method returns a table where each line of the logfile
@@ -234,76 +233,76 @@ Factory Subclasses
 
     source
        The module "Syntax::Highlight::Perl" is used to provide colour
-       highlights for the Perl source code. Tabs are expanded to
-       "$me->tabstop" spaces and the result is returned wrapped in pre tags
+       highlights for the Perl source code. Tabs are expanded to tabstop
+       spaces and the result is returned wrapped in pre tags
 
   Freelist
     New values entered into a text field can be added to the list. Existing
-    list values (passed in "$me->values") can be removed. The height of the
-    list is set by "$me->height".
+    list values (passed in values) can be removed. The height of the list is
+    set by height.
 
   GroupMembership
     Displays two lists which allow for membership of a group. The first
-    scrolling list contains "all" values ("$me->all"), the second contains
-    those values currently selected ("$me->current"). The height of the
-    scrolling lists is set by "$me->height"
+    scrolling list contains "all" values (all), the second contains those
+    values currently selected (current). The height of the scrolling lists
+    is set by height
 
   ImageButton
-    Generates an image button where "$me->name" identifies the image file in
-    "$me->assets" and is also used as the return value. The button name is
-    set to *_verb*
+    Generates an image button where name identifies the image file in assets
+    and is also used as the return value. The button name is set to *_verb*
 
   Label
-    Calls "$me->msg" with "$me->name" as the message key. If the text does
-    not exist "$me->text" is used. If "$me->dropcap" is true the first
-    character of the text is wrapped in a span of class *dropcap*
+    Calls msg with name as the message key. If the text does not exist text
+    is used. If dropcap is true the first character of the text is wrapped
+    in a span of class *dropcap*
 
   Note
-    Calls "$me->msg" with "$me->name" as the message key. If the text does
-    not exist "$me->text" is used. The text is wrapped in a div of class
-    *note* with "$me->align" setting the style text alignment and
-    "$me->width" setting the style width
+    Calls msg with name as the message key. If the text does not exist text
+    is used. The text is wrapped in a div of class *note* with align setting
+    the style text alignment and width setting the style width
 
   Password
-    Returns a password field of width "$me->width" which defaults to twenty
-    characters. If "$me->subtype" equals *verify* then the message
-    *vPasswordPrompt* and another password field are appended. The fields
-    "$me->id" and "$me->name" are expected to contain the digit 1 which will
-    be substituted for the digit 2 in the attributes of the second field
+    Returns a password field of width width which defaults to twenty
+    characters. If subtype equals *verify* then the message
+    *vPasswordPrompt* and another password field are appended. The fields id
+    and name are expected to contain the digit 1 which will be substituted
+    for the digit 2 in the attributes of the second field
 
   PopupMenu
     Returns a list of option elements wrapped in a select element. The list
-    of options is passed in "$me->values" with the display labels in
-    "$me->labels". The onchange event handler will be set to "$me->onchange"
+    of options is passed in values with the display labels in labels. The
+    onchange event handler will be set to onchange
 
   RadioGroup
-    The attribute "$me->columns" sets the number of columns for the returned
-    table of radio buttons. The list of button values is passed in
-    "$me->values" with the display labels in "$me->labels". The onchange
-    event handler will be set to "$me->onchange"
+    The attribute columns sets the number of columns for the returned table
+    of radio buttons. The list of button values is passed in values with the
+    display labels in labels. The onchange event handler will be set to
+    onchange
+
+  Rule
+    Generates a horizontal rule with optional clickable action
 
   ScrollingList
-    The "$me->height" attribute controls the height of the scrolling list.
-    The list of options is passed in "$me->values" with the display labels
-    in "$me->labels". The onchange event handler will be set to
-    "$me->onchange"
+    The height attribute controls the height of the scrolling list. The list
+    of options is passed in values with the display labels in labels. The
+    onchange event handler will be set to onchange
 
   Table
-    The input data is in "$me->data->{values}" which is an array ref for
-    which each element is an array ref containing the list of field values.
+    The input data is in data->{values} which is an array ref for which each
+    element is an array ref containing the list of field values.
 
   Template
-    Look in "$me->templatedir" for a Template::Toolkit template called
-    "$me->id" with a *.tt* extension. Slurp it in and return it as the
-    content for this widget. This provides for a "user defined" widget type
+    Look in templatedir for a Template::Toolkit template called id with a
+    *.tt* extension. Slurp it in and return it as the content for this
+    widget. This provides for a "user defined" widget type
 
   Textarea
-    A text area. It defaults to five lines high ("$me->height") and sixty
-    characters wide ("$me->width")
+    A text area. It defaults to five lines high (height) and sixty
+    characters wide (width)
 
   Textfield
     This is the default widget type. Your basic text field which defaults to
-    sixty characters wide ("$me->width")
+    sixty characters wide (width)
 
   Tree
     Implements an expanding tree of selectable objects. See "Bugs and
@@ -320,19 +319,28 @@ Dependencies
     Text::ParseWords
     Text::Tabs
 
-    Included in the distribution are the Javascript files whose functions
-    are called by the event handlers associated with these widgets
+    Included in the distribution are the Javascript files whose methods are
+    called by the event handlers associated with these widgets
 
-  mootools.js
+  10htmlparser.js
+       HTML Parser By John Resig (ejohn.org)
+       Original code by Erik Arvidsson, Mozilla Public License
+       http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
+
+    Used to reimplement "innerHTML" assignments from XHTML
+
+  20mootools.js
        Mootools - My Object Oriented javascript.
        License: MIT-style license.
        WWW: http://mootools.net/
 
-    Implements the Ajax methods used to perform server side field
-    validation. The included copy has a few hacks that improve the Accordion
-    widget
+    This is the main JS library used with this package
 
-  calendar.js
+  30ourtools.js
+    Replaces Mootools' "setHTML" method with one that uses the HTML parser.
+    The included copy has a few hacks that improve the Accordion widget
+
+  40calendar.js
        Author: Matt Kruse <matt@mattkruse.com>
        WWW: http://www.mattkruse.com/
 
@@ -360,18 +368,18 @@ Bugs and Limitations
     which are included in the distribution for completeness
 
     There are no known bugs in this module. Please report problems to the
-    address below. Patches are welcome.
+    address below. Patches are welcome
 
 Author
     Peter Flanigan, "<Support at RoxSoft.co.uk>"
 
 License and Copyright
-    Copyright (c) 2008 Peter Flanigan. All rights reserved.
+    Copyright (c) 2008 Peter Flanigan. All rights reserved
 
     This program is free software; you can redistribute it and/or modify it
-    under the same terms as Perl itself. See perlartistic.
+    under the same terms as Perl itself. See perlartistic
 
     This program is distributed in the hope that it will be useful, but
     WITHOUT WARRANTY; without even the implied warranty of MERCHANTABILITY
-    or FITNESS FOR A PARTICULAR PURPOSE.
+    or FITNESS FOR A PARTICULAR PURPOSE
 

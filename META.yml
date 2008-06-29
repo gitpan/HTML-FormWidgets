@@ -1,6 +1,6 @@
 ---
 name: HTML-FormWidgets
-version: 0.1.41
+version: 0.1.63
 author:
   - 'Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>'
 abstract: Create HTML form markup
@@ -16,10 +16,14 @@ requires:
   Text::Tabs: 98.112801
   perl: 5.8
   version: 0.74
+build_requires:
+  Test::More: 0.74
+configure_requires:
+  version: 0.74
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: 0.1.41
+    version: 0.1.63
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
     version: 0.1.41
@@ -28,25 +32,25 @@ provides:
     version: 0.1.28
   HTML::FormWidgets::Chooser:
     file: lib/HTML/FormWidgets/Chooser.pm
-    version: 0.1.28
+    version: 0.1.44
   HTML::FormWidgets::Cloud:
     file: lib/HTML/FormWidgets/Cloud.pm
-    version: 0.1.37
+    version: 0.1.44
   HTML::FormWidgets::Date:
     file: lib/HTML/FormWidgets/Date.pm
-    version: 0.1.26
+    version: 0.1.62
   HTML::FormWidgets::File:
     file: lib/HTML/FormWidgets/File.pm
     version: 0.1.33
   HTML::FormWidgets::Freelist:
     file: lib/HTML/FormWidgets/Freelist.pm
-    version: 0.1.23
+    version: 0.1.55
   HTML::FormWidgets::GroupMembership:
     file: lib/HTML/FormWidgets/GroupMembership.pm
-    version: 0.1.16
+    version: 0.1.55
   HTML::FormWidgets::ImageButton:
     file: lib/HTML/FormWidgets/ImageButton.pm
-    version: 0.1.16
+    version: 0.1.55
   HTML::FormWidgets::Label:
     file: lib/HTML/FormWidgets/Label.pm
     version: 0.1.13
@@ -62,12 +66,15 @@ provides:
   HTML::FormWidgets::RadioGroup:
     file: lib/HTML/FormWidgets/RadioGroup.pm
     version: 0.1.5
+  HTML::FormWidgets::Rule:
+    file: lib/HTML/FormWidgets/Rule.pm
+    version: 0.1.59
   HTML::FormWidgets::ScrollingList:
     file: lib/HTML/FormWidgets/ScrollingList.pm
     version: 0.1.5
   HTML::FormWidgets::Table:
     file: lib/HTML/FormWidgets/Table.pm
-    version: 0.1.26
+    version: 0.1.58
   HTML::FormWidgets::Template:
     file: lib/HTML/FormWidgets/Template.pm
     version: 0.1.24
@@ -82,5 +89,5 @@ provides:
     version: 0.1.5
 generated_by: Module::Build version 0.2808
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4

@@ -1,17 +1,17 @@
 package HTML::FormWidgets::Chooser;
 
-# @(#)$Id: Chooser.pm 28 2008-03-26 15:33:59Z pjf $
+# @(#)$Id: Chooser.pm 44 2008-06-02 10:53:51Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 28 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 44 $ =~ /\d+/gmx );
 
 sub _render {
    my ($me, $ref) = @_; my $onclick;
 
-   $onclick  = 'return submitObj.Chooser(';
+   $onclick  = 'return submitObj.chooser(';
    $onclick .= 'document.forms[0].'.$me->field.'.value, ';
    $onclick .= 'document.forms[0], ';
    $onclick .= '\''.$me->key.'\', ';
