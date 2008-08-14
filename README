@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    0.1.$Rev: 63 $
+    0.1.$Rev: 67 $
 
 Synopsis
        package MyApp::View::HTML;
@@ -316,6 +316,7 @@ Dependencies
     HTML::Accessors
     Readonly
     Syntax::Highlight::Perl
+    Text::Markdown
     Text::ParseWords
     Text::Tabs
 

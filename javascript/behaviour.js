@@ -1,4 +1,4 @@
-/* $Id: behaviour.js 61 2008-06-28 18:31:59Z pjf $ */
+/* $Id: behaviour.js 429 2008-06-28 00:43:12Z pjf $ */
 
 var State = new Class({
    options: {
