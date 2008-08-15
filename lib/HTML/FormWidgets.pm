@@ -1,6 +1,6 @@
 package HTML::FormWidgets;
 
-# @(#)$Id: FormWidgets.pm 67 2008-07-22 22:42:48Z pjf $
+# @(#)$Id: FormWidgets.pm 72 2008-08-15 10:44:27Z pjf $
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use HTML::Accessors;
 use Readonly;
 use Text::Markdown qw(markdown);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 67 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 72 $ =~ /\d+/gmx );
 
 Readonly my $NUL   => q();
 Readonly my $TTS   => q( ~ );
@@ -366,7 +366,7 @@ HTML::FormWidgets - Create HTML form markup
 
 =head1 Version
 
-0.1.$Rev: 67 $
+0.1.$Rev: 72 $
 
 =head1 Synopsis
 
@@ -858,3 +858,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
+
