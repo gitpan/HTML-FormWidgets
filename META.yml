@@ -1,6 +1,6 @@
 ---
 name: HTML-FormWidgets
-version: 0.1.72
+version: 0.1.75
 author:
   - 'Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>'
 abstract: Create HTML form markup
@@ -24,7 +24,7 @@ build_requires:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: 0.1.72
+    version: 0.1.75
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
     version: 0.1.41
@@ -33,7 +33,7 @@ provides:
     version: 0.1.28
   HTML::FormWidgets::Chooser:
     file: lib/HTML/FormWidgets/Chooser.pm
-    version: 0.1.44
+    version: 0.1.74
   HTML::FormWidgets::Cloud:
     file: lib/HTML/FormWidgets/Cloud.pm
     version: 0.1.44

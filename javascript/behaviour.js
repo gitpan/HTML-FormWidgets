@@ -1,4 +1,4 @@
-/* $Id: behaviour.js 429 2008-06-28 00:43:12Z pjf $ */
+/* $Id: behaviour.js 75 2008-09-06 15:40:09Z pjf $ */
 
 var State = new Class({
    options: {
@@ -25,8 +25,11 @@ var State = new Class({
       var append, content, elem, elemHeight, elemWidth, height = 5;
       var h = window.getHeight(), w = window.getWidth();
 
-      this.cookies.set( 'width',  w );
-      this.cookies.set( 'height', h );
+      if (!isPopup) {
+         this.cookies.set( 'width',  w );
+         this.cookies.set( 'height', h );
+      }
+
       window.defaultStatus = 'w: ' + w + ' h: ' + h;
 
       if (! (content = $( 'content' ))) return;

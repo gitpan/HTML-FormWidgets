@@ -1,12 +1,12 @@
 package HTML::FormWidgets::Chooser;
 
-# @(#)$Id: Chooser.pm 44 2008-06-02 10:53:51Z pjf $
+# @(#)$Id: Chooser.pm 74 2008-08-31 17:16:35Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 44 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 74 $ =~ /\d+/gmx );
 
 sub _render {
    my ($me, $ref) = @_; my $onclick;
@@ -21,8 +21,6 @@ sub _render {
    $onclick .= 'dependent=yes, titlebar=no, scrollbars=yes\')';
    $ref->{onclick} = $onclick;
    $ref->{value}   = $me->button;
-
-   push @{ $me->hide }, { name => q(_verb), value => q() };
 
    return $me->elem->submit( $ref );
 }
