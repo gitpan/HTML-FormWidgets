@@ -1,23 +1,36 @@
 package HTML::FormWidgets::Note;
 
-# @(#)$Id: Note.pm 24 2008-03-20 13:57:08Z pjf $
+# @(#)$Id: Note.pm 83 2008-09-24 00:27:50Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 24 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(width) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->container( 0 );
+   $self->sep(       q() );
+   $self->width(     undef );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref) = @_; my $text;
+   my ($self, $args) = @_; my $text;
 
-   $ref           = { class => q(note) };
-   $ref->{style} .= 'text-align: '.$me->align.q(;) if ($me->align);
-   $ref->{style} .= ' width: '.$me->width.q(;)     if ($me->width);
+   $args           = { class => q(note) };
+   $args->{style} .= 'text-align: '.$self->align.q(;) if ($self->align);
+   $args->{style} .= ' width: '.$self->width.q(;)     if ($self->width);
 
-   ($text = $me->msg( $me->name ) || $me->text || q()) =~ s{ \A \n }{}msx;
+   ($text = $self->msg( $self->name ) || $self->text) =~ s{ \A \n }{}msx;
 
-   return $me->elem->div( $ref, $text );
+   return $self->hacc->div( $args, $text );
 }
 
 1;

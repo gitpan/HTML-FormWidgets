@@ -1,20 +1,32 @@
 package HTML::FormWidgets::Textarea;
 
-# @(#)$Id: Textarea.pm 7 2008-02-18 00:45:41Z pjf $
+# @(#)$Id: Textarea.pm 83 2008-09-24 00:27:50Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 7 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(height width) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->height( 5);
+   $self->width(  60 );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref)  = @_;
+   my ($self, $args)  = @_;
 
-   $ref->{cols} = $me->width || 60;
-   $ref->{rows} = $me->height;
+   $args->{cols} = $self->width;
+   $args->{rows} = $self->height;
 
-   return $me->elem->textarea( $ref );
+   return $self->hacc->textarea( $args );
 }
 
 1;

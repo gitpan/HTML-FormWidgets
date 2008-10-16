@@ -1,21 +1,33 @@
 package HTML::FormWidgets::Cloud;
 
-# @(#)$Id: Cloud.pm 44 2008-06-02 10:53:51Z pjf $
+# @(#)$Id: Cloud.pm 83 2008-09-24 00:27:50Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 44 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(data js_obj) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->data(   {} );
+   $self->js_obj( q(tableObj.liveGrid) );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref) = @_;
+   my ($self, $args) = @_;
    my ($anchor, $attrs, $class, $class_pref, $hacc, $href, $html);
-   my ($id_pref, $item, $onclick, $style, $text);
+   my ($id_pref, $item, $onclick, $ref, $style, $text);
 
-   $hacc = $me->elem;
+   $hacc = $self->hacc;
 
-   for $item (@{ $me->data }) {
+   for $item (@{ $self->data }) {
       $ref        = $item->{value};
       $class_pref = $ref->{class_pref};
       $id_pref    = $ref->{id_pref   };
@@ -30,8 +42,8 @@ sub _render {
 
       if (!$href && !$onclick ) {
          $href     = 'javascript:Expand_Collapse()';
-         $onclick  = "tableObj.liveGrid('$id_pref', '".$ref->{name};
-         $onclick .= "', 'a~b', $ref->{table_len}, 1)";
+         $onclick  = $self->js_obj."('$id_pref', '".$ref->{name};
+         $onclick .= "', 'a~b', ".$ref->{table_len}.', 1)';
       }
 
       $attrs->{href   } = $href    if ($href);

@@ -1,167 +1,199 @@
 package HTML::FormWidgets::Table;
 
-# @(#)$Id: Table.pm 58 2008-06-28 00:42:24Z pjf $
+# @(#)$Id: Table.pm 94 2008-09-27 21:48:32Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 58 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 94 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(add_tip assets data edit hide js_obj
+                              remove_tip select) );
+
+sub init {
+   my ($self, $args) = @_; my $text;
+
+   $text  = 'Enter a new item into the adjacent text ';
+   $text .= 'fields and then click this button to add ';
+   $text .= 'it to the list';
+   $self->add_tip(    $self->msg( q(tableAddTip) ) || $text );
+   $self->assets(     q() );
+   $self->class(      q(small table) );
+   $self->container(  0 );
+   $self->data(       { flds => [], values => [] } );
+   $self->edit(       0 );
+   $self->hide(       [] );
+   $self->js_obj(     q(tableObj) );
+   $text  = 'Select one or more items from the ';
+   $text .= 'above list and then click this button ';
+   $text .= 'to remove them';
+   $self->remove_tip( $self->msg( q(tableRemoveTip) ) || $text );
+   $self->select(     q() );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref) = @_; my ($fld, $r_no, $rows, $text, $text1, $tip, $val);
+   my ($self, $args) = @_; my ($fld, $r_no, $rows, $text, $text1, $val);
 
-   my $cells      = q();
-   my $c_no       = 0;
-   my $def_class  = $me->class || q(small table);
-   my $data       = $me->data  || { flds => [], values => [] };
-   my $htag       = $me->elem;
+   my $c_no  = 0;
+   my $cells = q();
+   my $data  = $self->data;
+   my $hacc  = $self->hacc;
 
-   $me->container( undef );
-
-   $me->select( q() ) unless (defined $me->select);
-
-   if ($me->select eq q(left)) {
-      $ref           = { class => $def_class };
-      $ref->{class} .= $me->edit ? q( select) : q( minimal);
-      $cells        .= $htag->th( $ref, 'Select' );
+   if ($self->select eq q(left)) {
+      $args           = { class => $self->class };
+      $args->{class} .= $self->edit ? q( select) : q( minimal);
+      $cells         .= $hacc->th( $args, 'Select' );
    }
 
    for $fld (@{ $data->{flds} }) {
-      $ref = { class => $def_class };
+      $args = { class => $self->class };
 
       if (exists $data->{hclass}->{ $fld }) {
          next if ($data->{hclass}->{ $fld } eq q(hide));
 
-         $ref->{class} .= q( ).$data->{hclass}->{ $fld };
+         $args->{class} .= q( ).$data->{hclass}->{ $fld };
       }
 
-      $ref->{class} .= q( nowrap) unless (exists $data->{wrap}->{ $fld });
-      $cells        .= $htag->th( $ref, $data->{labels}->{ $fld } );
+      $args->{class} .= q( nowrap) unless (exists $data->{wrap}->{ $fld });
+      $cells         .= $hacc->th( $args, $data->{labels}->{ $fld } );
       $c_no++;
    }
 
-   if ($me->select eq q(right)) {
-      $ref           = { class => $def_class };
-      $ref->{class} .= $me->edit ? q( select) : q( minimal);
-      $cells        .= $htag->th( $ref, 'Select' );
+   if ($self->select eq q(right)) {
+      $args           = { class => $self->class };
+      $args->{class} .= $self->edit ? q( select) : q( minimal);
+      $cells         .= $hacc->th( $args, 'Select' );
    }
 
-   $rows = $htag->tr( $cells ); $r_no = 0;
+   $rows = $hacc->tr( $cells ); $r_no = 0;
 
    for $val (@{ $data->{values} }) {
       $cells = q(); $c_no = 0;
 
-      if ($me->select eq q(left) and $data->{values}->[0]) {
-         $cells .= $me->_check_box( $r_no, $c_no, $val );
+      if ($self->select eq q(left) and $data->{values}->[0]) {
+         $cells .= $self->_check_box( $r_no, $c_no, $val );
       }
 
       for $fld (@{ $data->{flds} }) {
-         if ($me->edit) {
-            $ref              = {};
-            $ref->{default  } = $val->{ $fld };
-            $ref->{maxlength} = $data->{maxlengths}->{ $fld }
-               if (exists $data->{maxlengths}->{ $fld });
-            $ref->{name     } = $me->name.q(_).$fld.q(_).$r_no;
-            $ref->{size     } = exists $data->{sizes}->{ $fld }
-                              ? $data->{sizes}->{ $fld } : 10;
-            $text             = $htag->textfield( $ref );
-            $ref              = { class => q(dataValue) };
-            $ref->{class}    .= q( nowrap)
-               unless (exists $data->{wrap}->{ $fld });
-            $cells           .= $htag->td( $ref, $text );
+         if ($self->edit) {
+            $args            = {};
+            $args->{default} = $val->{ $fld };
+
+            if (exists $data->{maxlengths}->{ $fld }) {
+               $args->{maxlength} = $data->{maxlengths}->{ $fld };
+            }
+
+            $args->{name} = $self->name.q(_).$fld.$r_no;
+            $args->{size} = exists $data->{sizes}->{ $fld }
+                          ? $data->{sizes}->{ $fld } : 10;
+            $text         = $hacc->textfield( $args );
+            $args         = { class => q(dataValue) };
+
+            unless (exists $data->{wrap}->{ $fld }) {
+               $args->{class} .= q( nowrap);
+            }
+
+            $cells .= $hacc->td( $args, $text );
          }
          else {
             next if ($data->{hclass}->{ $fld }
                      and $data->{hclass}->{ $fld } eq q(hide));
 
-            $ref              = {};
-            $ref->{align}     = exists $data->{align}->{ $fld }
-                              ? $data->{align}->{ $fld } : q(left);
+            $args          = {};
+            $args->{align} = exists $data->{align}->{ $fld }
+                           ? $data->{align}->{ $fld } : q(left);
 
             if ($val->{class} and exists $val->{class}->{ $fld }) {
-               $ref->{class}  = $val->{class}->{ $fld };
+               $args->{class}  = $val->{class}->{ $fld };
             } else {
-               $ref->{class}  = $c_no % 2 == 0 ? q(even) : q(odd);
-               $ref->{class} .= q( ).($data->{class} || q(dataValue));
+               $args->{class}  = $c_no % 2 == 0 ? q(even) : q(odd);
+               $args->{class} .= q( ).($data->{class} || q(dataValue));
             }
 
-            $ref->{class}    .= q( nowrap)
-               unless (exists $data->{wrap}->{ $fld });
-            $cells .= $htag->td( $ref, $val->{ $fld } || q(&nbsp;) )."\n";
+            unless (exists $data->{wrap}->{ $fld }) {
+               $args->{class} .= q( nowrap);
+            }
+
+            $cells .= $hacc->td( $args, $val->{ $fld } || q(&nbsp;) )."\n";
          }
 
          $c_no++;
       }
 
-      if ($me->select eq q(right) and $data->{values}->[0]) {
-         $cells .= $me->_check_box( $r_no, $c_no, $val );
+      if ($self->select eq q(right) and $data->{values}->[0]) {
+         $cells .= $self->_check_box( $r_no, $c_no, $val );
       }
 
-      $ref   = { id => $me->name.q(_row).$r_no };
-      $rows .= $htag->tr( $ref, $cells ); $r_no++;
+      $args  = { id => $self->name.q(_row).$r_no };
+      $rows .= $hacc->tr( $args, $cells ); $r_no++;
    }
 
-   push @{ $me->hide }, { name => $me->name.q(_nrows), value => $r_no };
+   push @{ $self->hide }, { name => $self->name.q(_nrows), value => $r_no };
 
-   if ($me->edit) {
+   if ($self->edit) {
       $cells = q();
 
       for $c_no (0 .. $#{ $data->{flds} }) {
-         $fld              = $data->{flds}->[ $c_no ];
-         $ref              = { id => $me->name.q(_add).$c_no };
-         $ref->{maxlength} = $data->{maxlengths}->{ $fld }
-            if (exists $data->{maxlengths}->{ $fld });
-         $ref->{name     } = $me->name.q(_).$fld;
-         $ref->{size     } = exists $data->{sizes}->{ $fld }
-                           ? $data->{sizes}->{ $fld } : 10;
-         $text             = $htag->textfield( $ref );
-         $cells           .= $htag->td( $text );
+         $fld  = $data->{flds}->[ $c_no ];
+         $args = { id => $self->name.q(_add).$c_no };
+
+         if (exists $data->{maxlengths}->{ $fld }) {
+            $args->{maxlength} = $data->{maxlengths}->{ $fld };
+         }
+
+         $args->{name}  = $self->name.q(_).$fld;
+         $args->{size}  = exists $data->{sizes}->{ $fld }
+                        ? $data->{sizes}->{ $fld } : 10;
+         $text          = $hacc->textfield( $args );
+         $cells        .= $hacc->td( $text );
       }
 
-      $ref            = {};
-      $ref->{class  } = $ref->{name} = q(button);
-      $ref->{onclick} = 'return tableObj.addTableRow(\''.$me->name.'\', 1)';
-      $ref->{src    } = $me->assets.'AddItem.png';
-      $ref->{value  } = $me->name.q(_add);
-      $text           = $htag->image_button( $ref );
-      $tip            = 'Enter a new item into the adjacent text ';
-      $tip           .= 'fields and then click this button to add ';
-      $tip           .= 'it to the list';
-      $ref            = { class => q(help tips), title => $tip };
-      $text           = $htag->span( $ref, $text );
+      $args             = {};
+      $args->{class  }  = $args->{name} = q(button);
+      $args->{onclick}  = 'return '.$self->js_obj.".addTableRow('";
+      $args->{onclick} .= $self->name."', 1)";
+      $args->{src    }  = $self->assets.'add_item.png';
+      $args->{value  }  = $self->name.q(_add);
+      $text             = $hacc->image_button( $args );
+      $args             = { class => q(help tips), title => $self->add_tip };
+      $text             = $hacc->span( $args, $text );
 
-      if ($me->select) {
-         $ref            = {};
-         $ref->{class  } = $ref->{name} = q(button);
-         $ref->{onclick} = 'return tableObj.removeTableRow(\''.$me->name.'\')';
-         $ref->{src    } = $me->assets.'RemoveItem.png';
-         $ref->{value  } = $me->name.q(_remove);
-         $text1          = $htag->image_button( $ref );
-         $tip            = 'Select one or more items from the ';
-         $tip           .= 'above list and then click this button ';
-         $tip           .= 'to remove them';
-         $ref            = { class => q(help tips), title => $tip };
-         $text          .= $htag->span( $ref, $text1 );
+      if ($self->select) {
+         $args             = {};
+         $args->{class  }  = $args->{name} = q(button);
+         $args->{onclick}  = 'return '.$self->js_obj;
+         $args->{onclick} .= ".removeTableRow('".$self->name."')";
+         $args->{src    }  = $self->assets.'remove_item.png';
+         $args->{value  }  = $self->name.q(_remove);
+         $text1            = $hacc->image_button( $args );
+         $args             = { class => q(help tips),
+                               title => $self->remove_tip };
+         $text            .= $hacc->span( $args, $text1 );
       }
 
-      $cells .= $htag->td( $text );
-      $rows  .= $htag->tr( { id => $me->name.q(_add) }, $cells );
+      $cells .= $hacc->td( $text );
+      $rows  .= $hacc->tr( { id => $self->name.q(_add) }, $cells );
    }
 
-   return $htag->table( { class => ($me->prompt ? q(form) : q(std))}, $rows );
+   return $hacc->table( { class => ($self->prompt ? q(form) : q(std)) },
+                        $rows );
 }
 
 # Private methods
 
 sub _check_box {
-   my ($me, $r_no, $c_no, $val) = @_; my ($text, $ref);
+   my ($self, $r_no, $c_no, $val) = @_; my ($text, $args);
 
-   $ref  = { name => $me->name.q(_select).$r_no };
-   $ref->{value} = $val->{id} if ($val->{id});
-   $text = $me->elem->checkbox( $ref );
-   $ref  = { align => q(center), class => $c_no % 2 == 0 ? q(even) : q(odd) };
-   return $me->elem->td( $ref, $text );
+   $args = { name => $self->name.q(_select).$r_no };
+   $args->{value} = $val->{id} if ($val->{id});
+   $text = $self->hacc->checkbox( $args );
+   $args = { align => q(center), class => $c_no % 2 == 0 ? q(even) : q(odd) };
+
+   return $self->hacc->td( $args, $text );
 }
 
 1;

@@ -1,21 +1,35 @@
 package HTML::FormWidgets::ScrollingList;
 
-# @(#)$Id: ScrollingList.pm 5 2008-02-11 00:30:56Z pjf $
+# @(#)$Id: ScrollingList.pm 83 2008-09-24 00:27:50Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 5 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(height labels values) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->height( 10 );
+   $self->labels( undef );
+   $self->values( [] );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref)   = @_;
+   my ($self, $args) = @_;
 
-   $ref->{labels}   = $me->labels   if ($me->labels);
-   $ref->{onchange} = $me->onchange if ($me->onchange);
-   $ref->{size}     = $me->height;
-   $ref->{values}   = $me->values;
-   return $me->elem->scrolling_list( $ref );
+   $args->{labels}   = $self->labels   if ($self->labels);
+   $args->{onchange} = $self->onchange if ($self->onchange);
+   $args->{size}     = $self->height;
+   $args->{values}   = $self->values;
+
+   return $self->hacc->scrolling_list( $args );
 }
 
 1;

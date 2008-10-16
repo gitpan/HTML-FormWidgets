@@ -1,77 +1,44 @@
 package HTML::FormWidgets;
 
-# @(#)$Id: FormWidgets.pm 75 2008-09-06 15:40:09Z pjf $
+# @(#)$Id: FormWidgets.pm 102 2008-10-16 10:34:17Z pjf $
 
 use strict;
 use warnings;
-use base    qw(Class::Data::Accessor);
-use English qw(-no_match_vars);
-use File::Spec::Functions;
+use base qw(Class::Accessor::Fast);
+use Class::Inspector;
 use HTML::Accessors;
-use Readonly;
 use Text::Markdown qw(markdown);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 75 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 102 $ =~ /\d+/gmx );
 
-Readonly my $NUL   => q();
-Readonly my $TTS   => q( ~ );
-Readonly my %ATTRS =>
-   ( ajaxid       => undef,         ajaxtext     => undef,
-     align        => q(left),       all          => [],
-     alt          => undef,
-     assets       => $NUL,          atitle       => 'All',
-     base         => $NUL,          behaviour    => q(classic),
-     button       => $NUL,          checked      => 0,
-     class        => $NUL,          clear        => $NUL,
-     columns      => undef,         container    => undef,
-     content_type => q(application/xhtml+xml),
-     ctitle       => 'Current',     current      => [],
-     data         => {},            default      => undef,
-     dropcap      => 0,             edit         => 0,
-     elem         => undef,         evnt_hndlr   => 'serverObj.checkField',
-     field        => $NUL,          fields       => {},
-     form         => {},            'format'     => undef,
-     fhelp        => $NUL,          header       => undef,
-     height       => undef,         hide         => [],
-     hint_title   => 'Handy Hint',  href         => undef,
-     id           => undef,         id2key       => {},
-     imgclass     => undef,
-     key          => $NUL,          key2id       => {},
-     key2url      => {},            labels       => undef,
-     max_length   => undef,         messages     => undef,
-     name         => $NUL,          nb_symbol    => q(&nbsp;&dagger;),
-     node         => undef,         nowrap       => 0,
-     onblur       => undef,         onchange     => undef,
-     onclick      => undef,         onkeypress   => undef,
-     palign       => undef,         path         => undef,
-     prompt       => $NUL,          fields       => {},
-     pwidth       => 40,            required     => 0,
-     root         => undef,         select       => undef,
-     sep          => q(&nbsp;:&nbsp;),
-     space        => q(&nbsp;) x 3, stepno       => undef,
-     style        => $NUL,          subtype      => undef,
-     swidth       => 1000,          tabstop      => 3,
-     target       => $NUL,          templatedir  => undef,
-     text         => $NUL,
-     text_obj     => undef,         tip          => $NUL,
-     tiptype      => q(dagger),     title        => $NUL,
-     type         => undef,         url          => undef,
-     value        => 1,             values       => [],
-     width        => undef, );
+my $NUL   = q();
+my $TTS   = q( ~ );
+my %ATTRS =
+   ( ajaxid       => undef,             ajaxtext     => undef,
+     align        => q(left),           class        => $NUL,
+     clear        => $NUL,              container    => 1,
+     content_type => q(text/html),      default      => undef,
+     evnt_hndlr   => q(serverObj.checkField),
+     fhelp        => $NUL,              hacc         => undef,
+     hint_title   => 'Handy Hint',      id           => undef,
+     messages     => undef,             name         => undef,
+     nb_symbol    => q(&nbsp;&dagger;), nowrap       => 0,
+     onblur       => undef,             onchange     => undef,
+     onkeypress   => undef,             palign       => undef,
+     prompt       => $NUL,              pwidth       => 40,
+     required     => 0,                 sep          => q(&nbsp;:&nbsp;),
+     space        => q(&nbsp;) x 3,     stepno       => undef,
+     swidth       => 1000,              tabstop      => 3,
+     text         => $NUL,              text_obj     => undef,
+     tip          => $NUL,              tiptype      => q(dagger),
+     type         => undef, );
 
-Readonly my @STATIC => (
-   qw(atitle align behaviour checked class clear container ctitle edit
-      fhelp format height hint_title max_length max_value min_length
-      min_value nowrap onchange onkeypress palign prompt pwidth
-      required select sep stepno subtype tabstop text tip tiptype
-      width) );
-
-__PACKAGE__->mk_classaccessors( keys %ATTRS );
+__PACKAGE__->mk_accessors( keys %ATTRS );
 
 # Class methods
 
 sub build {
-   my ($me, $config, $form) = @_; my ($item, $list, $ref, @tmp, $widget);
+   my ($self, $config, $form) = @_; my ($item, $list, $ref, @tmp, $widget);
 
    for $list (@{ $form }) {
       next unless ($list && ref $list eq q(HASH));
@@ -81,10 +48,10 @@ sub build {
       for $item (@{ $list->{items} }) {
          if (ref $item->{content} eq q(HASH)) {
             if ($item->{content}->{group}) {
-               $ref = { content => $me->_group_fields( $item, \@tmp ) };
+               $ref = { content => $self->_group_fields( $item, \@tmp ) };
             }
             elsif ($item->{content}->{widget}) {
-               $widget = $me->new( $me->_merge_config( $config, $item ) );
+               $widget = $self->new( $self->_merge_config( $config, $item ) );
                $ref    = { content => $widget->render };
                $ref->{class} = $widget->class if ($widget->class);
             }
@@ -103,116 +70,57 @@ sub build {
 }
 
 sub new {
-   my ($me, @rest) = @_;
-   my $args        = $me->_arg_list( @rest );
-   my ($class, $method, $msg_id, $ref, $self, $suffix, $text, @tmp, $val);
+   my ($proto, @rest) = @_; my $args = $proto->_arg_list( @rest );
+   my ($class, $msg_id, $ref, $self, $suffix, $text, @tmp, $val);
 
    # Start with some hard coded defaults;
-   $self = { %ATTRS };
+   $self = bless { %ATTRS }, ref $proto || $proto;
 
-   # Now we can create HTML elements like we could with CGI.pm
-   $ref = { content_type => $args->{content_type} } if ($args->{content_type});
-   $self->{elem} = HTML::Accessors->new( $ref );
-
-   $suffix = $args->{content_type} && $args->{content_type} eq q(text/html)
-           ? q(>) : q( />);
-
-   # Bare minimum is fields + id to get a useful widget
-   for (qw(ajaxid fields id name)) {
-      $self->{ $_ } = $args->{ $_ } if (exists $args->{ $_ });
-   }
-
-   # Defaults id from name (least significant) from id from ajaxid (most sig.)
-   $self->{id} = $self->{ajaxid} if (!$self->{id} && $self->{ajaxid});
-
-   if (!$self->{name} && $self->{id}) {
-      if ($self->{id} =~ m{ \. }mx) {
-         (undef, $self->{name}) = split m{ \. }mx, $self->{id};
-      }
-      else { ($self->{name}) = reverse split m{ _ }mx, $self->{id} }
-   }
-
-   $self->{id} = $self->{name} if (!$self->{id} && $self->{name});
-
-   # Get static attributes for this id from the fields passed in $args
-   if ($self->{id}
-       && $self->{fields}
-       && defined $self->{fields}->{ $self->{id} }) {
-      for (@STATIC) {
-         if (defined( $val = $self->{fields}->{ $self->{id} }->{ $_ } )) {
-            $self->{ $_ } = $val;
-         }
-      }
-   }
-
-   # Passed args override XML config
-   for (grep { exists $self->{ lc $_ } } keys %{ $args }) {
-      $self->{ lc $_ } = $args->{ $_ };
-   }
-
-   # We can get the widget type from the fields in level.xml
-   if ( ! $self->{type}
-       && $self->{id}
-       && $self->{fields}
-       && $self->{fields}->{ $self->{id} }
-       && $self->{fields}->{ $self->{id} }->{type}) {
-      $self->{type} = $self->{fields}->{ $self->{id} }->{type};
-   }
-
-   $self->{type} = q(textfield) unless ($self->{type});
+   $self->_set_name_id_and_type( $args );
 
    # Your basic factory method trick
    $class = __PACKAGE__.q(::).(ucfirst $self->{type});
-   ## no critic
-   eval "require $class;";
-   ## critic
+   $self->_ensure_class_loaded( $class );
 
-   if ($EVAL_ERROR) {
-      $self->{text} = $EVAL_ERROR; $self->{type} = undef;
-   }
+   # Allow the subclass to set it's own defaults
+   $self->init( $args );
 
-   bless $self, $class;
+   # Now we can create HTML elements like we could with CGI.pm
+   $ref = { content_type => $self->content_type };
+   $self->hacc( HTML::Accessors->new( $ref ) );
 
-   $self->{nodeId} = q(node_0); # Define accessor by hand to auto increment
-
+   # Create a Text::Markdown object for use by the msgs method
+   $suffix = $self->content_type eq q(text/html) ? q(>) : q( />);
    $self->text_obj( Text::Markdown->new
                     ( empty_element_suffix => $suffix,
                       tab_width            => $self->tabstop ) );
 
-   # Pander to lazy filling out of static definitions
-   $self->container( $self->type =~ m{ chooser|file|label|note }mx ? 0 : 1 )
-      unless (defined $self->container);
-
    if ($self->ajaxid) {
-      $msg_id = $self->fields
-              ? $self->fields->{ $self->ajaxid }->{validate}
-              : $NUL;
+      # Set the ajax field validation message
+      $msg_id = exists $args->{fields}->{ $self->ajaxid }
+              ? $args->{fields}->{ $self->ajaxid }->{validate} : $NUL;
       $msg_id = $msg_id->[0] if (ref $msg_id eq q(ARRAY));
-      $text   = $self->msg( $msg_id ) || 'Invalid field value';
+      $text   = $self->ajaxtext
+             || $self->msg( $msg_id ) || 'Invalid field value';
       $self->ajaxtext( $text );
 
       # Install default JavaScript event handler
       unless ($self->onblur || $self->onchange || $self->onkeypress) {
-         $text = $self->evnt_hndlr.'(\''.$self->ajaxid.'\', this.value)';
+         $text = $self->evnt_hndlr."('".$self->ajaxid."', this.value)";
          $self->onblur( $text );
       }
    }
 
    $self->hint_title( $text ) if ($text = $self->msg( q(handy_hint_title) ));
 
-   unless (defined $self->height) {
-      $self->height( $self->type eq q(groupMembership) ||
-                     $self->type eq q(scrollingList) ? 10 : 5 );
-   }
-
+   # Calculate the prompt width
    if ($self->pwidth && ($self->pwidth =~ m{ \A \d+ \z }mx)) {
       $self->pwidth( (int $self->pwidth * $self->swidth / 100).q(px) );
    }
 
-   $self->sep( $NUL ) if ($self->type eq q(note));
-   $self->sep( $NUL ) if (!$self->prompt && !$self->fhelp);
-   $self->sep( $NUL ) if ($self->sep =~ m{ \A \d+ \z }mx && $self->sep == 0);
-   $self->sep( $self->space ) if ($self->sep && $self->sep eq q(space));
+   $self->sep( $NUL )         if (!$self->sep);
+   $self->sep( $NUL )         if (!$self->prompt && !$self->fhelp);
+   $self->sep( $self->space ) if ($self->sep eq q(space));
 
    if (defined $self->stepno && $self->stepno == 0) {
       $self->stepno( $self->space );
@@ -227,91 +135,121 @@ sub new {
 
 # Object methods
 
+sub init {
+   my ($self, $args) = @_; my ($fields, %skip, $val);
+
+   %skip = ( qw(ajaxid 1 id 1 name 1 type 1) );
+
+   if ($self->id && $args->{fields} && exists $args->{fields}->{ $self->id }) {
+      $fields = $args->{fields}->{ $self->id };
+
+      for (keys %{ $fields }) {
+         if ( ! $skip{ $_ }
+             && exists $self->{ $_ }
+             && defined ($val = $fields->{ $_ })) {
+            $self->$_( $val );
+         }
+      }
+   }
+
+   for (keys %{ $args }) {
+      if ( ! $skip{ $_ }
+          && exists $self->{ $_ }
+          && defined ($val = $args->{ $_ })) {
+         $self->$_( $val );
+      }
+   }
+
+   return;
+}
+
 sub msg {
    # Return the language dependant text of the requested message
-   my ($me, $name, $args) = @_; my ($key, $msgs, $pat, $text, $val);
+   my ($self, $name, $args) = @_; my ($key, $msgs, $pat, $text, $val);
 
-   return q() unless ($name && ($msgs = $me->messages));
+   return $NUL unless ($name && ($msgs = $self->messages));
 
    if (exists $msgs->{ $name } && ($text = $msgs->{ $name }->{text})) {
       if ($msgs->{ $name }->{markdown}) {
-         $text = $me->text_obj->markdown( $text );
+         $text = $self->text_obj->markdown( $text );
       }
 
       if ($args) {
          # Inflate arg values enclosed in [%%]
          for $key (keys %{ $args }) {
             $pat  = q(\[% \s+ ).$key.q( \s+ %\]);
-            $val  = $args->{ $key } || q();
+            $val  = $args->{ $key } || $NUL;
             $text =~ s{ $pat }{$val}gmx;
          }
       }
    }
-   else { $text = q() }
+   else { $text = $NUL }
 
    return $text;
 }
 
 sub render {
-   my $me = shift; my ($field, $htag, $html, $method, $ref, $tip);
+   my $self = shift; my ($field, $hacc, $html, $ref, $tip);
 
-   return $me->text || $NUL unless ($me->type);
+   return $self->text || $NUL unless ($self->type);
 
-   $htag  = $me->elem;
-   $html  = $me->clear eq q(left) ? $htag->br() : "\n";
+   $hacc = $self->hacc;
+   $html = "\n".($self->clear eq q(left) ? $hacc->br() : $NUL);
 
-   if ($me->stepno) {
-      $html .= $htag->span( { class => q(lineNumber) }, $me->stepno );
+   if ($self->stepno) {
+      $html .= $hacc->span( { class => q(lineNumber) }, $self->stepno );
    }
 
-   if ($me->prompt) {
+   if ($self->prompt) {
       $ref           = { class => q(prompt) };
-      $ref->{for  }  = $me->id                         if ($me->id);
-      $ref->{style} .= 'text-align: '.$me->palign.'; ' if ($me->palign);
-      $ref->{style} .= 'white-space: nowrap; '         if ($me->nowrap);
-      $ref->{style} .= 'width: '.$me->pwidth.q(;)      if ($me->pwidth);
-      $html         .= $htag->label( $ref, $me->prompt );
+      $ref->{for  }  = $self->id                         if ($self->id);
+      $ref->{style} .= 'text-align: '.$self->palign.'; ' if ($self->palign);
+      $ref->{style} .= 'white-space: nowrap; '           if ($self->nowrap);
+      $ref->{style} .= 'width: '.$self->pwidth.q(;)      if ($self->pwidth);
+      $html         .= $hacc->label( $ref, $self->prompt );
    }
 
-   if ($me->type eq q(groupMembership)) {
+   if ($self->type eq q(groupMembership)) {
       $ref           = { class => q(instructions) };
-      $ref->{style} .= 'text-align: '.$me->palign.'; ' if ($me->palign);
-      $ref->{style} .= 'width: '.$me->pwidth.q(;)      if ($me->pwidth);
-      $html         .= $htag->div( $ref, $me->fhelp );
+      $ref->{style} .= 'text-align: '.$self->palign.'; ' if ($self->palign);
+      $ref->{style} .= 'width: '.$self->pwidth.q(;)      if ($self->pwidth);
+      $html         .= $hacc->div( $ref, $self->fhelp );
    }
 
-   $html .= $htag->div( { class => q(separator) }, $me->sep ) if ($me->sep);
+   if ($self->sep) {
+      $html .= $hacc->div( { class => q(separator) }, $self->sep );
+   }
 
    $ref               = {};
-   $ref->{class     } = q(required)     if ($me->required);
-   $ref->{default   } = $me->default    if ($me->default);
-   $ref->{id        } = $me->id         if ($me->id);
-   $ref->{name      } = $me->name       if ($me->name);
-   $ref->{onblur    } = $me->onblur     if ($me->onblur);
-   $ref->{onkeypress} = $me->onkeypress if ($me->onkeypress);
+   $ref->{class     } = q(required)       if ($self->required);
+   $ref->{default   } = $self->default    if ($self->default);
+   $ref->{id        } = $self->id         if ($self->id);
+   $ref->{name      } = $self->name       if ($self->name);
+   $ref->{onblur    } = $self->onblur     if ($self->onblur);
+   $ref->{onkeypress} = $self->onkeypress if ($self->onkeypress);
 
-   return $html unless ($field = $me->_render( $ref ));
+   return $html unless ($field = $self->_render( $ref ));
 
-   if ($tip = $me->tip) {
+   if ($tip = $self->tip) {
       $tip =~ s{ \n }{ }gmx;
-      $tip = $me->hint_title.$TTS.$tip if ($tip !~ m{ $TTS }mx);
+      $tip = $self->hint_title.$TTS.$tip if ($tip !~ m{ $TTS }mx);
       $tip =~ s{ \s+ }{ }gmx;
       $ref = { class => q(help tips), title => $tip };
 
-      if ($me->tiptype ne q(dagger)) { $field = $htag->span( $ref, $field ) }
-      else { $field .= $htag->span( $ref, $me->nb_symbol ) }
+      if ($self->tiptype ne q(dagger)) { $field = $hacc->span( $ref, $field ) }
+      else { $field .= $hacc->span( $ref, $self->nb_symbol ) }
    }
 
-   if ($me->container) {
-      $ref   = { class => q(container ).$me->align };
-      $field = $htag->div( $ref, $field );
+   if ($self->container) {
+      $ref   = { class => q(container ).$self->align };
+      $field = $hacc->div( $ref, $field );
    }
 
-   if ($me->ajaxid) {
-      $ref    = { class => q(hidden), id => $me->ajaxid.q(_checkField) };
-      $field .= $htag->div( $ref, $htag->br().$me->ajaxtext );
+   if ($self->ajaxid) {
+      $ref    = { class => q(hidden), id => $self->ajaxid.q(_checkField) };
+      $field .= $hacc->div( $ref, $hacc->br().$self->ajaxtext );
       $ref    = { class => q(container) };
-      $field  = $htag->div( $ref, $field );
+      $field  = $hacc->div( $ref, $field );
    }
 
    return $html.$field;
@@ -320,38 +258,107 @@ sub render {
 # Private methods
 
 sub _arg_list {
-   my ($me, @rest) = @_;
+   my ($self, @rest) = @_;
 
    return {} unless ($rest[0]);
 
    return ref $rest[0] eq q(HASH) ? $rest[0] : { @rest };
 }
 
+sub _ensure_class_loaded {
+   my ($self, $class) = @_; my $error;
+
+   {
+## no critic
+      local $@;
+      eval "require $class;";
+      $error = $@;
+## critic
+   }
+
+   if ($error) {
+      $self->_set_error( $error );
+      return;
+   }
+
+   unless (Class::Inspector->loaded( $class )) {
+      $self->_set_error( "Failed to load class $class" );
+      return;
+   }
+
+   bless $self, $class;
+   return;
+}
+
 sub _group_fields {
-   my ($me, $item, $list) = @_; my $html = $NUL; my $ref;
+   my ($self, $item, $list) = @_; my $html = $NUL; my $ref;
 
    for (1 .. $item->{content}->{nitems}) {
       $ref  = pop @{ $list }; chomp $ref->{content};
       $html = $ref->{content}.$html;
    }
 
-   my $htag   = HTML::Accessors->new();
-   my $legend = $htag->legend( $item->{content}->{text} );
-   return "\n".$htag->fieldset( "\n".$legend.$html );
+   my $hacc   = HTML::Accessors->new();
+   my $legend = $hacc->legend( $item->{content}->{text} );
+   return "\n".$hacc->fieldset( "\n".$legend.$html );
 }
 
 sub _merge_config {
-   my ($me, $config, $item) = @_;
+   my ($self, $config, $item) = @_;
 
    return { %{ $config }, %{ $item->{content} } };
 }
 
 sub _render {
-   my ($me, $ref) = @_;
+   my ($self, $ref) = @_;
 
-   return $me->text if ($me->text);
+   return $self->text if ($self->text);
 
-   return 'No _render method for field '.($ref->{id} || '*unknown id*');
+   my $id = $ref->{id} || '*unknown id*';
+   $self->_set_error( "No _render method for field $id" );
+   return;
+}
+
+sub _set_error {
+   my ($self, $error) = @_;
+
+   $self->{text} = $error;
+   return;
+}
+
+sub _set_name_id_and_type {
+   my ($self, $args) = @_;
+
+   # Bare minimum is fields + id to get a useful widget
+   for (qw(ajaxid id name type)) {
+      $self->{ $_ } = $args->{ $_ } if (exists $args->{ $_ });
+   }
+
+   # Defaults id from name (least significant) from id from ajaxid (most sig.)
+   $self->{id} = $self->{ajaxid} if (!$self->{id} && $self->{ajaxid});
+
+   if (!$self->{name} && $self->{id}) {
+      if ($self->{id} =~ m{ \. }mx) {
+         $self->{name} = (split m{ \. }mx, $self->{id})[1];
+      }
+      else { $self->{name} = (reverse split m{ _ }mx, $self->{id})[0] }
+   }
+
+   $self->{id} = $self->{name} if (!$self->{id} && $self->{name});
+
+   # We can get the widget type from the config file
+   if ( ! $self->{type}
+       && $self->{id}
+       && exists $args->{fields}
+       && exists $args->{fields}->{ $self->{id} }
+       && exists $args->{fields}->{ $self->{id} }->{type}) {
+      $self->{type} = $args->{fields}->{ $self->{id} }->{type};
+   }
+
+   $self->{type} = q(textfield) unless ($self->{type});
+
+   $self->{name} = $self->{type} unless ($self->{name});
+   return;
 }
 
 1;
@@ -366,7 +373,7 @@ HTML::FormWidgets - Create HTML form markup
 
 =head1 Version
 
-0.1.$Rev: 75 $
+0.2.$Rev: 102 $
 
 =head1 Synopsis
 
@@ -376,10 +383,10 @@ HTML::FormWidgets - Create HTML form markup
    use HTML::FormWidgets;
 
    sub build_form {
-      my ($me, $c) = @_;
-      my $s        = $c->stash;
-      my $form     = [ $s->{iFrame} ];
-      my $config   = {};
+      my ($self, $c) = @_;
+      my $s          = $c->stash;
+      my $form       = [ $s->{iFrame} ];
+      my $config     = {};
 
       $config->{root        } = $c->config->{root};
       $config->{base        } = $c->req->base;
@@ -425,14 +432,26 @@ data structure
 
 =head2 new
 
-Construct a widget. Mostly this is called by the C<build> method. It
+   $self = $class->new( [{] key1 => value1, ... [}] );
+
+Construct a widget. Mostly this is called by the L</build> method. It
 requires the factory subclass for the widget type.
 
 This method takes a large number of options with each widget using
 only few of them. Each option is described in the factory subclasses
 which use that option
 
+=head2 init
+
+   $self->init( $args );
+
+Initialises this object with data from the passed arguments. This is
+usually overridden in the factory subclass which sets the default for
+it's own attributes and then calls this method in the base class
+
 =head2 msg
+
+   $message_text = $self->msg( $message_id );
 
 Use the supplied key to return a value from the B<messages>
 hash. This hash was passed to the constructor and should contain any
@@ -499,6 +518,11 @@ server side validation
 Accepts either a single argument of a hash ref or a list of key/value
 pairs. Returns a hash ref in either case.
 
+=head2 _ensure_class_loaded
+
+Once the factory subclass is known this method ensures that it is loaded
+and then re-blesses the self referential object into the correct class
+
 =head2 _group_fields
 
 Wraps the top B<nitems> widgets on the build stack in a fieldset
@@ -515,9 +539,19 @@ This should have been overridden in the factory subclass. If it gets
 called its probably an error so return the value of our C<text>
 attribute if set or an error message otherwise
 
+=head2 _set_error
+
+Stores the passed error message in the C<text> attribute so that it
+gets rendered in place of the widget
+
+=head2 _set_id_name_and_type
+
+Determine the C<id>, C<name> and C<type> of the widget from the supplied
+arguments
+
 =head1 Configuration and Environment
 
-The following are passed to C<build> in the B<config> hash (they
+The following are passed to C<build> in the I<config> hash (they
 reflect this modules primary use within a L<Catalyst> application):
 
 =over 3
@@ -550,7 +584,7 @@ Used by the C<::Chooser> subclass
 =item hide
 
 So that the C<::File> and C<::Table> subclasses can store the number
-of rows added as the hidden form variable B<nRows>
+of rows added as the hidden form variable I<nRows>
 
 =item messages
 
@@ -581,7 +615,7 @@ Sensible defaults are provided by C<new> if any of the above are undefined
 
 =head1 Factory Subclasses
 
-These are the possible values for the B<type> attribute which defaults
+These are the possible values for the I<type> attribute which defaults
 to I<textfield>. Each subclass implements the C<_render> method, it
 receives a hash ref of options an returns a scalar containing some
 XHTML.
@@ -590,22 +624,22 @@ The distribution ships with the following factory subclasses:
 
 =head2 Anchor
 
-Returns an B<anchor> element of class option B<class> (which defaults
-to I<linkFade>) with it's B<href> attribute set to the B<href>
-option. The anchor body is set to the B<text> option
+Returns an I<anchor> element of class option I<class> (which defaults
+to I<linkFade>) with it's I<href> attribute set to the I<href>
+option. The anchor body is set to the I<text> option
 
 =head2 Checkbox
 
-Return a B<checkbox> element of value B<value>. Use the
-element's value as key to the B<labels> hash. The hash value
+Return a I<checkbox> element of value I<value>. Use the
+element's value as key to the I<labels> hash. The hash value
 (which defaults null) is used as the displayed label. The
-B<checked> option determines the checkbox's initial
+I<checked> option determines the checkbox's initial
 setting
 
 =head2 Chooser
 
 Creates a popup window which allows one item to be selected from a
-B<long> list of items
+I<long> list of items
 
 =head2 Cloud
 
@@ -615,13 +649,15 @@ Creates list of links from the data set supplied in the I<data> option
 
 Return another text field, this time with a calendar icon which when
 clicked pops up a Javascript date picker. Requires the appropriate JS
-library to have been loaded by the page. Attribute B<width>
+library to have been loaded by the page. Attribute I<width>
 controls the size of the textfield (default 10 characters) and
-B<format> defaults to I<dd/mm/yyyy>
+I<format> defaults to I<dd/mm/yyyy>. Setting the I<readonly> attribute
+to true (which is the default) causes the input textfield to become
+readonly
 
 =head2 File
 
-Display the contents of a file pointed to by B<path>. Supports the
+Display the contents of a file pointed to by I<path>. Supports the
 following subtypes:
 
 =over 3
@@ -629,90 +665,90 @@ following subtypes:
 =item csv
 
 Return a table containing the CSV formatted file. This and the I<file>
-subtype are selectable if B<select> >= 0 and represents the
+subtype are selectable if I<select> >= 0 and represents the
 column number of the key field
 
 =item file
 
-Default subtype. Like the logfile subtype but without the B<pre> tags
+Default subtype. Like the logfile subtype but without the I<pre> tags
 
 =item html
 
-The C<_render> method returns an B<iframe> tag whose B<src> attribute
-is set to B<path>. Paths that begin with B<root>
-will have that replaced with B<base>. Paths that do not begin
-with "http:" will have B<base> prepended to them
+The C<_render> method returns an I<iframe> tag whose I<src> attribute
+is set to I<path>. Paths that begin with I<root>
+will have that replaced with I<base>. Paths that do not begin
+with "http:" will have I<base> prepended to them
 
 =item logfile
 
 The C<_render> method returns a table where each line of the logfile
 appears as a separate row containing one cell. The logfile lines are
-each wrapped in B<pre> tags
+each wrapped in I<pre> tags
 
 =item source
 
 The module C<Syntax::Highlight::Perl> is used to provide colour
 highlights for the Perl source code. Tabs are expanded to
-B<tabstop> spaces and the result is returned wrapped in
-B<pre> tags
+I<tabstop> spaces and the result is returned wrapped in
+I<pre> tags
 
 =back
 
 =head2 Freelist
 
 New values entered into a text field can be added to the
-list. Existing list values (passed in B<values>) can be
-removed. The height of the list is set by B<height>.
+list. Existing list values (passed in I<values>) can be
+removed. The height of the list is set by I<height>.
 
 =head2 GroupMembership
 
 Displays two lists which allow for membership of a group. The first
-scrolling list contains "all" values (B<all>), the second
-contains those values currently selected (B<current>). The
-height of the scrolling lists is set by B<height>
+scrolling list contains "all" values (I<all>), the second
+contains those values currently selected (I<current>). The
+height of the scrolling lists is set by I<height>
 
 =head2 ImageButton
 
-Generates an image button where B<name> identifies the image
-file in B<assets> and is also used as the return value. The
+Generates an image button where I<name> identifies the image
+file in I<assets> and is also used as the return value. The
 button name is set to I<_verb>
 
 =head2 Label
 
-Calls B<msg> with B<name> as the message key. If the
-text does not exist B<text> is used. If B<dropcap>
-is true the first character of the text is wrapped in a B<span> of
+Calls I<msg> with I<name> as the message key. If the
+text does not exist I<text> is used. If I<dropcap>
+is true the first character of the text is wrapped in a I<span> of
 class I<dropcap>
 
 =head2 Note
 
-Calls B<msg> with B<name> as the message key. If the
-text does not exist B<text> is used. The text is wrapped in a
-B<div> of class I<note> with B<align> setting the style text
-alignment and B<width> setting the style width
+Calls I<msg> with I<name> as the message key. If the
+text does not exist I<text> is used. The text is wrapped in a
+I<div> of class I<note> with I<align> setting the style text
+alignment and I<width> setting the style width
 
 =head2 Password
 
-Returns a password field of width B<width> which defaults to
-twenty characters. If B<subtype> equals I<verify> then the
+Returns a password field of width I<width> which defaults to
+twenty characters. If I<subtype> equals I<verify> then the
 message I<vPasswordPrompt> and another password field are
-appended. The fields B<id> and B<name> are expected
+appended. The fields I<id> and I<name> are expected
 to contain the digit 1 which will be substituted for the digit 2 in
 the attributes of the second field
 
 =head2 PopupMenu
 
-Returns a list of B<option> elements wrapped in a B<select>
-element. The list of options is passed in B<values> with the
-display labels in B<labels>. The onchange event handler will
-be set to B<onchange>
+Returns a list of I<option> elements wrapped in a I<select>
+element. The list of options is passed in I<values> with the
+display labels in I<labels>. The onchange event handler will
+be set to I<onchange>
 
 =head2 RadioGroup
 
-The attribute B<columns> sets the number of columns for the
+The attribute I<columns> sets the number of columns for the
 returned table of radio buttons. The list of button values is passed in
-B<values> with the display labels in B<labels>. The
-onchange event handler will be set to B<onchange>
+I<values> with the display labels in I<labels>. The
+onchange event handler will be set to I<onchange>
 
 =head2 Rule
 
@@ -720,33 +756,33 @@ Generates a horizontal rule with optional clickable action
 
 =head2 ScrollingList
 
-The B<height> attribute controls the height of the scrolling
-list.  The list of options is passed in B<values> with the
-display labels in B<labels>. The onchange event handler will
-be set to B<onchange>
+The I<height> attribute controls the height of the scrolling
+list.  The list of options is passed in I<values> with the
+display labels in I<labels>. The onchange event handler will
+be set to I<onchange>
 
 =head2 Table
 
-The input data is in B<data-E<gt>{values}> which is an array
+The input data is in I<< $data->{values} >> which is an array
 ref for which each element is an array ref containing the list of
 field values.
 
 =head2 Template
 
-Look in B<templatedir> for a L<Template::Toolkit> template
-called B<id> with a I<.tt> extension. Slurp it in and return
+Look in I<templatedir> for a L<Template::Toolkit> template
+called I<id> with a I<.tt> extension. Slurp it in and return
 it as the content for this widget. This provides for a "user defined"
 widget type
 
 =head2 Textarea
 
-A text area. It defaults to five lines high (B<height>) and
-sixty characters wide (B<width>)
+A text area. It defaults to five lines high (I<height>) and
+sixty characters wide (I<width>)
 
 =head2 Textfield
 
 This is the default widget type. Your basic text field which defaults
-to sixty characters wide (B<width>)
+to sixty characters wide (I<width>)
 
 =head2 Tree
 
@@ -761,11 +797,11 @@ None
 
 =over 3
 
-=item L<Class::Data::Accessor>
+=item L<Class::Accessor::Fast>
+
+=item L<Class::Inspector>
 
 =item L<HTML::Accessors>
-
-=item L<Readonly>
 
 =item L<Syntax::Highlight::Perl>
 
@@ -804,12 +840,11 @@ widget
 
 =head2 40calendar.js
 
-   Author: Matt Kruse <matt@mattkruse.com>
-   WWW: http://www.mattkruse.com/
+   Copyright Mihai Bazon, 2002-2005  |  www.bazon.net/mishoo
+   The DHTML Calendar, version 1.0   |  www.dynarch.com/projects/calendar
+   License: GNU Lesser General Public License
 
-which has a license restriction that prevents inclusion in
-other distributions so I'll drop this at the next release. Only used by
-C<::Date> subclass
+Implements the calendar popup used by the I<::Date> subclass
 
 =head2 behaviour.js
 
@@ -825,10 +860,8 @@ There are no known incompatibilities in this module.
 
 =head1 Bugs and Limitations
 
-The Javascript for the B<tree> widget is not included due to copyright
-issues, so that widget doesn't work. Same for the B<date> widget except
-that there is a link in L<Dependencies> to a web site where the
-Javascript might be available
+The Javascript for the C<::Tree> widget is not included due to copyright
+issues, so that widget doesn't work
 
 The installation script does nothing with the Javascript or PNG files
 which are included in the distribution for completeness
@@ -858,4 +891,3 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
-

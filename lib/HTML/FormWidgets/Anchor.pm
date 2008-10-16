@@ -1,22 +1,36 @@
 package HTML::FormWidgets::Anchor;
 
-# @(#)$Id: Anchor.pm 41 2008-05-24 23:04:10Z pjf $
+# @(#)$Id: Anchor.pm 83 2008-09-24 00:27:50Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 41 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(href onclick) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->class(   $self->class || q(linkFade) );
+   $self->href(    q() );
+   $self->onclick( undef );
+   $self->text(    q(link) );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref)  = @_;
+   my ($self, $args) = @_;
 
-   delete $ref->{name};
-   $ref->{class  } = $me->class || q(linkFade);
-   $ref->{href   } = $me->href  || q();
-   $ref->{onclick} = $me->onclick if ($me->onclick);
+   delete $args->{name};
+   $args->{class  } = $self->class;
+   $args->{href   } = $self->href;
+   $args->{onclick} = $self->onclick if ($self->onclick);
 
-   return $me->elem->a( $ref, $me->text || q(link) );
+   return $self->hacc->a( $args, $self->text );
 }
 
 1;

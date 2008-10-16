@@ -9,7 +9,7 @@ use FindBin    qw($Bin);
 use lib        qq($Bin/../lib);
 use Test::More tests => 15;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 9 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 9 $ =~ /\d+/gmx );
 
 BEGIN { use_ok q(HTML::FormWidgets) }
 
@@ -31,8 +31,7 @@ ok( $widget->render
 
 $widget = HTML::FormWidgets->new( id => q(test), type => q(date) );
 
-ok( $widget->render =~ m{ href="" \s class="tips" \s id="test_anchor" }mx,
-    q(Date) );
+ok( $widget->render =~ m{ class="icon" \s+ id="test_trigger" }mx, q(Date) );
 
 $widget = HTML::FormWidgets->new( hide => [],
                                   name => q(file),

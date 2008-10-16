@@ -1,37 +1,50 @@
 package HTML::FormWidgets::Rule;
 
-# @(#)$Id: Rule.pm 59 2008-06-28 18:26:23Z pjf $
+# @(#)$Id: Rule.pm 83 2008-09-24 00:27:50Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 59 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(alt href imgclass) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->alt(       undef );
+   $self->container( 0 );
+   $self->href(      undef );
+   $self->imgclass(  undef );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref) = @_; my ($cells, $html); my $htag = $me->elem;
+   my ($self, $args) = @_; my ($cells, $html); my $hacc = $self->hacc;
 
-   $me->container( undef );
-
-   if ($me->imgclass) {
-      $html  = $htag->hr(  { class => $me->class } );
-      $cells = $htag->td(  { class => q(minimal) }, $html );
-      $html  = $htag->img( { alt   => $me->alt,
-                             class => $me->imgclass,
-                             src   => $me->text } );
+   if ($self->imgclass) {
+      $html  = $hacc->hr(  { class => $self->class } );
+      $cells = $hacc->td(  { class => q(minimal) }, $html );
+      $html  = $hacc->img( { alt   => $self->alt,
+                             class => $self->imgclass,
+                             src   => $self->text } );
    }
-   else { $html = $me->text }
+   else { $html = $self->text }
 
-   $html = $htag->a( { href => $me->href }, $html ) if ($me->href);
+   $html = $hacc->a( { href => $self->href }, $html ) if ($self->href);
 
-   if ($me->tip) {
-      $html = $htag->span( { class => q(tips), title => $me->tip }, $html );
-      $me->tip( undef );
+   if ($self->tip) {
+      $html = $hacc->span( { class => q(tips), title => $self->tip }, $html );
+      $self->tip( undef );
    }
 
-   $cells .= $htag->td( { class => q(minimal) }, $html ) if ($html);
-   $cells .= $htag->td( $htag->hr( { class => $me->class } ) );
-   return $htag->table( { class => q(rule) }, $htag->tr( $cells ) );
+   $cells .= $hacc->td( { class => q(minimal) }, $html ) if ($html);
+   $cells .= $hacc->td( $hacc->hr( { class => $self->class } ) );
+
+   return $hacc->table( { class => q(rule) }, $hacc->tr( $cells ) );
 }
 
 1;

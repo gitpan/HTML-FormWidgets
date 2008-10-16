@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    0.1.$Rev: 75 $
+    0.2.$Rev: 102 $
 
 Synopsis
        package MyApp::View::HTML;
@@ -11,10 +11,10 @@ Synopsis
        use HTML::FormWidgets;
 
        sub build_form {
-          my ($me, $c) = @_;
-          my $s        = $c->stash;
-          my $form     = [ $s->{iFrame} ];
-          my $config   = {};
+          my ($self, $c) = @_;
+          my $s          = $c->stash;
+          my $form       = [ $s->{iFrame} ];
+          my $config     = {};
 
           $config->{root        } = $c->config->{root};
           $config->{base        } = $c->req->base;
@@ -56,6 +56,8 @@ Subroutines/Methods
     data structure
 
   new
+       $self = $class->new( [{] key1 => value1, ... [}] );
+
     Construct a widget. Mostly this is called by the "build" method. It
     requires the factory subclass for the widget type.
 
@@ -63,7 +65,16 @@ Subroutines/Methods
     few of them. Each option is described in the factory subclasses which
     use that option
 
+  init
+       $self->init( $args );
+
+    Initialises this object with data from the passed arguments. This is
+    usually overridden in the factory subclass which sets the default for
+    it's own attributes and then calls this method in the base class
+
   msg
+       $message_text = $self->msg( $message_id );
+
     Use the supplied key to return a value from the messages hash. This hash
     was passed to the constructor and should contain any literal text used
     by any of the widgets
@@ -114,6 +125,10 @@ Subroutines/Methods
     Accepts either a single argument of a hash ref or a list of key/value
     pairs. Returns a hash ref in either case.
 
+  _ensure_class_loaded
+    Once the factory subclass is known this method ensures that it is loaded
+    and then re-blesses the self referential object into the correct class
+
   _group_fields
     Wraps the top nitems widgets on the build stack in a fieldset element
     with a legend
@@ -127,8 +142,16 @@ Subroutines/Methods
     called its probably an error so return the value of our "text" attribute
     if set or an error message otherwise
 
+  _set_error
+    Stores the passed error message in the "text" attribute so that it gets
+    rendered in place of the widget
+
+  _set_id_name_and_type
+    Determine the "id", "name" and "type" of the widget from the supplied
+    arguments
+
 Configuration and Environment
-    The following are passed to "build" in the config hash (they reflect
+    The following are passed to "build" in the *config* hash (they reflect
     this modules primary use within a Catalyst application):
 
     assets
@@ -153,7 +176,7 @@ Configuration and Environment
 
     hide
        So that the "::File" and "::Table" subclasses can store the number of
-       rows added as the hidden form variable nRows
+       rows added as the hidden form variable *nRows*
 
     messages
        Many of the subclasses use this hash to supply literal text in a
@@ -177,26 +200,26 @@ Configuration and Environment
     undefined
 
 Factory Subclasses
-    These are the possible values for the type attribute which defaults to
+    These are the possible values for the *type* attribute which defaults to
     *textfield*. Each subclass implements the "_render" method, it receives
     a hash ref of options an returns a scalar containing some XHTML.
 
     The distribution ships with the following factory subclasses:
 
   Anchor
-    Returns an anchor element of class option class (which defaults to
-    *linkFade*) with it's href attribute set to the href option. The anchor
-    body is set to the text option
+    Returns an *anchor* element of class option *class* (which defaults to
+    *linkFade*) with it's *href* attribute set to the *href* option. The
+    anchor body is set to the *text* option
 
   Checkbox
-    Return a checkbox element of value value. Use the element's value as key
-    to the labels hash. The hash value (which defaults null) is used as the
-    displayed label. The checked option determines the checkbox's initial
-    setting
+    Return a *checkbox* element of value *value*. Use the element's value as
+    key to the *labels* hash. The hash value (which defaults null) is used
+    as the displayed label. The *checked* option determines the checkbox's
+    initial setting
 
   Chooser
-    Creates a popup window which allows one item to be selected from a long
-    list of items
+    Creates a popup window which allows one item to be selected from a
+    *long* list of items
 
   Cloud
     Creates list of links from the data set supplied in the *data* option
@@ -204,105 +227,108 @@ Factory Subclasses
   Date
     Return another text field, this time with a calendar icon which when
     clicked pops up a Javascript date picker. Requires the appropriate JS
-    library to have been loaded by the page. Attribute width controls the
-    size of the textfield (default 10 characters) and format defaults to
-    *dd/mm/yyyy*
+    library to have been loaded by the page. Attribute *width* controls the
+    size of the textfield (default 10 characters) and *format* defaults to
+    *dd/mm/yyyy*. Setting the *readonly* attribute to true (which is the
+    default) causes the input textfield to become readonly
 
   File
-    Display the contents of a file pointed to by path. Supports the
+    Display the contents of a file pointed to by *path*. Supports the
     following subtypes:
 
     csv
        Return a table containing the CSV formatted file. This and the *file*
-       subtype are selectable if select >= 0 and represents the column
+       subtype are selectable if *select* >= 0 and represents the column
        number of the key field
 
     file
-       Default subtype. Like the logfile subtype but without the pre tags
+       Default subtype. Like the logfile subtype but without the *pre* tags
 
     html
-       The "_render" method returns an iframe tag whose src attribute is set
-       to path. Paths that begin with root will have that replaced with
-       base. Paths that do not begin with "http:" will have base prepended
-       to them
+       The "_render" method returns an *iframe* tag whose *src* attribute is
+       set to *path*. Paths that begin with *root* will have that replaced
+       with *base*. Paths that do not begin with "http:" will have *base*
+       prepended to them
 
     logfile
        The "_render" method returns a table where each line of the logfile
        appears as a separate row containing one cell. The logfile lines are
-       each wrapped in pre tags
+       each wrapped in *pre* tags
 
     source
        The module "Syntax::Highlight::Perl" is used to provide colour
-       highlights for the Perl source code. Tabs are expanded to tabstop
-       spaces and the result is returned wrapped in pre tags
+       highlights for the Perl source code. Tabs are expanded to *tabstop*
+       spaces and the result is returned wrapped in *pre* tags
 
   Freelist
     New values entered into a text field can be added to the list. Existing
-    list values (passed in values) can be removed. The height of the list is
-    set by height.
+    list values (passed in *values*) can be removed. The height of the list
+    is set by *height*.
 
   GroupMembership
     Displays two lists which allow for membership of a group. The first
-    scrolling list contains "all" values (all), the second contains those
-    values currently selected (current). The height of the scrolling lists
-    is set by height
+    scrolling list contains "all" values (*all*), the second contains those
+    values currently selected (*current*). The height of the scrolling lists
+    is set by *height*
 
   ImageButton
-    Generates an image button where name identifies the image file in assets
-    and is also used as the return value. The button name is set to *_verb*
+    Generates an image button where *name* identifies the image file in
+    *assets* and is also used as the return value. The button name is set to
+    *_verb*
 
   Label
-    Calls msg with name as the message key. If the text does not exist text
-    is used. If dropcap is true the first character of the text is wrapped
-    in a span of class *dropcap*
+    Calls *msg* with *name* as the message key. If the text does not exist
+    *text* is used. If *dropcap* is true the first character of the text is
+    wrapped in a *span* of class *dropcap*
 
   Note
-    Calls msg with name as the message key. If the text does not exist text
-    is used. The text is wrapped in a div of class *note* with align setting
-    the style text alignment and width setting the style width
+    Calls *msg* with *name* as the message key. If the text does not exist
+    *text* is used. The text is wrapped in a *div* of class *note* with
+    *align* setting the style text alignment and *width* setting the style
+    width
 
   Password
-    Returns a password field of width width which defaults to twenty
-    characters. If subtype equals *verify* then the message
-    *vPasswordPrompt* and another password field are appended. The fields id
-    and name are expected to contain the digit 1 which will be substituted
-    for the digit 2 in the attributes of the second field
+    Returns a password field of width *width* which defaults to twenty
+    characters. If *subtype* equals *verify* then the message
+    *vPasswordPrompt* and another password field are appended. The fields
+    *id* and *name* are expected to contain the digit 1 which will be
+    substituted for the digit 2 in the attributes of the second field
 
   PopupMenu
-    Returns a list of option elements wrapped in a select element. The list
-    of options is passed in values with the display labels in labels. The
-    onchange event handler will be set to onchange
+    Returns a list of *option* elements wrapped in a *select* element. The
+    list of options is passed in *values* with the display labels in
+    *labels*. The onchange event handler will be set to *onchange*
 
   RadioGroup
-    The attribute columns sets the number of columns for the returned table
-    of radio buttons. The list of button values is passed in values with the
-    display labels in labels. The onchange event handler will be set to
-    onchange
+    The attribute *columns* sets the number of columns for the returned
+    table of radio buttons. The list of button values is passed in *values*
+    with the display labels in *labels*. The onchange event handler will be
+    set to *onchange*
 
   Rule
     Generates a horizontal rule with optional clickable action
 
   ScrollingList
-    The height attribute controls the height of the scrolling list. The list
-    of options is passed in values with the display labels in labels. The
-    onchange event handler will be set to onchange
+    The *height* attribute controls the height of the scrolling list. The
+    list of options is passed in *values* with the display labels in
+    *labels*. The onchange event handler will be set to *onchange*
 
   Table
-    The input data is in data->{values} which is an array ref for which each
-    element is an array ref containing the list of field values.
+    The input data is in *$data->{values}* which is an array ref for which
+    each element is an array ref containing the list of field values.
 
   Template
-    Look in templatedir for a Template::Toolkit template called id with a
-    *.tt* extension. Slurp it in and return it as the content for this
+    Look in *templatedir* for a Template::Toolkit template called *id* with
+    a *.tt* extension. Slurp it in and return it as the content for this
     widget. This provides for a "user defined" widget type
 
   Textarea
-    A text area. It defaults to five lines high (height) and sixty
-    characters wide (width)
+    A text area. It defaults to five lines high (*height*) and sixty
+    characters wide (*width*)
 
   Textfield
     This is the default widget type. Your basic text field which defaults to
-    sixty characters wide (width)
+    sixty characters wide (*width*)
 
   Tree
     Implements an expanding tree of selectable objects. See "Bugs and
@@ -312,9 +338,9 @@ Diagnostics
     None
 
 Dependencies
-    Class::Data::Accessor
+    Class::Accessor::Fast
+    Class::Inspector
     HTML::Accessors
-    Readonly
     Syntax::Highlight::Perl
     Text::Markdown
     Text::ParseWords
@@ -342,12 +368,11 @@ Dependencies
     The included copy has a few hacks that improve the Accordion widget
 
   40calendar.js
-       Author: Matt Kruse <matt@mattkruse.com>
-       WWW: http://www.mattkruse.com/
+       Copyright Mihai Bazon, 2002-2005  |  www.bazon.net/mishoo
+       The DHTML Calendar, version 1.0   |  www.dynarch.com/projects/calendar
+       License: GNU Lesser General Public License
 
-    which has a license restriction that prevents inclusion in other
-    distributions so I'll drop this at the next release. Only used by
-    "::Date" subclass
+    Implements the calendar popup used by the *::Date* subclass
 
   behaviour.js
     Is included from the App::Munchies default skin. It uses the MooTools
@@ -360,10 +385,8 @@ Incompatibilities
     There are no known incompatibilities in this module.
 
 Bugs and Limitations
-    The Javascript for the tree widget is not included due to copyright
-    issues, so that widget doesn't work. Same for the date widget except
-    that there is a link in Dependencies to a web site where the Javascript
-    might be available
+    The Javascript for the "::Tree" widget is not included due to copyright
+    issues, so that widget doesn't work
 
     The installation script does nothing with the Javascript or PNG files
     which are included in the distribution for completeness

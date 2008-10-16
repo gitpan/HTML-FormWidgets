@@ -1,28 +1,47 @@
 package HTML::FormWidgets::Chooser;
 
-# @(#)$Id: Chooser.pm 74 2008-08-31 17:16:35Z pjf $
+# @(#)$Id: Chooser.pm 83 2008-09-24 00:27:50Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 74 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(button field height href js_obj key
+                              screen_x screen_y width) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->button(    q() );
+   $self->container( 0 );
+   $self->field(     q() );
+   $self->height(    400 );
+   $self->href(      undef );
+   $self->js_obj(    q(submitObj.chooser) );
+   $self->key(       q() );
+   $self->screen_x(  10 );
+   $self->screen_y(  10 );
+   $self->width(     200 );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref) = @_; my $onclick;
+   my ($self, $args) = @_; my $onclick;
 
-   $onclick  = 'return submitObj.chooser(';
-   $onclick .= 'document.forms[0].'.$me->field.'.value, ';
-   $onclick .= 'document.forms[0], ';
-   $onclick .= '\''.$me->key.'\', ';
-   $onclick .= '\''.$me->href.'\', ';
-   $onclick .= '\'width='.$me->width.', screenX=0, ';
-   $onclick .= 'height='.$me->height.', screenY=0, ';
-   $onclick .= 'dependent=yes, titlebar=no, scrollbars=yes\')';
-   $ref->{onclick} = $onclick;
-   $ref->{value}   = $me->button;
+   $onclick  = 'return '.$self->js_obj;
+   $onclick .= '(document.forms[0].'.$self->field.'.value, ';
+   $onclick .= "document.forms[0], '".$self->key."', '".$self->href;
+   $onclick .= "', 'width=".$self->width.', screenX='.$self->screen_x.', ';
+   $onclick .= 'height='.$self->height.', screenY='.$self->screen_y;
+   $onclick .= ", dependent=yes, titlebar=no, scrollbars=yes')";
+   $args->{onclick} = $onclick;
+   $args->{value  } = $self->button;
 
-   return $me->elem->submit( $ref );
+   return $self->hacc->submit( $args );
 }
 
 1;

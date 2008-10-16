@@ -1,30 +1,43 @@
 package HTML::FormWidgets::Label;
 
-# @(#)$Id: Label.pm 13 2008-02-27 02:09:11Z pjf $
+# @(#)$Id: Label.pm 94 2008-09-27 21:48:32Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 13 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 94 $ =~ /\d+/gmx );
+
+__PACKAGE__->mk_accessors( qw(dropcap) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->container( 0 );
+   $self->dropcap(   0 );
+   $self->text(      q() );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref) = @_; my ($markup, $text);
+   my ($self, $args) = @_; my ($markup, $text);
 
-   $ref->{class} = q(label) unless ($me->class);
+   ($text = $self->text || $self->msg( $self->name )) =~ s{ \A \n }{}msx;
 
-   ($text = $me->msg( $me->name ) || $me->text || q()) =~ s{ \A \n }{}msx;
+   return unless ($text);
 
-   if ($text && $me->dropcap) {
+   if ($self->dropcap) {
       if ($text =~ m{ \A (\<[A-Za-z0-9]+\>) }mx) {
          $markup  = $1;
-         $markup .= $me->elem->span( { class => q(dropcap) },
-                                     substr $text, length $1, 1 );
+         $markup .= $self->hacc->span( { class => q(dropcap) },
+                                       substr $text, length $1, 1 );
          $markup .= substr $text, (length $1) + 1;
       }
       else {
-         $markup  = $me->elem->span( { class => q(dropcap) },
-                                     substr $text, 0, 1 );
+         $markup  = $self->hacc->span( { class => q(dropcap) },
+                                       substr $text, 0, 1 );
          $markup .= substr $text, 1;
       }
 

@@ -1,49 +1,55 @@
 package HTML::FormWidgets::Date;
 
-# @(#)$Id: Date.pm 62 2008-06-29 09:30:34Z pjf $
+# @(#)$Id: Date.pm 95 2008-09-28 22:36:38Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
-use Readonly;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 62 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 95 $ =~ /\d+/gmx );
 
-Readonly my $TTS => q( ~ );
+__PACKAGE__->mk_accessors( qw(assets format readonly width) );
+
+my $TTS = q( ~ );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->assets(   q() );
+   $self->format(   q(%d/%m/%Y) );
+   $self->readonly( 1 );
+   $self->width(    10 );
+
+   $self->NEXT::init( $args );
+   return;
+}
 
 sub _render {
-   my ($me, $ref) = @_; my ($format, $htag, $html, $text);
+   my ($self, $args) = @_; my ($hacc, $html, $text);
 
-   $htag            = $me->elem;
-   $ref->{size   }  = $me->width || 10;
-   $format          = $me->format || q(dd/MM/yyyy);
-   $text            = $htag->textfield( $ref );
-   $html            = $htag->div( { class => q(container) }, $text );
-   $html           .= $htag->div( { class => q(separator) }, q(&nbsp;) );
-   $text            = 'function getAnchorPosition(anchorname) {';
-   $text           .= 'var coordinates = new Object();';
-	$text           .= 'coordinates.x = 0; coordinates.y = 0;';
-	$text           .= 'return coordinates; }';
-   $text           .= 'var '.$me->name."_cal = new CalendarPopup('";
-   $text           .= $me->name."_calendar'); ";
-   $text           .= $me->name."_cal.offsetX = 0; ";
-   $text           .= $me->name."_cal.offsetY = 0; ";
-   $html           .= $htag->script( { type => q(text/javascript) }, $text );
-   $ref             = { alt => q(Calendar), class => q(icon) };
-   $ref->{src    }  = $me->assets.'calendar.png';
-   $text            = $htag->img( $ref );
-   $ref             = {};
-   $ref->{class  }  = q(tips);
-   $ref->{href   }  = q();
-   $ref->{id     }  = $me->name.'_anchor';
-   $ref->{onclick}  = $me->name.'_cal.select( document.forms[0].'.$me->name;
-   $ref->{onclick} .= ", '".$me->name."_anchor', '".$format."' ); ";
-   $ref->{onclick} .= 'return false;';
-   $ref->{title  }  = $me->hint_title.$TTS.$me->msg( q(dateWidgetTip) );
-   $text            = $htag->a( $ref, $text );
-   $text           .= $htag->div( { class => q(calendar hidden),
-                                    id    => $me->name.'_calendar' } );
-   $html           .= $htag->div( { class => q(container) }, $text );
+   $hacc              = $self->hacc;
+   $args->{readonly}  = 1 if ($self->readonly);
+   $args->{size    }  = $self->width;
+   $text              = $hacc->textfield( $args );
+   $html              = $hacc->div( { class => q(container) }, $text );
+   $html             .= $hacc->div( { class => q(separator) }, q(&nbsp;) );
+   $args              = { alt => q(Calendar), class => q(icon) };
+   $args->{id      }  = $self->id.'_trigger';
+   $args->{src     }  = $self->assets.'calendar.png';
+   $text              = $hacc->img( $args );
+   $args              = {};
+   $args->{class   }  = q(tips);
+   $args->{href    }  = q();
+   $args->{title   }  = $self->hint_title.$TTS.$self->msg( q(dateWidgetTip) );
+   $text              = $hacc->a( $args, $text );
+   $html             .= $hacc->div( { class => q(container) }, $text );
+   $text              = 'Calendar.setup( {';
+   $text             .= 'inputField : "'.$self->id.'", ';
+   $text             .= 'ifFormat   : "'.$self->format.'", ';
+   $text             .= 'button     : "'.$self->id.'_trigger", ';
+   $text             .= 'align      : "bR", ';
+   $text             .= 'singleClick: true } );';
+   $html             .= $hacc->script( { type => q(text/javascript) }, $text );
    return $html;
 }
 

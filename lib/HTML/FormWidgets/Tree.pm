@@ -1,103 +1,140 @@
 package HTML::FormWidgets::Tree;
 
-# @(#)$Id: Tree.pm 5 2008-02-11 00:30:56Z pjf $
+# @(#)$Id: Tree.pm 95 2008-09-28 22:36:38Z pjf $
 
 use strict;
 use warnings;
 use base qw(HTML::FormWidgets);
 use English qw(-no_match_vars);
-use Readonly;
 
-use version; our $VERSION = qv( sprintf '0.1.%d', q$Rev: 5 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 95 $ =~ /\d+/gmx );
 
-Readonly my $NUL => q();
+__PACKAGE__->mk_accessors( qw(base behaviour data node_count id2key
+                              key2id key2url node select target url) );
 
-sub _render {
-   my ($me, $ref)  = @_; my ($jscript, $name, @root);
+my $NUL = q();
 
-   @root = grep { ! m{ \A _ }mx } keys %{ $me->data };
+sub init {
+   my ($self, $args) = @_;
 
-   if (defined $root[1]) {
-      return $me->elem->span( { class => 'error' },
-                              'Your tree has more than one root' );
-   }
+   $self->base(       $NUL );
+   $self->behaviour(  q(classic) );
+   $self->data(       {} );
+   $self->node_count( 0 );
+   $self->id2key(     {} );
+   $self->key2id(     {} );
+   $self->key2url(    {} );
+   $self->node(       undef );
+   $self->select(     undef );
+   $self->target(     q() );
+   $self->url(        undef );
 
-   $ref = { data => $me->data, parent => $NUL, prevKey => $NUL, root => 1 };
-   $jscript = $me->elem->script( { language => 'JavaScript' },
-                                 $me->scanHash( $ref ) );
-
-   return $me->elem->div( { class => 'tree' }, $jscript );
+   $self->NEXT::init( $args );
+   return;
 }
 
-sub nodeId { return shift->{nodeId}++ }
+sub _render {
+   my ($self, $ref)  = @_; my ($jscript, $name, @root);
 
-sub scanHash {
-   my ($me, $ref) = @_;
-   my ($data, $jscript, $key, @keys, $newKey, $node, $openIcon, $ref1);
-   my ($shutIcon, $text, $tip, $url);
+   @root = grep { ! m{ \A _ }mx } keys %{ $self->data };
+
+   if (defined $root[1]) {
+      return $self->hacc->span( { class => q(error) },
+                                'Your tree has more than one root' );
+   }
+
+   $ref = { data => $self->data, parent => $NUL, prevKey => $NUL, root => 1 };
+   $jscript = $self->hacc->script( { language => q(JavaScript) },
+                                   $self->scan_hash( $ref ) );
+
+   return $self->hacc->div( { class => q(tree) }, $jscript );
+}
+
+sub node_id { return shift->{node_count}++ }
+
+sub scan_hash {
+   my ($self, $args) = @_;
+   my ($data, $jscript, $key, @keys, $new_key, $node, $open_icon);
+   my ($shut_icon, $text, $tip, $url);
 
    $jscript = $NUL;
-   @keys    = grep { ! m{ \A _ }mx} keys %{ $ref->{data} };
+   @keys    = grep { !m{ \A _ }mx } keys %{ $args->{data} };
 
    for $key (sort { lc $a cmp lc $b } @keys) {
-      $newKey   = $ref->{prevKey} ? $ref->{prevKey}.$SUBSEP.$key : $key;
-      $data     = $ref->{data}->{ $key };
-      $node     = $me->nodeId;
-      $openIcon = $NUL;
-      $shutIcon = $NUL;
-      $tip      = $NUL;
-      $url      = $me->url;
+      $new_key   = $args->{prevKey} ? $args->{prevKey}.$SUBSEP.$key : $key;
+      $data      = $args->{data}->{ $key };
+      $node      = $self->node_id;
+      $open_icon = $NUL;
+      $shut_icon = $NUL;
+      $tip       = $NUL;
+      $url       = $self->url;
 
-      if (ref $data eq 'HASH') {
-         $node     = $data->{_node_id } || $me->nodeId;
-         $openIcon = $data->{_openIcon} || $NUL;
-         $shutIcon = $data->{_shutIcon} || $NUL;
-         $tip      = $data->{_tip     } || $NUL;
-         $url      = $data->{_url     } || $me->url;
+      if (ref $data eq q(HASH)) {
+         $node      = $data->{_node_id } || $node;
+         $open_icon = $data->{_openIcon} || $NUL;
+         $shut_icon = $data->{_shutIcon} || $NUL;
+         $tip       = $data->{_tip     } || $NUL;
+         $url       = $data->{_url     } || $self->url;
       }
 
-      if ($me->node && ($me->node eq $node) && $me->select) {
-         $shutIcon = $openIcon = $me->select;
+      if ($self->node && ($self->node eq $node) && $self->select) {
+         $shut_icon = $open_icon = $self->select;
       }
 
-      $url  = $me->base.$url if ($url !~ m{ \A http: }mx);
+      $url  = $self->base.$url if ($url !~ m{ \A http: }mx);
       $url .= '?node='.$node;
-      $me->id2key->{ $node }    = $newKey;
-      $me->key2id->{ $newKey }  = $node;
-      $me->key2url->{ $newKey } = $url;
+      $self->id2key->{  $node    } = $new_key;
+      $self->key2id->{  $new_key } = $node;
+      $self->key2url->{ $new_key } = $url;
 
-      if ($ref->{root}) {
+      if ($args->{root}) {
          $jscript  = 'if (document.getElementById) {'."\n";
          $jscript .= 'var '.$node.' = new WebFXTree("'.$key.'", "';
          $jscript .= $url.'", "'.$tip.'");'."\n";
-         $jscript .= $node.'.setBehavior("'.$me->behaviour.'");'."\n";
-         $jscript .= $node.'.target = "'.$me->target.'"; '."\n"
-            if ($me->target);
-         $jscript .= $node.'.icon = "'.$shutIcon.'"; '."\n"     if ($shutIcon);
-         $jscript .= $node.'.openIcon = "'.$openIcon.'"; '."\n" if ($openIcon);
+         $jscript .= $node.'.setBehavior("'.$self->behaviour.'");'."\n";
+
+         if ($self->target) {
+            $jscript .= $node.'.target = "'.$self->target.'"; '."\n";
+         }
+
+         if ($shut_icon) {
+            $jscript .= $node.'.icon = "'.$shut_icon.'"; '."\n";
+         }
+
+         if ($open_icon) {
+            $jscript .= $node.'.openIcon = "'.$open_icon.'"; '."\n";
+         }
       }
       else {
          $jscript .= 'var '.$node.' = new WebFXTreeItem("'.$key.'", "';
          $jscript .= $url.'", "'.$tip.'");'."\n";
-         $jscript .= $node.'.target = "'.$me->target.'"; '."\n"
-            if ($me->target);
-         $jscript .= $node.'.icon = "'.$shutIcon.'"; '."\n"     if ($shutIcon);
-         $jscript .= $node.'.openIcon = "'.$openIcon.'"; '."\n" if ($openIcon);
-         $jscript .= $ref->{parent}.'.add('.$node.'); '."\n";
+
+         if ($self->target) {
+            $jscript .= $node.'.target = "'.$self->target.'"; '."\n";
+         }
+
+         if ($shut_icon) {
+            $jscript .= $node.'.icon = "'.$shut_icon.'"; '."\n";
+         }
+
+         if ($open_icon) {
+            $jscript .= $node.'.openIcon = "'.$open_icon.'"; '."\n";
+         }
+
+         $jscript .= $args->{parent}.'.add('.$node.'); '."\n";
       }
 
-      if (ref $data eq 'HASH') {
-         $ref1 = { data    => $data,
-                   parent  => $node,
-                   prevKey => $me->id2key->{ $node },
-                   root    => 0 };
-         $jscript .= $me->scanHash( $ref1 ); # Recurse
+      if (ref $data eq q(HASH)) {
+         $jscript .= $self->scan_hash( { data    => $data,
+                                         parent  => $node,
+                                         prevKey => $self->id2key->{ $node },
+                                         root    => 0 } ); # Recurse
       }
    }
 
-   if ($ref->{root}) {
+   if ($args->{root}) {
       $jscript .= 'document.write('.$node.');'."\n".'}'."\n";
-      $jscript .= $me->node.'.focus();'."\n" if ($me->node);
+      $jscript .= $self->node.'.focus();'."\n" if ($self->node);
    }
 
    return $jscript;
