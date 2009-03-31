@@ -1,26 +1,24 @@
 package HTML::FormWidgets::Date;
 
-# @(#)$Id: Date.pm 95 2008-09-28 22:36:38Z pjf $
+# @(#)$Id: Date.pm 137 2009-02-22 02:41:15Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 95 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 137 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(assets format readonly width) );
 
 my $TTS = q( ~ );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
    $self->assets(   q() );
    $self->format(   q(%d/%m/%Y) );
    $self->readonly( 1 );
    $self->width(    10 );
-
-   $self->NEXT::init( $args );
    return;
 }
 
@@ -40,15 +38,16 @@ sub _render {
    $args              = {};
    $args->{class   }  = q(tips);
    $args->{href    }  = q();
-   $args->{title   }  = $self->hint_title.$TTS.$self->msg( q(dateWidgetTip) );
+   $args->{title   }  = $self->hint_title.$TTS.$self->loc( q(dateWidgetTip) );
    $text              = $hacc->a( $args, $text );
    $html             .= $hacc->div( { class => q(container) }, $text );
-   $text              = 'Calendar.setup( {';
-   $text             .= 'inputField : "'.$self->id.'", ';
-   $text             .= 'ifFormat   : "'.$self->format.'", ';
-   $text             .= 'button     : "'.$self->id.'_trigger", ';
-   $text             .= 'align      : "bR", ';
-   $text             .= 'singleClick: true } );';
+   $text              = "\n";
+   $text             .= 'Calendar.setup( {'."\n";
+   $text             .= '   inputField : "'.$self->id.'", '."\n";
+   $text             .= '   ifFormat   : "'.$self->format.'", '."\n";
+   $text             .= '   button     : "'.$self->id.'_trigger", '."\n";
+   $text             .= '   align      : "bR", '."\n";
+   $text             .= '   singleClick: true } );';
    $html             .= $hacc->script( { type => q(text/javascript) }, $text );
    return $html;
 }

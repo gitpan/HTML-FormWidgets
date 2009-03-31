@@ -1,30 +1,31 @@
 package HTML::FormWidgets::Label;
 
-# @(#)$Id: Label.pm 94 2008-09-27 21:48:32Z pjf $
+# @(#)$Id: Label.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 94 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(dropcap) );
+__PACKAGE__->mk_accessors( qw(dropcap markdown) );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
    $self->container( 0 );
    $self->dropcap(   0 );
+   $self->markdown(  0 );
    $self->text(      q() );
-
-   $self->NEXT::init( $args );
    return;
 }
 
 sub _render {
    my ($self, $args) = @_; my ($markup, $text);
 
-   ($text = $self->text || $self->msg( $self->name )) =~ s{ \A \n }{}msx;
+   $text    = $self->text;
+   $text    = $self->text_obj->markdown( $text ) if ($text && $self->markdown);
+   ($text ||= $self->loc( $self->name ) || q()) =~ s{ \A \n }{}msx;
 
    return unless ($text);
 

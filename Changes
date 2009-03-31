@@ -1,5 +1,35 @@
 Revision history for HTML::FormWidgets
 
+0.1.141  11/03/2009
+         - Added menu widget
+
+0.3.137  22/02/2009
+         - Dropped use of NEXT
+         - Fixed bug in event handling in Rule
+         - Improved quality of embeded Javascript
+
+0.3.130  30/12/2008
+         - Fixed tree widget
+
+0.3.126  14/12/2008
+         - Editable tables can now use textareas
+         - Added Image subclass
+         - Added Paragraphs subclass
+         - Switched from base to parent
+
+0.3.120  04/12/2008
+         - Renamed ImageButton to Button. Now generates both kinds
+
+0.2.112  03/12/2008
+         - Added the hidden widget type
+         - Made the build method smarter and less gross
+         - Setting skip_groups to true in the build config skips the
+         call to _group_fields
+
+0.2.110  01/12/2008
+         - Image button defines button_name which defaults to _method
+         not _verb
+
 0.2.108  14/11/2008
          - New approach to CPAN testers
 

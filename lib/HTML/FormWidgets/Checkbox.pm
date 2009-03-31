@@ -1,31 +1,29 @@
 package HTML::FormWidgets::Checkbox;
 
-# @(#)$Id: Checkbox.pm 83 2008-09-24 00:27:50Z pjf $
+# @(#)$Id: Checkbox.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(checked label_class labels value) );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
    $self->checked(     0 );
    $self->label_class( q(note) );
    $self->labels(      {} );
    $self->value(       1 );
-
-   $self->NEXT::init( $args );
    return;
 }
 
 sub _render {
    my ($self, $args)  = @_;
 
-   $args->{checked} = q(checked) if ($self->checked);
+   $args->{checked} = $self->is_xml ? q(checked) : undef if ($self->checked);
    $args->{value  } = $self->value;
 
    my $html  = $self->hacc->checkbox( $args );

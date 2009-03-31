@@ -1,43 +1,57 @@
 package HTML::FormWidgets::GroupMembership;
 
-# @(#)$Id: GroupMembership.pm 89 2008-09-24 08:53:55Z pjf $
+# @(#)$Id: GroupMembership.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 89 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(add_tip all assets atitle ctitle current
-                              height js_obj remove_tip labels) );
+                              fhelp height js_obj remove_tip labels) );
 
-sub init {
+my $TTS = q( ~ );
+
+sub _init {
    my ($self, $args) = @_; my $text;
+
+   $self->all(     [] );
+   $self->assets(  q() );
+   $self->atitle(  q(All) );
+   $self->ctitle(  q(Current) );
+   $self->current( [] );
+   $self->fhelp(   q() );
+   $self->height(  10 );
+   $self->js_obj(  q(behaviour.groupMember) );
+   $self->labels(  undef );
+   $self->sep(     $self->space ) unless ($args->{prompt});
+
+   unless ($self->hint_title) {
+      $self->hint_title( $self->loc( q(Hint ) ) );
+   }
 
    $text  = 'Select one or more entries from the list on the ';
    $text .= 'left and then click this button to add them to the ';
    $text .= 'list on the right';
-   $self->add_tip(    $self->msg( q(groupMembershipAddTip) ) || $text );
-   $self->all(        [] );
-   $self->assets(     q() );
-   $self->atitle(     q(All) );
-   $self->ctitle(     q(Current) );
-   $self->current(    [] );
-   $self->height(     10 );
-   $self->js_obj(     q(groupMemberObj) );
+   $text  = $self->loc( q(groupMembershipAddTip) ) || $text;
+   $self->add_tip(    $self->hint_title.$TTS.$text );
    $text  = 'Select one or more entries from the list on the ';
    $text .= 'right and then click this button to remove them';
-   $self->remove_tip( $self->msg( q(groupMembershipRemoveTip) ) || $text );
-   $self->labels(     undef );
-
-   $self->NEXT::init( $args );
+   $text  = $self->loc( q(groupMembershipRemoveTip) ) || $text;
+   $self->remove_tip( $self->hint_title.$TTS.$text );
    return;
 }
 
 sub _render {
-   my ($self, $args) = @_; my ($hacc, $html, $ref, $text, $text1, $tip, $val);
+   my ($self, $args) = @_;
+   my ($fargs, $hacc, $html, $ref, $text, $text1, $tip, $val);
 
    $hacc              = $self->hacc;
+   $fargs             = { class => q(instructions) };
+   $fargs->{style}   .= 'text-align: '.$self->palign.'; ' if ($self->palign);
+   $fargs->{style}   .= 'width: '.$self->pwidth.q(;)      if ($self->pwidth);
+   $html              = $hacc->div( $fargs, $self->fhelp );
    $text              = $hacc->span( { class => q(title) }, $self->atitle );
    $text             .= $hacc->br();
    $args->{class   } .= q( group);
@@ -48,7 +62,7 @@ sub _render {
    $args->{name    }  = $self->name.q(_all);
    $args->{values  }  = $self->all;
    $text             .= $hacc->scrolling_list( $args );
-   $html              = $hacc->div( { class => q(container) }, $text );
+   $html             .= $hacc->div( { class => q(container) }, $text );
    $html             .= $hacc->div( { class => q(separator) }, $self->space );
 
    $text1             = $hacc->br().$hacc->br().$hacc->br();

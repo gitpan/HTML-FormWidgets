@@ -1,23 +1,21 @@
 package HTML::FormWidgets::RadioGroup;
 
-# @(#)$Id: RadioGroup.pm 83 2008-09-24 00:27:50Z pjf $
+# @(#)$Id: RadioGroup.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(columns labels values) );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
    $self->columns( undef );
    $self->labels(  undef );
    $self->values(  [] );
-
-   $self->NEXT::init( $args );
    return;
 }
 

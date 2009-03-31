@@ -1,364 +1,457 @@
 package HTML::FormWidgets;
 
-# @(#)$Id: FormWidgets.pm 108 2008-11-14 03:57:14Z pjf $
+# @(#)$Id: FormWidgets.pm 139 2009-02-28 03:01:28Z pjf $
 
 use strict;
 use warnings;
-use base qw(Class::Accessor::Fast);
+use parent qw(Class::Accessor::Fast);
 use Class::Inspector;
+use English qw(-no_match_vars);
 use HTML::Accessors;
 use Text::Markdown qw(markdown);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 108 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 139 $ =~ /\d+/gmx );
 
+my $NB    = q(&nbsp;&dagger;);
 my $NUL   = q();
+my $SPC   = q( );
 my $TTS   = q( ~ );
-my %ATTRS =
-   ( ajaxid       => undef,             ajaxtext     => undef,
-     align        => q(left),           class        => $NUL,
-     clear        => $NUL,              container    => 1,
-     content_type => q(text/html),      default      => undef,
-     evnt_hndlr   => q(serverObj.checkField),
-     fhelp        => $NUL,              hacc         => undef,
-     hint_title   => 'Handy Hint',      id           => undef,
-     messages     => undef,             name         => undef,
-     nb_symbol    => q(&nbsp;&dagger;), nowrap       => 0,
-     onblur       => undef,             onchange     => undef,
-     onkeypress   => undef,             palign       => undef,
-     prompt       => $NUL,              pwidth       => 40,
-     required     => 0,                 sep          => q(&nbsp;:&nbsp;),
-     space        => q(&nbsp;) x 3,     stepno       => undef,
-     swidth       => 1000,              tabstop      => 3,
-     text         => $NUL,              text_obj     => undef,
-     tip          => $NUL,              tiptype      => q(dagger),
-     type         => undef, );
+my $ATTRS =
+   { ajaxid          => undef,             ajaxtext        => undef,
+     align           => q(left),           class           => $NUL,
+     clear           => $NUL,              container       => 1,
+     container_class => undef,             container_id    => undef,
+     content_type    => q(text/html),      default         => undef,
+     evnt_hndlr      => q(behaviour.server.checkField),
+     hacc            => undef,             hint_title      => $NUL,
+     id              => undef,             is_xml          => 0,
+     messages        => {},                name            => undef,
+     nowrap          => 0,
+     onblur          => undef,             onchange        => undef,
+     onkeypress      => undef,             palign          => undef,
+     prompt          => $NUL,              pwidth          => 40,
+     required        => 0,                 sep             => undef,
+     space           => q(&nbsp;) x 3,     stepno          => undef,
+     swidth          => 1000,              tabstop         => 3,
+     text            => $NUL,              text_obj        => undef,
+     tip             => $NUL,              tiptype         => q(dagger),
+     type            => undef, };
 
-__PACKAGE__->mk_accessors( keys %ATTRS );
+__PACKAGE__->mk_accessors( keys %{ $ATTRS } );
+
+__PACKAGE__->mk_accessors( qw(_fields _messages) );
 
 # Class methods
 
 sub build {
-   my ($self, $config, $form) = @_; my ($item, $list, $ref, @tmp, $widget);
+   my ($class, $config, $data) = @_;
 
-   for $list (@{ $form }) {
-      next unless ($list && ref $list eq q(HASH));
+   my $key  = $config->{list_key    } || q(items);
+   my $type = $config->{content_type} || $ATTRS->{content_type};
 
-      @tmp = ();
+   $config->{hacc} = HTML::Accessors->new( content_type => $type );
 
-      for $item (@{ $list->{items} }) {
-         if (ref $item->{content} eq q(HASH)) {
-            if ($item->{content}->{group}) {
-               $ref = { content => $self->_group_fields( $item, \@tmp ) };
-            }
-            elsif ($item->{content}->{widget}) {
-               $widget = $self->new( $self->_merge_config( $config, $item ) );
-               $ref    = { content => $widget->render };
-               $ref->{class} = $widget->class if ($widget->class);
-            }
-            else { $ref = $item->{content} }
-         }
-         else { $ref = { content => $item->{content} } }
+   for my $list (grep { $_ and ref $_ eq q(HASH) } @{ $data }) {
+      my @tmp = ();
 
-         $ref->{rownum} = $item->{rownum} if (defined $item->{rownum});
-         push @tmp, $ref;
+      for my $item (@{ $list->{ $key } }) {
+         my $built = __build_widget( $class, $config, $item, \@tmp );
+
+         push @tmp, $built if ($built);
       }
 
-      @{ $list->{items} } = @tmp;
+      @{ $list->{ $key } } = @tmp;
    }
 
    return;
 }
 
 sub new {
-   my ($proto, @rest) = @_; my $args = $proto->_arg_list( @rest );
-   my ($class, $msg_id, $ref, $self, $suffix, $text, @tmp, $val);
+   my ($class, @rest) = @_;
+
+   # Coerce a hash ref of the passed args
+   my $args = __arg_list( @rest );
 
    # Start with some hard coded defaults;
-   $self = bless { %ATTRS }, ref $proto || $proto;
+   my $self = bless { %{ $ATTRS } }, $class;
 
-   $self->_set_name_id_and_type( $args );
+   # Set minimum requirements from the supplied args and the defaults
+   $self->_bootstrap( $args );
 
    # Your basic factory method trick
-   $class = __PACKAGE__.q(::).(ucfirst $self->{type});
+   $class = __PACKAGE__.q(::).(ucfirst $self->type);
    $self->_ensure_class_loaded( $class );
 
-   # Allow the subclass to set it's own defaults
+   # Complete the initialization
    $self->init( $args );
-
-   # Now we can create HTML elements like we could with CGI.pm
-   $ref = { content_type => $self->content_type };
-   $self->hacc( HTML::Accessors->new( $ref ) );
-
-   # Create a Text::Markdown object for use by the msgs method
-   $suffix = $self->content_type eq q(text/html) ? q(>) : q( />);
-   $self->text_obj( Text::Markdown->new
-                    ( empty_element_suffix => $suffix,
-                      tab_width            => $self->tabstop ) );
-
-   if ($self->ajaxid) {
-      # Set the ajax field validation message
-      $msg_id = exists $args->{fields}->{ $self->ajaxid }
-              ? $args->{fields}->{ $self->ajaxid }->{validate} : $NUL;
-      $msg_id = $msg_id->[0] if (ref $msg_id eq q(ARRAY));
-      $text   = $self->ajaxtext
-             || $self->msg( $msg_id ) || 'Invalid field value';
-      $self->ajaxtext( $text );
-
-      # Install default JavaScript event handler
-      unless ($self->onblur || $self->onchange || $self->onkeypress) {
-         $text = $self->evnt_hndlr."('".$self->ajaxid."', this.value)";
-         $self->onblur( $text );
-      }
-   }
-
-   $self->hint_title( $text ) if ($text = $self->msg( q(handy_hint_title) ));
-
-   # Calculate the prompt width
-   if ($self->pwidth && ($self->pwidth =~ m{ \A \d+ \z }mx)) {
-      $self->pwidth( (int $self->pwidth * $self->swidth / 100).q(px) );
-   }
-
-   $self->sep( $NUL )         if (!$self->sep);
-   $self->sep( $NUL )         if (!$self->prompt && !$self->fhelp);
-   $self->sep( $self->space ) if ($self->sep eq q(space));
-
-   if (defined $self->stepno && $self->stepno == 0) {
-      $self->stepno( $self->space );
-   }
-
-   if ($self->stepno && $self->stepno ne $self->space) {
-      $self->stepno( $self->stepno.q(.) );
-   }
 
    return $self;
 }
 
 # Object methods
 
+sub inflate {
+   my ($self, $args) = @_;
+
+   return unless ($args);
+
+   return $args unless (ref $args);
+
+   $args->{fields}   = $self->_fields;
+   $args->{messages} = $self->_messages;
+
+   return __PACKAGE__->new( $args )->render;
+}
+
 sub init {
-   my ($self, $args) = @_; my ($fields, %skip, $val);
+   my ($self, $args) = @_;
 
-   %skip = ( qw(ajaxid 1 id 1 name 1 type 1) );
+   # Allow the factory subclass to set it's own defaults
+   $self->_init( $args );
 
-   if ($self->id && $args->{fields} && exists $args->{fields}->{ $self->id }) {
-      $fields = $args->{fields}->{ $self->id };
+   my $skip   = { qw(ajaxid 1 id 1 name 1 type 1) };
+   my $fields = $args->{fields};
 
-      for (keys %{ $fields }) {
-         if ( ! $skip{ $_ }
-             && exists $self->{ $_ }
-             && defined ($val = $fields->{ $_ })) {
-            $self->$_( $val );
-         }
-      }
+   $self->_init_fields( $skip, $fields );
+   $self->_init_args (  $skip, $args );
+
+   my $content_type = $self->content_type;
+
+   $self->is_xml( $content_type eq q(text/html) ? 0 : 1 );
+
+   # Now we can create HTML elements like we could with CGI.pm
+   unless ($self->hacc) {
+      $self->hacc( HTML::Accessors->new( { content_type => $content_type } ) );
    }
 
-   for (keys %{ $args }) {
-      if ( ! $skip{ $_ }
-          && exists $self->{ $_ }
-          && defined ($val = $args->{ $_ })) {
-         $self->$_( $val );
-      }
+   # Create a Text::Markdown object for use by the msg method
+   $self->text_obj( Text::Markdown->new
+                    ( empty_element_suffix => $self->is_xml ? q( />) : q(>),
+                      tab_width            => $self->tabstop ) );
+
+   # Set the ajax field validation message
+   $self->_init_ajax_text( $fields ) if ($self->ajaxid);
+
+   # Calculate the prompt width
+   my $pwidth = $self->pwidth;
+
+   if ($pwidth and $pwidth =~ m{ \A \d+ \z }mx) {
+      $self->pwidth( (int $pwidth * $self->swidth / 100).q(px) );
    }
 
+   my $sep = $self->sep;
+
+   $sep = q(&nbsp;:&nbsp;) if (not defined $sep and $self->prompt);
+   $sep = $self->space     if (    defined $sep and $sep eq q(space));
+
+   $self->sep( $sep );
+
+   my $stepno = $self->stepno;
+
+   $stepno = $self->space if (defined $stepno and $stepno == 0);
+   $stepno = $stepno.q(.) if ($stepno and $stepno ne $self->space);
+
+   $self->stepno( $stepno );
    return;
 }
 
-sub msg {
-   # Return the language dependant text of the requested message
-   my ($self, $name, $args) = @_; my ($key, $msgs, $pat, $text, $val);
+*loc = \&localize;
 
-   return $NUL unless ($name && ($msgs = $self->messages));
+sub localize {
+   my ($self, $key, @args) = @_; my $text;
 
-   if (exists $msgs->{ $name } && ($text = $msgs->{ $name }->{text})) {
-      if ($msgs->{ $name }->{markdown}) {
-         $text = $self->text_obj->markdown( $text );
-      }
+   return unless $key;
 
-      if ($args) {
-         # Inflate arg values enclosed in [%%]
-         for $key (keys %{ $args }) {
-            $pat  = q(\[% \s+ ).$key.q( \s+ %\]);
-            $val  = $args->{ $key } || $NUL;
-            $text =~ s{ $pat }{$val}gmx;
-         }
-      }
+   $key = $NUL.$key if ($key); # I hate Return::Value
+
+   my $message = $self->messages->{ $key };
+
+   if ($message and $text = $message->{text}) {
+      $text = $self->text_obj->markdown( $text ) if ($message->{markdown});
    }
-   else { $text = $NUL }
+   else { $text = $key if ($key =~ m{ \s+ }mx) }
+
+   return $NUL unless ($text);
+
+   @args = @{ $args[ 0 ] } if ($args[ 0 ] && ref $args[ 0 ] eq q(ARRAY));
+
+   if ((index $text, "\[") >= 0 and $text =~ m{ \[ _ \d+ \] }mx) {
+      push @args, ( q() x 10 );
+      $text =~ s{ \[ _ (\d+) \] }{$args[ $1 - 1 ]}gmx;
+   }
+   else { $text .= $SPC.(join $SPC, @args) }
 
    return $text;
 }
 
 sub render {
-   my $self = shift; my ($field, $hacc, $html, $ref, $tip);
+   my $self = shift; my $field;
 
    return $self->text || $NUL unless ($self->type);
 
-   $hacc = $self->hacc;
-   $html = "\n".($self->clear eq q(left) ? $hacc->br() : $NUL);
+   my $hacc = $self->hacc;
+   my $html = "\n".($self->clear eq q(left) ? $hacc->br() : $NUL);
 
    if ($self->stepno) {
       $html .= $hacc->span( { class => q(lineNumber) }, $self->stepno );
    }
 
-   if ($self->prompt) {
-      $ref           = { class => q(prompt) };
-      $ref->{for  }  = $self->id                         if ($self->id);
-      $ref->{style} .= 'text-align: '.$self->palign.'; ' if ($self->palign);
-      $ref->{style} .= 'white-space: nowrap; '           if ($self->nowrap);
-      $ref->{style} .= 'width: '.$self->pwidth.q(;)      if ($self->pwidth);
-      $html         .= $hacc->label( $ref, $self->prompt );
-   }
-
-   if ($self->type eq q(groupMembership)) {
-      $ref           = { class => q(instructions) };
-      $ref->{style} .= 'text-align: '.$self->palign.'; ' if ($self->palign);
-      $ref->{style} .= 'width: '.$self->pwidth.q(;)      if ($self->pwidth);
-      $html         .= $hacc->div( $ref, $self->fhelp );
-   }
+   $html .= $self->_render_prompt_label( $hacc ) if ($self->prompt);
 
    if ($self->sep) {
-      $html .= $hacc->div( { class => q(separator) }, $self->sep );
+      $html .= $hacc->span( { class => q(separator) }, $self->sep );
    }
 
-   $ref               = {};
-   $ref->{class     } = q(required)       if ($self->required);
-   $ref->{default   } = $self->default    if ($self->default);
-   $ref->{id        } = $self->id         if ($self->id);
-   $ref->{name      } = $self->name       if ($self->name);
-   $ref->{onblur    } = $self->onblur     if ($self->onblur);
-   $ref->{onkeypress} = $self->onkeypress if ($self->onkeypress);
+   return $html unless ($field = $self->_render_field);
 
-   return $html unless ($field = $self->_render( $ref ));
-
-   if ($tip = $self->tip) {
-      $tip =~ s{ \n }{ }gmx;
-      $tip = $self->hint_title.$TTS.$tip if ($tip !~ m{ $TTS }mx);
-      $tip =~ s{ \s+ }{ }gmx;
-      $ref = { class => q(help tips), title => $tip };
-
-      if ($self->tiptype ne q(dagger)) { $field = $hacc->span( $ref, $field ) }
-      else { $field .= $hacc->span( $ref, $self->nb_symbol ) }
-   }
-
-   if ($self->container) {
-      $ref   = { class => q(container ).$self->align };
-      $field = $hacc->div( $ref, $field );
-   }
-
-   if ($self->ajaxid) {
-      $ref    = { class => q(hidden), id => $self->ajaxid.q(_checkField) };
-      $field .= $hacc->div( $ref, $hacc->br().$self->ajaxtext );
-      $ref    = { class => q(container) };
-      $field  = $hacc->div( $ref, $field );
-   }
+   $field = $self->_render_tip(         $hacc, $field ) if ($self->tip);
+   $field = $self->_render_container(   $hacc, $field ) if ($self->container);
+   $field = $self->_render_check_field( $hacc, $field ) if ($self->ajaxid);
 
    return $html.$field;
 }
 
-# Private methods
+# Private object methods
 
-sub _arg_list {
-   my ($self, @rest) = @_;
+sub _bootstrap {
+   my ($self, $args) = @_;
 
-   return {} unless ($rest[0]);
+   # Bare minimum is fields + id to get a useful widget
+   for (grep { exists $args->{ $_ } } qw(ajaxid id name type)) {
+      $self->{ $_ } = $args->{ $_ };
+   }
 
-   return ref $rest[0] eq q(HASH) ? $rest[0] : { @rest };
+   # Defaults id from name (least significant) from id from ajaxid (most sig.)
+   my $id = $self->id; my $name = $self->name; my $type = $self->type;
+
+   $id = $self->id( $self->ajaxid ) if (not $id and $self->ajaxid);
+
+   if ($id and not $name) {
+      if ($id =~ m{ \. }mx) {
+         $name = $self->name( (split m{ \. }mx, $id)[1] );
+      }
+      else { $name = $self->name( (reverse split m{ _ }mx, $id)[0] ) }
+   }
+
+   $id = $self->id( $name ) if (not $id and $name);
+
+   # We can get the widget type from the config file
+   if (not $type and $id and exists $args->{fields}) {
+      my $fields = $args->{fields};
+
+      if (exists $fields->{ $id } and exists $fields->{ $id }->{type}) {
+         $type = $self->type( $fields->{ $id }->{type} );
+      }
+   }
+
+   # This is the default widget type if not overidden in the config
+   $type = $self->type( q(textfield) ) unless ($type);
+
+   $self->name     ( $type             ) unless ($name);
+   $self->_fields  ( $args->{fields  } );
+   $self->_messages( $args->{messages} );
+   return;
 }
 
 sub _ensure_class_loaded {
    my ($self, $class) = @_; my $error;
 
-   {
-## no critic
-      local $@;
-      eval "require $class;";
-      $error = $@;
-## critic
-   }
+   ## no critic
+   {  local $EVAL_ERROR; eval "require $class;"; $error = $EVAL_ERROR; }
+   ## critic
 
-   if ($error) {
-      $self->_set_error( $error );
-      return;
-   }
+   return $self->_set_error( $error ) if ($error);
 
    unless (Class::Inspector->loaded( $class )) {
-      $self->_set_error( "Failed to load class $class" );
-      return;
+      return $self->_set_error( "Failed to load class $class" );
    }
 
    bless $self, $class;
    return;
 }
 
-sub _group_fields {
-   my ($self, $item, $list) = @_; my $html = $NUL; my $ref;
-
-   for (1 .. $item->{content}->{nitems}) {
-      $ref  = pop @{ $list }; chomp $ref->{content};
-      $html = $ref->{content}.$html;
-   }
-
-   my $hacc   = HTML::Accessors->new();
-   my $legend = $hacc->legend( $item->{content}->{text} );
-   return "\n".$hacc->fieldset( "\n".$legend.$html );
+sub _init {
+   # Can be overridden in factory subclass
 }
 
-sub _merge_config {
-   my ($self, $config, $item) = @_;
+sub _init_ajax_text {
+   my ($self, $fields) = @_; my $ajax_id = $self->ajaxid; my ($msg_id, $text);
 
-   return { %{ $config }, %{ $item->{content} } };
+   $msg_id = exists $fields->{ $ajax_id }
+           ? $fields->{ $ajax_id }->{validate} : $NUL;
+   $msg_id = $msg_id->[0] if ($msg_id and ref $msg_id eq q(ARRAY));
+   $text   = $self->ajaxtext
+          || ($msg_id && $self->loc( $msg_id ))
+          || 'Invalid field value';
+   $self->ajaxtext( $text );
+
+   # Install default JavaScript event handler
+   unless ($self->onblur || $self->onchange || $self->onkeypress) {
+      $text = $self->evnt_hndlr.'( "'.$self->ajaxid.'", this.value )';
+      $self->onblur( $text );
+   }
+
+   return;
+}
+
+sub _init_args {
+   my ($self, $skip, $args) = @_; my $val;
+
+   for (grep { not $skip->{ $_ } } keys %{ $args }) {
+      if (exists $self->{ $_ } and defined ($val = $args->{ $_ })) {
+         $self->{ $_ } = $val;
+      }
+   }
+
+   return;
+}
+
+sub _init_fields {
+   my ($self, $skip, $fields) = @_; my $id = $self->id; my $val;
+
+   if ($id && $fields && exists $fields->{ $id }) {
+      my $field = $fields->{ $id };
+
+      for (grep { not $skip->{ $_ } } keys %{ $field }) {
+         if (exists $self->{ $_ } and defined ($val = $field->{ $_ })) {
+            $self->{ $_ } = $val;
+         }
+      }
+   }
+
+   return;
 }
 
 sub _render {
-   my ($self, $ref) = @_;
+   my ($self, $args) = @_;
 
    return $self->text if ($self->text);
 
-   my $id = $ref->{id} || '*unknown id*';
+   my $id = $args->{id} || '*unknown id*';
    $self->_set_error( "No _render method for field $id" );
    return;
 }
 
-sub _set_error {
-   my ($self, $error) = @_;
+sub _render_check_field {
+   my ($self, $hacc, $field) = @_; my $args;
 
-   $self->{text} = $error;
-   return;
+   $args   = { class => q(hidden), id => $self->ajaxid.q(_checkField) };
+   $field .= $hacc->div( $args, $hacc->br().$self->ajaxtext );
+   $args   = { class => $self->container_class || q(container) };
+
+   return $hacc->div( $args, $field );
 }
 
-sub _set_name_id_and_type {
-   my ($self, $args) = @_;
+sub _render_container {
+   my ($self, $hacc, $field) = @_; my ($args, $class);
 
-   # Bare minimum is fields + id to get a useful widget
-   for (qw(ajaxid id name type)) {
-      $self->{ $_ } = $args->{ $_ } if (exists $args->{ $_ });
+   unless ($class = $self->container_class) {
+      $class = q(container ).$self->align;
    }
 
-   # Defaults id from name (least significant) from id from ajaxid (most sig.)
-   $self->{id} = $self->{ajaxid} if (!$self->{id} && $self->{ajaxid});
+   $args       = { class => $class };
+   $args->{id} = $self->container_id if ($self->container_id);
 
-   if (!$self->{name} && $self->{id}) {
-      if ($self->{id} =~ m{ \. }mx) {
-         $self->{name} = (split m{ \. }mx, $self->{id})[1];
+   return $hacc->div( $args, $field );
+}
+
+sub _render_field {
+   my $self = shift; my $args = {}; my $id = $self->id; my $name = $self->name;
+
+   $args->{class     } = q(required)       if ($self->required);
+   $args->{default   } = $self->default    if ($self->default);
+   $args->{id        } = $id               if ($id);
+   $args->{name      } = $name             if ($name);
+   $args->{onblur    } = $self->onblur     if ($self->onblur);
+   $args->{onkeypress} = $self->onkeypress if ($self->onkeypress);
+
+   return $self->_render( $args );
+}
+
+sub _render_prompt_label {
+   my ($self, $hacc) = @_; my $args = { class => q(prompt) };
+
+   $args->{for  }  = $self->id                         if ($self->id);
+   $args->{style} .= 'text-align: '.$self->palign.'; ' if ($self->palign);
+   $args->{style} .= 'white-space: nowrap; '           if ($self->nowrap);
+   $args->{style} .= 'width: '.$self->pwidth.q(;)      if ($self->pwidth);
+
+   return $hacc->label( $args, $self->prompt );
+}
+
+sub _render_tip {
+   my ($self, $hacc, $field) = @_; my ($args, $tip);
+
+   ($tip = $self->tip) =~ s{ \n }{ }gmx;
+
+   if ($tip !~ m{ $TTS }mx) {
+      unless ($self->hint_title) {
+         $self->hint_title( $self->loc( q(handy_hint_title) ) );
       }
-      else { $self->{name} = (reverse split m{ _ }mx, $self->{id})[0] }
+
+      $tip = $self->hint_title.$TTS.$tip;
    }
 
-   $self->{id} = $self->{name} if (!$self->{id} && $self->{name});
+   $tip  =~ s{ \s+ }{ }gmx;
+   $args = { class => q(help tips), title => $tip };
 
-   # We can get the widget type from the config file
-   if ( ! $self->{type}
-       && $self->{id}
-       && exists $args->{fields}
-       && exists $args->{fields}->{ $self->{id} }
-       && exists $args->{fields}->{ $self->{id} }->{type}) {
-      $self->{type} = $args->{fields}->{ $self->{id} }->{type};
+   return $hacc->span( $args, $field ) if ($self->tiptype ne q(dagger));
+
+   return $field.$hacc->span( $args, $NB );
+}
+
+sub _set_error {
+   my ($self, $error) = @_; $self->{text} = $error; return;
+}
+
+# Private subroutines (not methods)
+
+sub __arg_list {
+   my (@rest) = @_;
+
+   return {} unless ($rest[0]);
+
+   return ref $rest[0] eq q(HASH) ? $rest[0] : { @rest };
+}
+
+sub __build_widget {
+   my ($class, $config, $item, $stack) = @_;
+
+   return unless ($item);
+
+   return $item unless (ref $item and ref $item->{content} eq q(HASH));
+
+   if ($item->{content}->{group}) {
+      return if ($config->{skip_groups});
+
+      $item->{content} = __group_fields( $config->{hacc}, $item, $stack );
+   }
+   elsif ($item->{content}->{widget}) {
+      my $widget = $class->new( __merge_config( $config, $item ) );
+
+      $item->{content} = $widget->render;
+      $item->{class  } = $widget->class if ($widget->class);
    }
 
-   $self->{type} = q(textfield) unless ($self->{type});
+   return $item;
+}
 
-   $self->{name} = $self->{type} unless ($self->{name});
-   return;
+sub __group_fields {
+   my ($hacc, $item, $list) = @_; my $html = $NUL; my $args;
+
+   for (1 .. $item->{content}->{nitems}) {
+      $args = pop @{ $list };
+      $args->{content} ||= $NUL; chomp $args->{content};
+      $html = $args->{content}.$html;
+   }
+
+   my $legend = $hacc->legend( $item->{content}->{text} );
+
+   return "\n".$hacc->fieldset( "\n".$legend.$html );
+}
+
+sub __merge_config {
+   my ($config, $item) = @_; return { %{ $config }, %{ $item->{content} } };
 }
 
 1;
@@ -373,7 +466,7 @@ HTML::FormWidgets - Create HTML form markup
 
 =head1 Version
 
-0.2.$Rev: 108 $
+0.2.$Rev: 139 $
 
 =head1 Synopsis
 
@@ -382,26 +475,24 @@ HTML::FormWidgets - Create HTML form markup
    use base qw(CatalystX::Usul::View::HTML);
    use HTML::FormWidgets;
 
-   sub build_form {
-      my ($self, $c) = @_;
-      my $s          = $c->stash;
-      my $form       = [ $s->{iFrame} ];
-      my $config     = {};
+   sub build_widgets {
+      my ($self, $c, $data, $config) = @_; my $s = $c->stash; $config ||= {};
 
-      $config->{root        } = $c->config->{root};
-      $config->{base        } = $c->req->base;
-      $config->{content_type} = $c->config->{content_type};
-      $config->{url         } = $c->req->path;
       $config->{assets      } = $s->{assets};
+      $config->{base        } = $c->req->base;
+      $config->{content_type} = $s->{content_type};
       $config->{fields      } = $s->{fields} || {};
       $config->{form        } = $s->{form};
-      $config->{hide        } = $s->{iFrame}->{hidden};
+      $config->{hide        } = $s->{hidden}->{items};
       $config->{messages    } = $s->{messages};
+      $config->{pwidth      } = $s->{pwidth};
+      $config->{root        } = $c->config->{root};
       $config->{swidth      } = $s->{width} if ($s->{width});
-      $config->{templatedir } = $c->config->{dynamic_templates};
+      $config->{templatedir } = $self->dynamic_templates;
+      $config->{url         } = $c->req->path;
 
-      HTML::FormWidgets->build( $config, $form );
-      return;
+      HTML::FormWidgets->build( $config, $data );
+      return $data;
    }
 
 =head1 Description
@@ -441,6 +532,12 @@ This method takes a large number of options with each widget using
 only few of them. Each option is described in the factory subclasses
 which use that option
 
+=head2 inflate
+
+Creates new C<HTML::FormWidgets> objects and returns their rendered output.
+Called by the L</_render> methods in the factory subclasses to inflate
+embeded widget definitions
+
 =head2 init
 
    $self->init( $args );
@@ -449,9 +546,9 @@ Initialises this object with data from the passed arguments. This is
 usually overridden in the factory subclass which sets the default for
 it's own attributes and then calls this method in the base class
 
-=head2 msg
+=head2 localize
 
-   $message_text = $self->msg( $message_id );
+   $message_text = $self->localize( $message_id );
 
 Use the supplied key to return a value from the B<messages>
 hash. This hash was passed to the constructor and should contain any
@@ -500,7 +597,7 @@ element of classes B<container> and B<align>
 =item tip
 
 The text of the field help. If B<tiptype> is set to B<dagger>
-(which is the default) then a dagger symbol B<nb_symbol> is
+(which is the default) then a dagger symbol is
 wrapped in a B<span> of class B<help tips> and this is appended to the
 returned input field.  The tip text is used as the B<title>
 attribute. If the B<tiptype> is not set to B<dagger> then the help
@@ -513,25 +610,15 @@ server side validation
 
 =back
 
-=head2 _arg_list
+=head2 _bootstrap
 
-Accepts either a single argument of a hash ref or a list of key/value
-pairs. Returns a hash ref in either case.
+Determine the C<id>, C<name> and C<type> of the widget from the supplied
+arguments
 
 =head2 _ensure_class_loaded
 
 Once the factory subclass is known this method ensures that it is loaded
 and then re-blesses the self referential object into the correct class
-
-=head2 _group_fields
-
-Wraps the top B<nitems> widgets on the build stack in a fieldset
-element with a legend
-
-=head2 _merge_config
-
-Does a simple merging of the two hash refs that are passed as
-arguments. The second argument takes precedence over the first
 
 =head2 _render
 
@@ -544,10 +631,20 @@ attribute if set or an error message otherwise
 Stores the passed error message in the C<text> attribute so that it
 gets rendered in place of the widget
 
-=head2 _set_id_name_and_type
+=head2 __arg_list
 
-Determine the C<id>, C<name> and C<type> of the widget from the supplied
-arguments
+Accepts either a single argument of a hash ref or a list of key/value
+pairs. Returns a hash ref in either case.
+
+=head2 __group_fields
+
+Wraps the top B<nitems> widgets on the build stack in a fieldset
+element with a legend
+
+=head2 __merge_config
+
+Does a simple merging of the two hash refs that are passed as
+arguments. The second argument takes precedence over the first
 
 =head1 Configuration and Environment
 
@@ -567,8 +664,8 @@ This is the prefix for our URI
 
 =item content_type
 
-Either I<application/xhtml+xml> which generates XHTML 1.1 and is the
-default or I<text/html> which generates HTML 4.01
+Either I<application/xhtml+xml> which generates XHTML 1.1 or
+I<text/html> which generates HTML 4.01 and is the default
 
 =item fields
 
@@ -706,6 +803,10 @@ Displays two lists which allow for membership of a group. The first
 scrolling list contains "all" values (I<all>), the second
 contains those values currently selected (I<current>). The
 height of the scrolling lists is set by I<height>
+
+=head2 Hidden
+
+Generates a hidden input field. Uses the I<default> attribute as the value
 
 =head2 ImageButton
 
@@ -891,3 +992,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
+

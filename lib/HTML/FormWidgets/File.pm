@@ -1,17 +1,17 @@
 package HTML::FormWidgets::File;
 
-# @(#)$Id: File.pm 95 2008-09-28 22:36:38Z pjf $
+# @(#)$Id: File.pm 137 2009-02-22 02:41:15Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 use English qw(-no_match_vars);
 use IO::File;
 use Syntax::Highlight::Perl;
 use Text::ParseWords;
 use Text::Tabs;
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 95 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 137 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(base header hide path root scheme select
                               style subtype) );
@@ -40,7 +40,7 @@ my %SCHEME =
      Label             => [ '<font color="#000000">', '</font>' ],
      Line              => [ '<font color="#000000">', '</font>' ], );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
    $self->base(      q() );
@@ -53,8 +53,6 @@ sub init {
    $self->select(    -1 );
    $self->style(     q() );
    $self->subtype(   q(file) );
-
-   $self->NEXT::init( $args );
    return;
 }
 
@@ -65,6 +63,8 @@ sub _render {
    my ($pat, $path, $r_no, $rdr, $rows, $span, $text);
 
    $hacc = $self->hacc; $path = $self->path;
+
+   return 'No file' unless ($path);
 
    if ($self->subtype eq q(html)) {
       $pat = $self->root;
@@ -111,7 +111,11 @@ sub _render {
          $r_no++;
       }
 
-      push @{ $self->hide }, { name => q(nRows), value => $r_no };
+      my $content = $self->inflate( { name    => q(_nrows),
+                                      default => $r_no,
+                                      type    => q(hidden),
+                                      widget  => 1 } );
+      push @{ $self->hide }, { content => $content };
 
       return $hacc->table( { cellpadding => 0, cellspacing => 0 }, $rows );
    }
@@ -190,7 +194,11 @@ sub _render {
 
    $rows  = $hacc->tr( $cells ).$rows;
 
-   push @{ $self->hide }, { name  => q(nRows), value => $r_no };
+   my $content = $self->inflate( { name    => q(_nrows),
+                                   default => $r_no,
+                                   type    => q(hidden),
+                                   widget  => 1 } );
+   push @{ $self->hide }, { content => $content };
 
    return $hacc->table( $rows );
 }

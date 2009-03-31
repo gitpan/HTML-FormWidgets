@@ -1,24 +1,23 @@
 package HTML::FormWidgets::Rule;
 
-# @(#)$Id: Rule.pm 83 2008-09-24 00:27:50Z pjf $
+# @(#)$Id: Rule.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(alt href imgclass) );
+__PACKAGE__->mk_accessors( qw(alt href imgclass onclick) );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
    $self->alt(       undef );
    $self->container( 0 );
    $self->href(      undef );
    $self->imgclass(  undef );
-
-   $self->NEXT::init( $args );
+   $self->onclick(   undef );
    return;
 }
 
@@ -34,7 +33,11 @@ sub _render {
    }
    else { $html = $self->text }
 
-   $html = $hacc->a( { href => $self->href }, $html ) if ($self->href);
+   if ($self->href) {
+      my $ref = { href => $self->href };
+      $ref->{onclick} = $self->onclick if ($self->onclick);
+      $html = $hacc->a( $ref, $html );
+   }
 
    if ($self->tip) {
       $html = $hacc->span( { class => q(tips), title => $self->tip }, $html );

@@ -1,6 +1,6 @@
-package HTML::FormWidgets::Textfield;
+package HTML::FormWidgets::Hidden;
 
-# @(#)$Id: Textfield.pm 135 2009-02-19 17:51:07Z pjf $
+# @(#)$Id: Hidden.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
@@ -8,21 +8,21 @@ use parent qw(HTML::FormWidgets);
 
 use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(width) );
-
 sub _init {
    my ($self, $args) = @_;
 
-   $self->width( 40 );
+   $self->container( 0 );
    return;
 }
 
 sub _render {
    my ($self, $args) = @_;
 
-   $args->{size} = $self->width;
+   delete $args->{id};
+   $args->{type}  = q(hidden);
+   $args->{value} = delete $args->{default};
 
-   return $self->hacc->textfield( $args );
+   return $self->hacc->input( $args );
 }
 
 1;
@@ -31,3 +31,4 @@ sub _render {
 # mode: perl
 # tab-width: 3
 # End:
+

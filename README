@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    0.2.$Rev: 108 $
+    0.2.$Rev: 139 $
 
 Synopsis
        package MyApp::View::HTML;
@@ -10,26 +10,24 @@ Synopsis
        use base qw(CatalystX::Usul::View::HTML);
        use HTML::FormWidgets;
 
-       sub build_form {
-          my ($self, $c) = @_;
-          my $s          = $c->stash;
-          my $form       = [ $s->{iFrame} ];
-          my $config     = {};
+       sub build_widgets {
+          my ($self, $c, $data, $config) = @_; my $s = $c->stash; $config ||= {};
 
-          $config->{root        } = $c->config->{root};
-          $config->{base        } = $c->req->base;
-          $config->{content_type} = $c->config->{content_type};
-          $config->{url         } = $c->req->path;
           $config->{assets      } = $s->{assets};
+          $config->{base        } = $c->req->base;
+          $config->{content_type} = $s->{content_type};
           $config->{fields      } = $s->{fields} || {};
           $config->{form        } = $s->{form};
-          $config->{hide        } = $s->{iFrame}->{hidden};
+          $config->{hide        } = $s->{hidden}->{items};
           $config->{messages    } = $s->{messages};
+          $config->{pwidth      } = $s->{pwidth};
+          $config->{root        } = $c->config->{root};
           $config->{swidth      } = $s->{width} if ($s->{width});
-          $config->{templatedir } = $c->config->{dynamic_templates};
+          $config->{templatedir } = $self->dynamic_templates;
+          $config->{url         } = $c->req->path;
 
-          HTML::FormWidgets->build( $config, $form );
-          return;
+          HTML::FormWidgets->build( $config, $data );
+          return $data;
        }
 
 Description
@@ -65,6 +63,11 @@ Subroutines/Methods
     few of them. Each option is described in the factory subclasses which
     use that option
 
+  inflate
+    Creates new "HTML::FormWidgets" objects and returns their rendered
+    output. Called by the "_render" methods in the factory subclasses to
+    inflate embeded widget definitions
+
   init
        $self->init( $args );
 
@@ -72,8 +75,8 @@ Subroutines/Methods
     usually overridden in the factory subclass which sets the default for
     it's own attributes and then calls this method in the base class
 
-  msg
-       $message_text = $self->msg( $message_id );
+  localize
+       $message_text = $self->localize( $message_id );
 
     Use the supplied key to return a value from the messages hash. This hash
     was passed to the constructor and should contain any literal text used
@@ -112,30 +115,22 @@ Subroutines/Methods
 
     tip
        The text of the field help. If tiptype is set to dagger (which is the
-       default) then a dagger symbol nb_symbol is wrapped in a span of class
-       help tips and this is appended to the returned input field. The tip
-       text is used as the title attribute. If the tiptype is not set to
-       dagger then the help text is wrapped around the input field itself
+       default) then a dagger symbol is wrapped in a span of class help tips
+       and this is appended to the returned input field. The tip text is
+       used as the title attribute. If the tiptype is not set to dagger then
+       the help text is wrapped around the input field itself
 
     ajaxid
        The text of the message which is displayed if the field's value fails
        server side validation
 
-  _arg_list
-    Accepts either a single argument of a hash ref or a list of key/value
-    pairs. Returns a hash ref in either case.
+  _bootstrap
+    Determine the "id", "name" and "type" of the widget from the supplied
+    arguments
 
   _ensure_class_loaded
     Once the factory subclass is known this method ensures that it is loaded
     and then re-blesses the self referential object into the correct class
-
-  _group_fields
-    Wraps the top nitems widgets on the build stack in a fieldset element
-    with a legend
-
-  _merge_config
-    Does a simple merging of the two hash refs that are passed as arguments.
-    The second argument takes precedence over the first
 
   _render
     This should have been overridden in the factory subclass. If it gets
@@ -146,9 +141,17 @@ Subroutines/Methods
     Stores the passed error message in the "text" attribute so that it gets
     rendered in place of the widget
 
-  _set_id_name_and_type
-    Determine the "id", "name" and "type" of the widget from the supplied
-    arguments
+  __arg_list
+    Accepts either a single argument of a hash ref or a list of key/value
+    pairs. Returns a hash ref in either case.
+
+  __group_fields
+    Wraps the top nitems widgets on the build stack in a fieldset element
+    with a legend
+
+  __merge_config
+    Does a simple merging of the two hash refs that are passed as arguments.
+    The second argument takes precedence over the first
 
 Configuration and Environment
     The following are passed to "build" in the *config* hash (they reflect
@@ -162,8 +165,8 @@ Configuration and Environment
        This is the prefix for our URI
 
     content_type
-       Either *application/xhtml+xml* which generates XHTML 1.1 and is the
-       default or *text/html* which generates HTML 4.01
+       Either *application/xhtml+xml* which generates XHTML 1.1 or
+       *text/html* which generates HTML 4.01 and is the default
 
     fields
        This hash ref contains the fields definitions. Static parameters for
@@ -270,6 +273,10 @@ Factory Subclasses
     scrolling list contains "all" values (*all*), the second contains those
     values currently selected (*current*). The height of the scrolling lists
     is set by *height*
+
+  Hidden
+    Generates a hidden input field. Uses the *default* attribute as the
+    value
 
   ImageButton
     Generates an image button where *name* identifies the image file in

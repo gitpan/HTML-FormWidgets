@@ -1,26 +1,40 @@
 package HTML::FormWidgets::Freelist;
 
-# @(#)$Id: Freelist.pm 89 2008-09-24 08:53:55Z pjf $
+# @(#)$Id: Freelist.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 89 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(assets height js_obj labels values width) );
+__PACKAGE__->mk_accessors( qw(add_tip assets height js_obj labels
+                              remove_tip values width) );
 
-sub init {
-   my ($self, $args) = @_;
+my $TTS = q( ~ );
+
+sub _init {
+   my ($self, $args) = @_; my $text;
 
    $self->assets( q() );
    $self->height( 5 );
-   $self->js_obj( q(freeListObj) );
+   $self->js_obj( q(behaviour.freeList) );
    $self->labels( undef );
    $self->values( [] );
    $self->width(  20 );
 
-   $self->NEXT::init( $args );
+   unless ($self->hint_title) {
+      $self->hint_title( $self->loc( q(Hint ) ) );
+   }
+
+   $text  = 'Enter a new item into the adjacent text field ';
+   $text .= 'and then click this button to add it to the list';
+   $text  = $self->loc( q(freelistAddTip) ) || $text;
+   $self->add_tip(    $self->hint_title.$TTS.$text );
+   $text  = 'Select one or more items from the adjacent list ';
+   $text .= 'and then click this button to remove them';
+   $text  = $self->loc( q(freelistRemoveTip) ) || $text;
+   $self->remove_tip( $self->hint_title.$TTS.$text );
    return;
 }
 
@@ -40,9 +54,7 @@ sub _render {
    $args->{src     }  = $self->assets.'add_item.png';
    $args->{value   }  = q(add).(ucfirst $self->name);
    $text              = $hacc->image_button( $args );
-   $tip               = 'Enter a new item into the adjacent text field ';
-   $tip              .= 'and then click this button to add it to the list';
-   $args              = { class => q(help tips), title => $tip };
+   $args              = { class => q(help tips), title => $self->add_tip };
    $text1             = $hacc->span( $args, $text ).$hacc->br().$hacc->br();
 
    $args              = {};
@@ -52,9 +64,7 @@ sub _render {
    $args->{src     }  = $self->assets.'remove_item.png';
    $args->{value   }  = q(remove).(ucfirst $self->name);
    $text              = $hacc->image_button( $args );
-   $tip               = 'Select one or more items from the adjacent list ';
-   $tip              .= 'and then click this button to remove them';
-   $args              = { class => q(help tips), title => $tip };
+   $args              = { class => q(help tips), title => $self->remove_tip };
    $text1            .= $hacc->span( $args, $text );
    $html             .= $hacc->div( { class => q(container) }, $text1 );
 

@@ -1,36 +1,47 @@
 package HTML::FormWidgets::Anchor;
 
-# @(#)$Id: Anchor.pm 83 2008-09-24 00:27:50Z pjf $
+# @(#)$Id: Anchor.pm 135 2009-02-19 17:51:07Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 83 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
 
-__PACKAGE__->mk_accessors( qw(href onclick) );
+__PACKAGE__->mk_accessors( qw(fhelp href imgclass onclick) );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
-   $self->class(   $self->class || q(linkFade) );
-   $self->href(    q() );
-   $self->onclick( undef );
-   $self->text(    q(link) );
-
-   $self->NEXT::init( $args );
+   $self->class(    q(linkFade) );
+   $self->fhelp(    q()         );
+   $self->href(     undef       );
+   $self->imgclass( undef       );
+   $self->onclick(  undef       );
+   $self->text(     q(link)     );
+   $self->tiptype(  q(normal)   );
    return;
 }
 
 sub _render {
    my ($self, $args) = @_;
 
-   delete $args->{name};
-   $args->{class  } = $self->class;
-   $args->{href   } = $self->href;
-   $args->{onclick} = $self->onclick if ($self->onclick);
+   if ($self->imgclass) {
+      $self->text( $self->hacc->img( { alt   => $self->fhelp,
+                                       class => $self->imgclass,
+                                       src   => $self->text } ) );
+   }
 
-   return $self->hacc->a( $args, $self->text );
+   if ($self->href) {
+      delete $args->{name};
+      $args->{href   } = $self->href;
+      $args->{class  } = $self->class;
+      $args->{onclick} = $self->onclick if ($self->onclick);
+
+      return $self->hacc->a( $args, $self->text );
+   }
+
+   return $self->text;
 }
 
 1;

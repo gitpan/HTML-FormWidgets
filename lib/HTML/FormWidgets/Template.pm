@@ -1,31 +1,29 @@
 package HTML::FormWidgets::Template;
 
-# @(#)$Id: Template.pm 79 2008-09-23 21:55:44Z pjf $
+# @(#)$Id: Template.pm 140 2009-03-09 13:55:40Z pjf $
 
 use strict;
 use warnings;
-use base qw(HTML::FormWidgets);
+use parent qw(HTML::FormWidgets);
 use English qw(-no_match_vars);
-use File::Spec::Functions;
+use File::Spec;
 use IO::File;
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 79 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 140 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(templatedir) );
 
-sub init {
+sub _init {
    my ($self, $args) = @_;
 
    $self->templatedir( undef );
-
-   $self->NEXT::init( $args );
    return;
 }
 
 sub _render {
    my ($self, $args) = @_; my ($content, $path, $rdr);
 
-   $path = catfile( $self->templatedir, $self->id.q(.tt) );
+   $path = File::Spec->catfile( $self->templatedir, $self->id.q(.tt) );
 
    return 'Not found '.$path   unless (-f $path);
    return 'Cannot read '.$path unless ($rdr = IO::File->new( $path, q(r) ));

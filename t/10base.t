@@ -5,15 +5,17 @@
 use strict;
 use warnings;
 use English qw(-no_match_vars);
-use FindBin qw($Bin);
-use lib     qq($Bin/../lib);
+use File::Spec::Functions;
+use FindBin ();
+use lib catfile( $FindBin::Bin, updir, q(lib) );
 use Test::More;
 
-use version; our $VERSION = qv( sprintf '0.2.%d', q$Rev: 9 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 9 $ =~ /\d+/gmx );
 
 BEGIN {
-   if ($ENV{AUTOMATED_TESTING}
-       || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx) {
+   if ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
+       || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx
+       || ($ENV{PERL5_CPANPLUS_IS_RUNNING} && $ENV{PERL5_CPAN_IS_RUNNING})) {
       plan skip_all => q(CPAN Testing stopped);
    }
 
@@ -104,7 +106,7 @@ $widget = HTML::FormWidgets->new( data   => {
                                   name   => q(table),
                                   type   => q(table) );
 
-ok( $widget->render =~ m{ tr \s id="table_row1" }mx, q(Table) );
+ok( $widget->render =~ m{ tr \s class=".*" \s id="table_row0" }mx, q(Table) );
 
 $widget = HTML::FormWidgets->new( name => q(textarea),
                                   type => q(textarea) );
