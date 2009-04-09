@@ -1,12 +1,12 @@
 package HTML::FormWidgets::Paragraphs;
 
-# @(#)$Id: Paragraphs.pm 148 2009-03-23 23:27:37Z pjf $
+# @(#)$Id: Paragraphs.pm 154 2009-04-09 17:04:48Z pjf $
 
 use strict;
 use warnings;
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 148 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(column_class columns data hclass max_width) );
 

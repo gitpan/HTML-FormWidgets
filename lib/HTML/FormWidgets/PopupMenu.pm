@@ -1,12 +1,12 @@
 package HTML::FormWidgets::PopupMenu;
 
-# @(#)$Id: PopupMenu.pm 135 2009-02-19 17:51:07Z pjf $
+# @(#)$Id: PopupMenu.pm 154 2009-04-09 17:04:48Z pjf $
 
 use strict;
 use warnings;
 use parent q(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(labels values) );
 

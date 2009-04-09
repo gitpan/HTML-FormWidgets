@@ -1,13 +1,13 @@
 package HTML::FormWidgets::Tree;
 
-# @(#)$Id: Tree.pm 135 2009-02-19 17:51:07Z pjf $
+# @(#)$Id: Tree.pm 154 2009-04-09 17:04:48Z pjf $
 
 use strict;
 use warnings;
 use parent qw(HTML::FormWidgets);
 use English qw(-no_match_vars);
 
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 135 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(base behaviour data node_count
                               selected target url) );

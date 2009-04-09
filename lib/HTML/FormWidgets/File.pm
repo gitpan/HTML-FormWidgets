@@ -1,6 +1,6 @@
 package HTML::FormWidgets::File;
 
-# @(#)$Id: File.pm 137 2009-02-22 02:41:15Z pjf $
+# @(#)$Id: File.pm 154 2009-04-09 17:04:48Z pjf $
 
 use strict;
 use warnings;
@@ -11,7 +11,7 @@ use Syntax::Highlight::Perl;
 use Text::ParseWords;
 use Text::Tabs;
 
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 137 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(base header hide path root scheme select
                               style subtype) );

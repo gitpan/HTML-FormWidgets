@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    0.2.$Rev: 139 $
+    $Rev: 156 $
 
 Synopsis
        package MyApp::View::HTML;
@@ -286,7 +286,11 @@ Factory Subclasses
   Label
     Calls *msg* with *name* as the message key. If the text does not exist
     *text* is used. If *dropcap* is true the first character of the text is
-    wrapped in a *span* of class *dropcap*
+    wrapped in a "span" of class *dropcap*
+
+  Menu
+    Generates an unordered list of links. Used with some applied CSS to
+    implement a navigation menu
 
   Note
     Calls *msg* with *name* as the message key. If the text does not exist

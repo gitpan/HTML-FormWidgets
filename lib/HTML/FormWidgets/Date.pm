@@ -1,12 +1,12 @@
 package HTML::FormWidgets::Date;
 
-# @(#)$Id: Date.pm 137 2009-02-22 02:41:15Z pjf $
+# @(#)$Id: Date.pm 154 2009-04-09 17:04:48Z pjf $
 
 use strict;
 use warnings;
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.3.%d', q$Rev: 137 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(assets format readonly width) );
 
