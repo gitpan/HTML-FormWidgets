@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    $Rev: 156 $
+    $Rev: 163 $
 
 Synopsis
        package MyApp::View::HTML;

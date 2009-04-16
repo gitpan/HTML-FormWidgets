@@ -1,12 +1,12 @@
 package HTML::FormWidgets::Menu;
 
-# @(#)$Id: Menu.pm 154 2009-04-09 17:04:48Z pjf $
+# @(#)$Id: Menu.pm 164 2009-04-14 13:01:26Z pjf $
 
 use strict;
 use warnings;
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 164 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(data select spacer) );
 
@@ -15,9 +15,10 @@ my $NBSP = q(&nbsp;);
 sub _init {
    my ($self, $args) = @_;
 
-   $self->container( 0  );
-   $self->data     ( [] );
-   $self->select   ( 0  );
+   $self->container( 0   );
+   $self->data     ( []  );
+   $self->select   ( 0   );
+   $self->spacer   ( q() );
    return;
 }
 
