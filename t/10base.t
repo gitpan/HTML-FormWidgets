@@ -1,16 +1,14 @@
-#!/usr/bin/perl
-
-# @(#)$Id: 10base.t 9 2008-02-10 22:40:42Z pjf $
+# @(#)$Id: 10base.t 172 2009-04-27 21:51:17Z pjf $
 
 use strict;
 use warnings;
-use English qw(-no_match_vars);
 use File::Spec::Functions;
-use FindBin ();
-use lib catfile( $FindBin::Bin, updir, q(lib) );
+use English  qw( -no_match_vars );
+use FindBin  qw( $Bin );
+use lib (catdir( $Bin, updir, q(lib) ));
 use Test::More;
 
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 9 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 172 $ =~ /\d+/gmx );
 
 BEGIN {
    if ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
@@ -119,3 +117,8 @@ $widget = HTML::FormWidgets->new( default => q(test),
                                   type    => q(textfield) );
 
 ok( $widget->render =~ m{ input \s value="test" \s name="textfield" \s type="text" \s id="textfield" \s size="40" }mx, q(Textfield) );
+
+# Local Variables:
+# mode: perl
+# tab-width: 3
+# End:

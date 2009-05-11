@@ -2,16 +2,25 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    $Rev: 163 $
+    $Rev: 176 $
 
 Synopsis
-       package MyApp::View::HTML;
+       package CatalystX::Usul::View;
 
-       use base qw(CatalystX::Usul::View::HTML);
+       use parent qw(Catalyst::View CatalystX::Usul);
        use HTML::FormWidgets;
 
        sub build_widgets {
-          my ($self, $c, $data, $config) = @_; my $s = $c->stash; $config ||= {};
+          my ($self, $c, $sources, $config) = @_; my $s = $c->stash; my $data = [];
+
+          $sources ||= []; $config ||= {};
+
+          for my $part (map { $s->{ $_ } } grep { $s->{ $_ } } @{ $sources }) {
+             if (ref $part eq q(ARRAY) and $part->[ 0 ]) {
+                push @{ $data }, $_ for (@{ $part });
+             }
+             else { push @{ $data }, $part }
+          }
 
           $config->{assets      } = $s->{assets};
           $config->{base        } = $c->req->base;
@@ -22,6 +31,7 @@ Synopsis
           $config->{messages    } = $s->{messages};
           $config->{pwidth      } = $s->{pwidth};
           $config->{root        } = $c->config->{root};
+          $config->{static      } = $s->{static};
           $config->{swidth      } = $s->{width} if ($s->{width});
           $config->{templatedir } = $self->dynamic_templates;
           $config->{url         } = $c->req->path;
@@ -36,25 +46,27 @@ Description
     components: a line or question number, a prompt string, a separator, an
     input field, additional field help, and Ajax field error string.
 
-    Input fields are selected by the widget "type" attribute. A factory
+    Input fields are selected by the widget *type* attribute. A factory
     subclass implements the method that generates the HTML or XHTML for that
     input field type. Adding more widget types is straightforward
 
-    This module is using the MooTools Javascript library
-    <http://mootools.net/> to modify default browser behaviour
+    This module is using the <MooTools> Javascript library to modify default
+    browser behaviour
 
-    This module is used by CatalystX::Usul::View::HTML and as such its main
-    use is a form generator within a Catalyst application
+    This module is used by CatalystX::Usul::View and as such its main use is
+    as a form generator within a Catalyst application
 
 Subroutines/Methods
   build
+          $class->build( $config, $data );
+
     The "build" method iterates over a data structure that represents the
-    form. One or more lists of widgets are processed in turn. New widgets
-    are created and their rendered output replaces their definitions in the
-    data structure
+    form. One or more lists of widget definitions are processed in turn. New
+    widgets are created and their rendered output replaces their definitions
+    in the data structure
 
   new
-       $self = $class->new( [{] key1 => value1, ... [}] );
+       $widget = $class->new( [{] key1 => value1, ... [}] );
 
     Construct a widget. Mostly this is called by the "build" method. It
     requires the factory subclass for the widget type.
@@ -64,25 +76,30 @@ Subroutines/Methods
     use that option
 
   inflate
-    Creates new "HTML::FormWidgets" objects and returns their rendered
-    output. Called by the "_render" methods in the factory subclasses to
-    inflate embeded widget definitions
+       $widget->inflate( $args );
+
+    Creates new objects and returns their rendered output. Called by the
+    "_render" methods in the factory subclasses to inflate embeded widget
+    definitions
 
   init
-       $self->init( $args );
+       $widget->init( $args );
 
     Initialises this object with data from the passed arguments. This is
     usually overridden in the factory subclass which sets the default for
     it's own attributes and then calls this method in the base class
 
+  loc
   localize
-       $message_text = $self->localize( $message_id );
+       $message_text = $widget->localize( $message_id, @args );
 
-    Use the supplied key to return a value from the messages hash. This hash
-    was passed to the constructor and should contain any literal text used
-    by any of the widgets
+    Use the supplied key to return a value from the *messages* hash. This
+    hash was passed to the constructor and should contain any literal text
+    used by any of the widgets
 
   render
+       $html = $widget->render;
+
     Assemble the components of the generated widget. Each component is
     concatenated onto a scalar which is the returned value. This method
     calls "_render" which should be defined in the factory subclass for this
@@ -91,65 +108,81 @@ Subroutines/Methods
     This method uses these attributes:
 
     clear
-       If set to left the widget begins with an <br> element
+       If set to left the widget begins with an "<br>" element
 
     stepno
-       If true it's value is wrapped in a span element of class lineNumber
-       and appended to the return value
+       If true it's value is wrapped in a "<span class="lineNumber">"
+       element and appended to the return value
 
     prompt
-       If true it's value is wrapped in a label element of class prompt and
-       appended to the return value. The id attribute is used to set the for
-       attribute of the label element. The palign attribute sets the text
-       align style for the label element. The nowrap attribute sets
-       whitespace style to nowrap in the label element. The pwidth attribute
-       sets the width style attribute in the label element
+       If true it's value is wrapped in a "<label class="prompt">" element
+       and appended to the return value. The *id* attribute is used to set
+       the *for* attribute of the "<label>" element. The *palign* attribute
+       sets the text align style for the "<label>" element. The *nowrap*
+       attribute sets whitespace style to nowrap in the "<label>" element.
+       The *pwidth* attribute sets the width style attribute in the
+       "<label>" element
 
     sep
-       If true it's value is wrapped in a div element of class separator and
-       appended to the return value
+       If true it's value is wrapped in a "<div class="separator">" element
+       and appended to the return value
 
     container
-       If true the value return by the "_render" method is wrapped in div
-       element of classes container and align
+       If true the value return by the "_render" method is wrapped in "<div
+       class="container">" element. The value of the *align* attribute is
+       added to the space separated class list
 
     tip
-       The text of the field help. If tiptype is set to dagger (which is the
-       default) then a dagger symbol is wrapped in a span of class help tips
-       and this is appended to the returned input field. The tip text is
-       used as the title attribute. If the tiptype is not set to dagger then
-       the help text is wrapped around the input field itself
+       The text of the field help. If *tiptype* is set to dagger (which is
+       the default) then a dagger symbol is wrapped in a "<span class="help
+       tips">" and this is appended to the returned input field. The tip
+       text is used as the *title* attribute. If the *tiptype* is not set to
+       dagger then the help text is wrapped around the input field itself
 
     ajaxid
        The text of the message which is displayed if the field's value fails
        server side validation
 
   _bootstrap
-    Determine the "id", "name" and "type" of the widget from the supplied
-    arguments
+       $widget->_bootstrap( $args );
+
+    Determine the *id*, *name* and *type* attributes of the widget from the
+    supplied arguments
 
   _ensure_class_loaded
+       $widget->_ensure_class_loaded( $class );
+
     Once the factory subclass is known this method ensures that it is loaded
     and then re-blesses the self referential object into the correct class
 
   _render
+       $html = $widget->_render( $args );
+
     This should have been overridden in the factory subclass. If it gets
-    called its probably an error so return the value of our "text" attribute
+    called its probably an error so return the value of the *text* attribute
     if set or an error message otherwise
 
   _set_error
-    Stores the passed error message in the "text" attribute so that it gets
+       $widget->_set_error( $error_text );
+
+    Stores the passed error message in the *text* attribute so that it gets
     rendered in place of the widget
 
   __arg_list
+       $args = __arg_list( @rest );
+
     Accepts either a single argument of a hash ref or a list of key/value
     pairs. Returns a hash ref in either case.
 
   __group_fields
-    Wraps the top nitems widgets on the build stack in a fieldset element
-    with a legend
+       $html = __group_fields( $hacc, $item, $stack );
 
-  __merge_config
+    Wraps the top *nitems* number of widgets on the build stack in a
+    "<fieldset>" element with a legend
+
+  __merge_hashes
+       $widget = $class->new( __merge_hashes( $config, $item ) );
+
     Does a simple merging of the two hash refs that are passed as arguments.
     The second argument takes precedence over the first
 
@@ -165,8 +198,8 @@ Configuration and Environment
        This is the prefix for our URI
 
     content_type
-       Either *application/xhtml+xml* which generates XHTML 1.1 or
-       *text/html* which generates HTML 4.01 and is the default
+       Either application/xhtml+xml which generates XHTML 1.1 or text/html
+       which generates HTML 4.01 and is the default
 
     fields
        This hash ref contains the fields definitions. Static parameters for
@@ -175,11 +208,11 @@ Configuration and Environment
        constructor
 
     form
-       Used by the "::Chooser" subclass
+       Used by the "Chooser" subclass
 
     hide
-       So that the "::File" and "::Table" subclasses can store the number of
-       rows added as the hidden form variable *nRows*
+       So that the "File" and "Table" subclasses can store the number of
+       rows added as the hidden form attribute *nRows*
 
     messages
        Many of the subclasses use this hash to supply literal text in a
@@ -194,46 +227,52 @@ Configuration and Environment
        length so that the separator colons align vertically
 
     templatedir
-       The path to template files used by the "::Template" subclass
+       The path to template files used by the "Template" subclass
 
     url
-       Only used by the "::Tree" subclass to create self referential URIs
+       Only used by the "Tree" subclass to create self referential URIs
 
     Sensible defaults are provided by "new" if any of the above are
     undefined
 
 Factory Subclasses
     These are the possible values for the *type* attribute which defaults to
-    *textfield*. Each subclass implements the "_render" method, it receives
-    a hash ref of options an returns a scalar containing some XHTML.
+    textfield. Each subclass implements the "_render" method, it receives a
+    hash ref of options an returns a scalar containing some XHTML.
 
     The distribution ships with the following factory subclasses:
 
   Anchor
-    Returns an *anchor* element of class option *class* (which defaults to
-    *linkFade*) with it's *href* attribute set to the *href* option. The
-    anchor body is set to the *text* option
+    Returns an "<anchor>" element with a class set from the *class* arg
+    (which defaults to linkFade). It's *href* attribute set to the *href*
+    arg. The anchor body is set to the *text* arg
+
+  Button
+    Generates an image button where *name* identifies the image file in
+    *assets* and is also used as the return value. The button name is set to
+    *_verb*. If the image file does not exist a regular input button is
+    rendered instead
 
   Checkbox
-    Return a *checkbox* element of value *value*. Use the element's value as
-    key to the *labels* hash. The hash value (which defaults null) is used
-    as the displayed label. The *checked* option determines the checkbox's
+    Return a "<checkbox>" element of value *value*. Use the element's value
+    as key to the *labels* hash. The hash value (which defaults null) is
+    used as the displayed label. The *checked* arg determines the checkbox's
     initial setting
 
   Chooser
-    Creates a popup window which allows one item to be selected from a
-    *long* list of items
+    Creates a popup window which allows one item to be selected from a long
+    list of items
 
   Cloud
-    Creates list of links from the data set supplied in the *data* option
+    Creates list of links from the data set supplied in the *data* arg
 
   Date
-    Return another text field, this time with a calendar icon which when
+    Return another "<textfield>", this time with a calendar icon which when
     clicked pops up a Javascript date picker. Requires the appropriate JS
     library to have been loaded by the page. Attribute *width* controls the
-    size of the textfield (default 10 characters) and *format* defaults to
-    *dd/mm/yyyy*. Setting the *readonly* attribute to true (which is the
-    default) causes the input textfield to become readonly
+    size of the "<textfield>" (default 10 characters) and *format* defaults
+    to dd/mm/yyyy. Setting the *readonly* attribute to true (which is the
+    default) causes the input "<textfield>" to become readonly
 
   File
     Display the contents of a file pointed to by *path*. Supports the
@@ -245,23 +284,24 @@ Factory Subclasses
        number of the key field
 
     file
-       Default subtype. Like the logfile subtype but without the *pre* tags
+       Default subtype. Like the logfile subtype but without the "<pre>"
+       tags
 
     html
-       The "_render" method returns an *iframe* tag whose *src* attribute is
-       set to *path*. Paths that begin with *root* will have that replaced
-       with *base*. Paths that do not begin with "http:" will have *base*
-       prepended to them
+       The "_render" method returns an "<iframe>" element whose *src*
+       attribute is set to *path*. Paths that begin with root will have that
+       replaced with the *base* attribute value. Paths that do not begin
+       with "http:" will have the *base* attribute value prepended to them
 
     logfile
        The "_render" method returns a table where each line of the logfile
        appears as a separate row containing one cell. The logfile lines are
-       each wrapped in *pre* tags
+       each wrapped in "<pre>" tags
 
     source
-       The module "Syntax::Highlight::Perl" is used to provide colour
+       The module Syntax::Highlight::Perl is used to provide colour
        highlights for the Perl source code. Tabs are expanded to *tabstop*
-       spaces and the result is returned wrapped in *pre* tags
+       spaces and the result is returned wrapped in "<pre>" tags
 
   Freelist
     New values entered into a text field can be added to the list. Existing
@@ -278,37 +318,71 @@ Factory Subclasses
     Generates a hidden input field. Uses the *default* attribute as the
     value
 
-  ImageButton
-    Generates an image button where *name* identifies the image file in
-    *assets* and is also used as the return value. The button name is set to
-    *_verb*
+  Image
+    Generates an image tag. The *text* attribute contains the source URI.
+    The *fhelp* attribute contains the alt text and the *tiptype* attribute
+    is defaulted to normal (wraps the image in a span with a JS tooltip)
 
   Label
-    Calls *msg* with *name* as the message key. If the text does not exist
-    *text* is used. If *dropcap* is true the first character of the text is
-    wrapped in a "span" of class *dropcap*
+    Calls "localize" with the *name* attribute as the message key. If the
+    message does not exist the value of the *text* attribute is used. If
+    *dropcap* is true the first character of the text is wrapped in a "<span
+    class="dropcap">"
 
   Menu
     Generates an unordered list of links. Used with some applied CSS to
     implement a navigation menu
 
   Note
-    Calls *msg* with *name* as the message key. If the text does not exist
-    *text* is used. The text is wrapped in a *div* of class *note* with
-    *align* setting the style text alignment and *width* setting the style
-    width
+    Calls "localize" with the *name* attribute as the message key. If the
+    message does not exist the value if the *text* attribute is used. The
+    text is wrapped in a c<< <div class="note"> >> with *align* setting the
+    style text alignment and *width* setting the style width
+
+  Paragraphs
+    Newspaper like paragraphs rendered in a given number of columns, each
+    approximately the same length. Defines these attributes;
+
+    column_class
+       CSS class name of the "<div>" wrapped around each column. Defaults to
+       null
+
+    columns
+       Number of columns to render the paragraphs in. Defaults to 1
+
+    data
+       Paragraphs of text. A hash ref whose *values* attribute is an array
+       ref. The values of that array are the hash refs that define each
+       paragraph. The keys of the paragraph hash ref are *class*, *heading*,
+       and *text*.
+
+    hclass
+       Each paragraph can have a heading. This is the class of then "<span>"
+       that wraps the heading text. Defaults to null
+
+    max_width
+       Maximum width of all paragraphs expressed as a percentage. Defaults
+       to 90
+
+    para_lead
+       Paragraph leading. This value is in characters. It is added to the
+       size of each paragraph to account for the leading applied by the CSS
+       to each paragraph. If a paragraph is split, then the first part must
+       by greater than twice this value or the widows and orphans trap will
+       reap it
 
   Password
     Returns a password field of width *width* which defaults to twenty
-    characters. If *subtype* equals *verify* then the message
-    *vPasswordPrompt* and another password field are appended. The fields
-    *id* and *name* are expected to contain the digit 1 which will be
-    substituted for the digit 2 in the attributes of the second field
+    characters. If *subtype* equals verify then the message vPasswordPrompt
+    and another password field are appended. The fields *id* and *name* are
+    expected to contain the digit 1 which will be substituted for the digit
+    2 in the attributes of the second field
 
   PopupMenu
-    Returns a list of *option* elements wrapped in a *select* element. The
-    list of options is passed in *values* with the display labels in
-    *labels*. The onchange event handler will be set to *onchange*
+    Returns a list of "<option>" elements wrapped in a "<select>" element.
+    The list of options is passed in *values* with the display labels in
+    *labels*. The onchange event handler will be set to the *onchange*
+    attribute value
 
   RadioGroup
     The attribute *columns* sets the number of columns for the returned
@@ -324,13 +398,55 @@ Factory Subclasses
     list of options is passed in *values* with the display labels in
     *labels*. The onchange event handler will be set to *onchange*
 
+  Slider
+    Implements a dragable slider which returns an integer value. The
+    "Slider" widget defines these attributes:
+
+    display
+       Boolean which if true causes the widget to display a readonly text
+       field containing the sliders current value. If false a " <hidden" >>
+       element is generated instead. Defaults to 1
+
+    element
+       Name of the Javascript instance variable. This will need setting to a
+       unique value for each slider on the same form. Defaults to
+       behaviour.sliderElement
+
+    hide
+       If the *display* attribute is false the current value is pushed onto
+       this array. Defaults to []
+
+    js_obj
+       This is the callback method for the sliders *onchange* event handler.
+       It is passed the slider *name* and current *value*. Defaults to
+       behaviour.submit.setField
+
+    mode
+       Which orientation to render in. Defaults to horizontal
+
+    offset
+       Sets the minimum value for the slider. Defaults to 0
+
+    range
+       The range is either the offset plus the number of steps or the two
+       values of this array if it is set. Defaults to false
+
+    snap
+       Snap to the nearest step value? Defaults to 1
+
+    steps
+       Sets the number of steps. Defaults to 100
+
+    wheel
+       Use the mouse wheel? Defaults to 1
+
   Table
     The input data is in *$data->{values}* which is an array ref for which
     each element is an array ref containing the list of field values.
 
   Template
     Look in *templatedir* for a Template::Toolkit template called *id* with
-    a *.tt* extension. Slurp it in and return it as the content for this
+    a .tt extension. Slurp it in and return it as the content for this
     widget. This provides for a "user defined" widget type
 
   Textarea
@@ -342,8 +458,7 @@ Factory Subclasses
     sixty characters wide (*width*)
 
   Tree
-    Implements an expanding tree of selectable objects. See "Bugs and
-    Limitations"
+    Implements an expanding tree of selectable objects
 
 Diagnostics
     None
@@ -385,6 +500,13 @@ Dependencies
 
     Implements the calendar popup used by the *::Date* subclass
 
+  60tree.js
+       Originally Cross Browser Tree Widget 1.17
+       Created by Emil A Eklund (http://webfx.eae.net/contact.html#emil)
+       Copyright (c) 1999 - 2002 Emil A Eklund
+
+    Implements the tree widget used by the *::Tree* subclass
+
   behaviour.js
     Is included from the App::Munchies default skin. It uses the MooTools
     library to implement the server side field validation
@@ -396,9 +518,6 @@ Incompatibilities
     There are no known incompatibilities in this module.
 
 Bugs and Limitations
-    The Javascript for the "::Tree" widget is not included due to copyright
-    issues, so that widget doesn't work
-
     The installation script does nothing with the Javascript or PNG files
     which are included in the distribution for completeness
 
