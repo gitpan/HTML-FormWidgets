@@ -14,12 +14,12 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 0196075af3a58625b6878f3bba4cdd3039359128 Changes
+SHA1 b293f898a0fcac0acffa12271c85d736530f8515 Changes
 SHA1 0190f62d6871f7927dcc90e40797c0f20645ddea LICENSE
 SHA1 3a1994b8e3a760a35ba0d82d3e43c484cbddc1b4 MANIFEST
-SHA1 11a64c2c888e2d53bc6070d7ed9901db6993a04a META.yml
+SHA1 886246f614c815c475de8528bef2502f9f3d20e1 META.yml
 SHA1 a991ca3dc3f7fbc866dcd7808bebb5a13c314c3c Makefile.PL
-SHA1 a716fae7aadb8878d5991ce37d9eeb1bf005c680 README
+SHA1 e19ac00fb72fb433a7cf8a00f320e94d6bc3672f README
 SHA1 f1b31d1dc30c34bcbb00ff419b0672ae890e1e91 css/colour-green.css
 SHA1 32fc6e1c012eb4344bf5c92e8072d5304decec60 css/green.css
 SHA1 aebce966b661e78fe6cbaf865e20122cb53e4628 css/presentation.css
@@ -55,7 +55,7 @@ SHA1 d53134b7f86d825ed986dbfc2a51c55fa9a415ef javascript/lang/calendar-es.js
 SHA1 dea52d5d64db5827fbfb88794b03d576f7cf778e javascript/lang/calendar-nl.js
 SHA1 05a45213b2a0f3b5b89889d88e117db4921fe7e8 javascript/lang/calendar-pl.js
 SHA1 061a5722da745cce6c21f1a0a80f0a1f543117ac javascript/lang/calendar-ru.js
-SHA1 74c99788fa81a92b16014c80844f7e0b49710739 lib/HTML/FormWidgets.pm
+SHA1 c170109f0c451bcf9c8e37ad3fcf0cf62f1ea440 lib/HTML/FormWidgets.pm
 SHA1 ea61de483c0152edb2d81b76a53352395d670af0 lib/HTML/FormWidgets/Anchor.pm
 SHA1 5b1c9169bdf95e1bda546742d7dc8e31681a4e21 lib/HTML/FormWidgets/Button.pm
 SHA1 80c25d95852bc26bc1f0c6bb663a54693b7efa1a lib/HTML/FormWidgets/Checkbox.pm
@@ -70,7 +70,7 @@ SHA1 e55005638162aefa796639b345681c4a22eff2c2 lib/HTML/FormWidgets/Image.pm
 SHA1 7b8aeaf5e363aaff8cf78f9fa00ddc42ed3d51fd lib/HTML/FormWidgets/Label.pm
 SHA1 b97f32a5824e14c95611bd9da1da8a7d52dde972 lib/HTML/FormWidgets/Menu.pm
 SHA1 ec65bef5269543db25caa47f6e41c291018c247d lib/HTML/FormWidgets/Note.pm
-SHA1 4645e0e26b4d0a28da2e92211afa9559dcc1fd83 lib/HTML/FormWidgets/Paragraphs.pm
+SHA1 4724a90d3c395b100445fa7bb24233904afa65c2 lib/HTML/FormWidgets/Paragraphs.pm
 SHA1 71d8c0b735fe7a8a472df0b6ee22c332761f87f4 lib/HTML/FormWidgets/Password.pm
 SHA1 d00871fd489c7009b09d21e194fe9572bd0af181 lib/HTML/FormWidgets/PopupMenu.pm
 SHA1 f4cc775425c9b0fff9f05d1e9bf7fbe5b3dc3a0c lib/HTML/FormWidgets/RadioGroup.pm
@@ -88,9 +88,9 @@ SHA1 01bd4cea9b8b404cd6b63e475d5565ab7dd6fe8a t/10base.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.6 (GNU/Linux)
 
-iQCVAwUBSgeWCc4+W2711T3pAQIvKAQAmCwr1XNPw4z3Ymhp3sFxwucqa+fSXqul
-wrLhKfCRaWr2p6jEGWKaG7LSwp6v3FNkUL3B37pBc6h4mZEZmvz+5WNlFxko818X
-0am/uJrw5BSr848365A2SK5idIhnyfRzg7/MOd0hhMHt7u2rhs+5Reb7hKVwJ9LC
-+XAB5DfGzR4=
-=CBoR
+iQCVAwUBSiuyTM4+W2711T3pAQJHFgP+NAmklB+pW4wLDniW3CDi5f7j+e00mC8j
+KKJZdIy7u3lTxDPsXBUzvGoDv0ExVQZrVDGt3xAKp3t+CVoO78R1dgU7u0Acr/8p
+cUf9EdJga5d7LLsTiBG1aCquL1AFrJFXuYmj28GAdUsvlQgJiYX7ERmmws0/2rSf
+JUiNk9oUnqk=
+=HL7+
 -----END PGP SIGNATURE-----

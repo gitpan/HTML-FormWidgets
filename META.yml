@@ -1,6 +1,6 @@
 ---
 name: HTML-FormWidgets
-version: 0.4.176
+version: 0.4.177
 author:
   - 'Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>'
 abstract: Create HTML form markup
@@ -26,7 +26,7 @@ build_requires:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: 0.4.176
+    version: 0.4.177
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
     version: 0.4.154
@@ -71,7 +71,7 @@ provides:
     version: 0.4.154
   HTML::FormWidgets::Paragraphs:
     file: lib/HTML/FormWidgets/Paragraphs.pm
-    version: 0.4.173
+    version: 0.4.177
   HTML::FormWidgets::Password:
     file: lib/HTML/FormWidgets/Password.pm
     version: 0.4.154

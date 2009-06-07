@@ -1,10 +1,10 @@
-# @(#)$Id: Paragraphs.pm 173 2009-05-02 16:54:01Z pjf $
+# @(#)$Id: Paragraphs.pm 177 2009-06-06 17:25:53Z pjf $
 
 package HTML::FormWidgets::Paragraphs;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 173 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 177 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(column_class columns data hclass
@@ -137,7 +137,10 @@ sub _split {
    my $cdr   = substr $text, $split;
    my ($end) = $car =~ m{ \s+ (\S+) \z }mx;
 
-   if ($end) { $car =~ s{ $end \z }{}mx; $cdr = $end.$cdr }
+   if ($end) {
+      $car = substr $car, 0, (length $car) - (length $end);
+      $cdr = $end.$cdr;
+   }
 
    # Widows and orphans
    if (2 * $self->para_lead > length $car) { $car = q(); $cdr = $text }
