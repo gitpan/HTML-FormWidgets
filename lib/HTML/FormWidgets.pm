@@ -1,10 +1,10 @@
-# @(#)$Id: FormWidgets.pm 177 2009-06-06 17:25:53Z pjf $
+# @(#)$Id: FormWidgets.pm 179 2009-06-08 00:48:16Z pjf $
 
 package HTML::FormWidgets;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 177 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 179 $ =~ /\d+/gmx );
 use parent qw(Class::Accessor::Fast);
 
 use Class::Inspector;
@@ -109,7 +109,10 @@ sub __build_widget {
    if ($item->{content}->{group}) {
       return if ($config->{skip_groups});
 
+      my $class = $item->{content}->{class};
+
       $item->{content} = __group_fields( $config->{hacc}, $item, $stack );
+      $item->{class  } = $class if ($class);
    }
    elsif ($item->{content}->{widget}) {
       my $widget = $class->new( __merge_hashes( $config, $item ) );
@@ -468,7 +471,7 @@ HTML::FormWidgets - Create HTML form markup
 
 =head1 Version
 
-$Rev: 177 $
+$Rev: 179 $
 
 =head1 Synopsis
 

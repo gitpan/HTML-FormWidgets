@@ -1,10 +1,10 @@
-# @(#)$Id: Paragraphs.pm 177 2009-06-06 17:25:53Z pjf $
+# @(#)$Id: Paragraphs.pm 179 2009-06-08 00:48:16Z pjf $
 
 package HTML::FormWidgets::Paragraphs;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 177 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 179 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(column_class columns data hclass
@@ -45,8 +45,8 @@ sub _render {
          if (ref $text) { $para->{body}->{widget} = $text }
          else {
             $class = defined $val->{class} ? $val->{class} : $self->class;
-            $para->{body}->{args}->{class} = $class if ($class);
-            $para->{body}->{widget} = { text => $text };
+            $para->{body}->{args  }->{class} = $class if ($class);
+            $para->{body}->{widget}->{text } = $text;
          }
       }
 
