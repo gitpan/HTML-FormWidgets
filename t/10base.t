@@ -1,23 +1,22 @@
-# @(#)$Id: 10base.t 172 2009-04-27 21:51:17Z pjf $
+# @(#)$Id: 10base.t 184 2009-06-13 22:25:28Z pjf $
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 use File::Spec::Functions;
-use English  qw( -no_match_vars );
-use FindBin  qw( $Bin );
-use lib (catdir( $Bin, updir, q(lib) ));
-use Test::More;
+use FindBin qw( $Bin );
+use lib catdir( $Bin, updir, q(lib) );
 
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 172 $ =~ /\d+/gmx );
+use English qw( -no_match_vars );
+use Test::More;
 
 BEGIN {
    if ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
-       || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx
-       || ($ENV{PERL5_CPANPLUS_IS_RUNNING} && $ENV{PERL5_CPAN_IS_RUNNING})) {
+       || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx) {
       plan skip_all => q(CPAN Testing stopped);
    }
 
-   plan tests => 15;
+   plan tests => 16;
 }
 
 use_ok q(HTML::FormWidgets);
@@ -91,6 +90,10 @@ $widget = HTML::FormWidgets->new( columns => 3,
 ok( $widget->render =~ m{ value="6" \s name="test" \s type="radio" }mx,
     q(Radio group) );
 
+$widget = HTML::FormWidgets->new( id => q(test), type => q(slider) );
+
+ok( $widget->render =~ m{ class="knob" }mx, q(Slider) );
+
 $widget = HTML::FormWidgets->new( data   => {
    flds   => [ qw(Field1 Field2) ],
    labels => { Field1 => q(Label1),
@@ -106,8 +109,7 @@ $widget = HTML::FormWidgets->new( data   => {
 
 ok( $widget->render =~ m{ tr \s class=".*" \s id="table_row0" }mx, q(Table) );
 
-$widget = HTML::FormWidgets->new( name => q(textarea),
-                                  type => q(textarea) );
+$widget = HTML::FormWidgets->new( name => q(textarea), type => q(textarea) );
 
 ok( $widget->render =~ m{ id="textarea" \s rows="5" \s cols="60" }mx,
     q(Text area) );

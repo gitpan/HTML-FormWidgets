@@ -1,6 +1,6 @@
 package HTML::FormWidgets::Template;
 
-# @(#)$Id: Template.pm 154 2009-04-09 17:04:48Z pjf $
+# @(#)$Id: Template.pm 184 2009-06-13 22:25:28Z pjf $
 
 use strict;
 use warnings;
@@ -9,7 +9,7 @@ use English qw(-no_match_vars);
 use File::Spec;
 use IO::File;
 
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(templatedir) );
 

@@ -1,12 +1,12 @@
 package HTML::FormWidgets::Table;
 
-# @(#)$Id: Table.pm 179 2009-06-08 00:48:16Z pjf $
+# @(#)$Id: Table.pm 184 2009-06-13 22:25:28Z pjf $
 
 use strict;
 use warnings;
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 179 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(add_tip assets data edit hide js_obj
                               remove_tip select) );

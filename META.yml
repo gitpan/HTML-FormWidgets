@@ -1,6 +1,6 @@
 ---
 name: HTML-FormWidgets
-version: 0.4.179
+version: 0.5.184
 author:
   - 'Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>'
 abstract: Create HTML form markup
@@ -26,85 +26,85 @@ build_requires:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: 0.4.179
+    version: 0.5.184
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Button:
     file: lib/HTML/FormWidgets/Button.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Checkbox:
     file: lib/HTML/FormWidgets/Checkbox.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Chooser:
     file: lib/HTML/FormWidgets/Chooser.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Cloud:
     file: lib/HTML/FormWidgets/Cloud.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Date:
     file: lib/HTML/FormWidgets/Date.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::File:
     file: lib/HTML/FormWidgets/File.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Freelist:
     file: lib/HTML/FormWidgets/Freelist.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::GroupMembership:
     file: lib/HTML/FormWidgets/GroupMembership.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Hidden:
     file: lib/HTML/FormWidgets/Hidden.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Image:
     file: lib/HTML/FormWidgets/Image.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Label:
     file: lib/HTML/FormWidgets/Label.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Menu:
     file: lib/HTML/FormWidgets/Menu.pm
-    version: 0.4.164
+    version: 0.5.184
   HTML::FormWidgets::Note:
     file: lib/HTML/FormWidgets/Note.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Paragraphs:
     file: lib/HTML/FormWidgets/Paragraphs.pm
-    version: 0.4.179
+    version: 0.5.184
   HTML::FormWidgets::Password:
     file: lib/HTML/FormWidgets/Password.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::PopupMenu:
     file: lib/HTML/FormWidgets/PopupMenu.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::RadioGroup:
     file: lib/HTML/FormWidgets/RadioGroup.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Rule:
     file: lib/HTML/FormWidgets/Rule.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::ScrollingList:
     file: lib/HTML/FormWidgets/ScrollingList.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Slider:
     file: lib/HTML/FormWidgets/Slider.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Table:
     file: lib/HTML/FormWidgets/Table.pm
-    version: 0.4.179
+    version: 0.5.184
   HTML::FormWidgets::Template:
     file: lib/HTML/FormWidgets/Template.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Textarea:
     file: lib/HTML/FormWidgets/Textarea.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Textfield:
     file: lib/HTML/FormWidgets/Textfield.pm
-    version: 0.4.154
+    version: 0.5.184
   HTML::FormWidgets::Tree:
     file: lib/HTML/FormWidgets/Tree.pm
-    version: 0.4.154
+    version: 0.5.184
 generated_by: Module::Build version 0.31
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html

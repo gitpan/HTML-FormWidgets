@@ -1,12 +1,12 @@
 package HTML::FormWidgets::Chooser;
 
-# @(#)$Id: Chooser.pm 154 2009-04-09 17:04:48Z pjf $
+# @(#)$Id: Chooser.pm 184 2009-06-13 22:25:28Z pjf $
 
 use strict;
 use warnings;
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 154 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(button field height href js_obj key
                               screen_x screen_y width) );

@@ -1,10 +1,10 @@
-# @(#)$Id: FormWidgets.pm 179 2009-06-08 00:48:16Z pjf $
+# @(#)$Id: FormWidgets.pm 184 2009-06-13 22:25:28Z pjf $
 
 package HTML::FormWidgets;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 179 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 use parent qw(Class::Accessor::Fast);
 
 use Class::Inspector;
@@ -471,7 +471,7 @@ HTML::FormWidgets - Create HTML form markup
 
 =head1 Version
 
-$Rev: 179 $
+$Rev: 184 $
 
 =head1 Synopsis
 

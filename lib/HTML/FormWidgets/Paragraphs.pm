@@ -1,10 +1,10 @@
-# @(#)$Id: Paragraphs.pm 179 2009-06-08 00:48:16Z pjf $
+# @(#)$Id: Paragraphs.pm 184 2009-06-13 22:25:28Z pjf $
 
 package HTML::FormWidgets::Paragraphs;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 179 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(column_class columns data hclass
