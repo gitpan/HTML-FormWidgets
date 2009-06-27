@@ -14,7 +14,7 @@ WriteMakefile
           'VERSION_FROM' => 'lib/HTML/FormWidgets.pm',
           'PREREQ_PM' => {
                            'Class::Accessor::Fast' => '0.31',
-                           'Class::Inspector' => '1.18',
+                           'Class::MOP' => '0.84',
                            'HTML::Accessors' => '0.1.22',
                            'Syntax::Highlight::Perl' => '1.00',
                            'Test::More' => '0.74',

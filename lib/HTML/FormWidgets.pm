@@ -1,13 +1,13 @@
-# @(#)$Id: FormWidgets.pm 184 2009-06-13 22:25:28Z pjf $
+# @(#)$Id: FormWidgets.pm 200 2009-06-27 00:00:39Z pjf $
 
 package HTML::FormWidgets;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 200 $ =~ /\d+/gmx );
 use parent qw(Class::Accessor::Fast);
 
-use Class::Inspector;
+use Class::MOP;
 use English qw(-no_match_vars);
 use HTML::Accessors;
 use Text::Markdown qw(markdown);
@@ -68,25 +68,24 @@ sub build {
 }
 
 sub new {
-   my ($class, @rest) = @_;
+   my ($self, @rest) = @_;
 
    # Coerce a hash ref of the passed args
    my $args = __arg_list( @rest );
 
    # Start with some hard coded defaults;
-   my $self = bless { %{ $ATTRS } }, $class;
+   my $new = bless { %{ $ATTRS } }, ref $self || $self;
 
    # Set minimum requirements from the supplied args and the defaults
-   $self->_bootstrap( $args );
+   $new->_bootstrap( $args );
 
    # Your basic factory method trick
-   $class = __PACKAGE__.q(::).(ucfirst $self->type);
-   $self->_ensure_class_loaded( $class );
+   $new->_ensure_class_loaded( __PACKAGE__.q(::).(ucfirst $new->type) );
 
    # Complete the initialization
-   $self->init( $args );
+   $new->init( $args );
 
-   return $self;
+   return $new;
 }
 
 # Private subroutines (not methods)
@@ -100,7 +99,7 @@ sub __arg_list {
 }
 
 sub __build_widget {
-   my ($class, $config, $item, $stack) = @_;
+   my ($self, $config, $item, $stack) = @_;
 
    return unless ($item);
 
@@ -115,7 +114,7 @@ sub __build_widget {
       $item->{class  } = $class if ($class);
    }
    elsif ($item->{content}->{widget}) {
-      my $widget = $class->new( __merge_hashes( $config, $item ) );
+      my $widget = $self->new( __merge_hashes( $config, $item ) );
 
       $item->{content} = $widget->render;
       $item->{class  } = $widget->class if ($widget->class);
@@ -308,16 +307,19 @@ sub _bootstrap {
 }
 
 sub _ensure_class_loaded {
-   my ($self, $class) = @_; my $error;
+   my ($self, $class, $opts) = @_; my $error; $opts ||= {};
 
-   ## no critic
-   {  local $EVAL_ERROR; eval "require $class;"; $error = $EVAL_ERROR; }
-   ## critic
+   my $is_class_loaded = sub { Class::MOP::is_class_loaded( $class ) };
+
+   {  local $EVAL_ERROR = undef;
+      eval { Class::MOP::load_class( $class ) };
+      $error = $EVAL_ERROR;
+   }
 
    return $self->_set_error( $error ) if ($error);
 
-   unless (Class::Inspector->loaded( $class )) {
-      return $self->_set_error( "Failed to load class $class" );
+   unless ($is_class_loaded->()) {
+      return $self->_set_error( "Class $class loaded but package undefined" );
    }
 
    bless $self, $class;
@@ -471,7 +473,7 @@ HTML::FormWidgets - Create HTML form markup
 
 =head1 Version
 
-$Rev: 184 $
+$Rev: 200 $
 
 =head1 Synopsis
 
@@ -1147,4 +1149,3 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
-
