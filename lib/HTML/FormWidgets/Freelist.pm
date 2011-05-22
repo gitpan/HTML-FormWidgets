@@ -1,95 +1,76 @@
-package HTML::FormWidgets::Freelist;
+# @(#)$Id: Freelist.pm 273 2010-07-27 19:13:07Z pjf $
 
-# @(#)$Id: Freelist.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Freelist;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 273 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
-
-__PACKAGE__->mk_accessors( qw(add_tip assets height js_obj labels
-                              remove_tip values width) );
+__PACKAGE__->mk_accessors( qw(add_tip height remove_tip values width) );
 
 my $TTS = q( ~ );
 
-sub _init {
+sub init {
    my ($self, $args) = @_; my $text;
 
-   $self->assets( q() );
-   $self->height( 5 );
-   $self->js_obj( q(behaviour.freeList) );
-   $self->labels( undef );
-   $self->values( [] );
-   $self->width(  20 );
+   $self->container_class( q(freelist_container) );
+   $self->height         ( 5 );
+   $self->hint_title     ( $self->loc( q(Hint) ) ) unless ($self->hint_title);
+   $self->values         ( [] );
+   $self->width          ( 20 );
 
-   unless ($self->hint_title) {
-      $self->hint_title( $self->loc( q(Hint ) ) );
-   }
-
-   $text  = 'Enter a new item into the adjacent text field ';
-   $text .= 'and then click this button to add it to the list';
-   $text  = $self->loc( q(freelistAddTip) ) || $text;
-   $self->add_tip(    $self->hint_title.$TTS.$text );
-   $text  = 'Select one or more items from the adjacent list ';
-   $text .= 'and then click this button to remove them';
-   $text  = $self->loc( q(freelistRemoveTip) ) || $text;
-   $self->remove_tip( $self->hint_title.$TTS.$text );
+   $text = $self->loc( q(freelistAddTip) );
+   $self->add_tip    ( $self->hint_title.$TTS.$text );
+   $text = $self->loc( q(freelistRemoveTip) );
+   $self->remove_tip ( $self->hint_title.$TTS.$text );
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_; my ($hacc, $html, $rno, $text, $text1, $tip, $val);
+sub render_field {
+   my ($self, $args) = @_; my $hacc = $self->hacc;
 
-   $hacc              = $self->hacc;
-   $args->{name    }  = $self->name.q(_new);
+   $args              = {};
+   $args->{class   } .= q( ifield freelist);
+   $args->{id      }  = $self->id;
+   $args->{name    }  = q(_).$self->name;
    $args->{size    }  = $self->width;
-   $html              = $hacc->div( { class => q(container) },
-                                    $hacc->textfield( $args ) );
-   $html             .= $hacc->div( { class => q(separator) }, $self->space );
+
+   my $html   = $hacc->textfield( $args );
 
    $args              = {};
-   $args->{class   }  = $args->{name} = q(button);
-   $args->{onclick }  = 'return '.$self->js_obj.".addItem('".$self->name."')";
-   $args->{src     }  = $self->assets.'add_item.png';
-   $args->{value   }  = q(add).(ucfirst $self->name);
-   $text              = $hacc->image_button( $args );
-   $args              = { class => q(help tips), title => $self->add_tip };
-   $text1             = $hacc->span( $args, $text ).$hacc->br().$hacc->br();
-
-   $args              = {};
-   $args->{class   }  = $args->{name} = q(button);
-   $args->{onclick }  = 'return '.$self->js_obj;
-   $args->{onclick } .= ".removeItem('".$self->name."')";
-   $args->{src     }  = $self->assets.'remove_item.png';
-   $args->{value   }  = q(remove).(ucfirst $self->name);
-   $text              = $hacc->image_button( $args );
-   $args              = { class => q(help tips), title => $self->remove_tip };
-   $text1            .= $hacc->span( $args, $text );
-   $html             .= $hacc->div( { class => q(container) }, $text1 );
-
-   $html             .= $hacc->div( { class => q(separator) }, $self->space );
-   $args              = {};
-   $args->{labels  }  = $self->labels if ($self->labels);
+   $args->{class   }  = q( ifield freelist);
+   $args->{id      }  = $self->id.q(_list);
    $args->{multiple}  = q(true);
-   $args->{name    }  = $self->name.q(_current);
+   $args->{name    }  = q(_).$self->name.q(_list);
    $args->{size    }  = $self->height;
    $args->{values  }  = $self->values;
-   $html             .= $hacc->scrolling_list( $args );
-   $rno               = 0;
 
-   for $val (@{ $args->{values} }) {
-      $args           = {};
-      $args->{id   }  = $self->name.$rno++;
-      $args->{name }  = $self->name;
-      $args->{value}  = $val;
-      $html          .= $hacc->hidden( $args );
+   $html    .= $hacc->scrolling_list( $args );
+
+   for my $val (@{ $self->{values} }) {
+      $html .= $hacc->hidden( { name => $self->name, value => $val } );
    }
 
-   $args              = {};
-   $args->{name    }  = $self->name.q(_n_rows);
-   $args->{value   }  = $rno;
-   $html             .= $hacc->hidden( $args );
+   $html     = $hacc->span( { class => q(freelist_ifields) }, $html );
+
+   my $text  = $hacc->span( { class => q(add_item_icon) }, q( ) );
+
+   $args     = {
+      class  => q(icon_button tips add),
+      id     => $self->id.q(_add),
+      title  => $self->add_tip };
+
+   my $text1 = $hacc->span( $args, $text );
+
+   $text     = $hacc->span( { class => q(remove_item_icon) }, q( ) );
+   $args     = {
+      class  => q(icon_button tips remove),
+      id     => $self->id.q(_remove),
+      title  => $self->remove_tip };
+   $text1   .= $hacc->span( $args, $text );
+   $html    .= $hacc->span( { class => q(freelist_buttons) }, $text1 );
+
    return $html;
 }
 

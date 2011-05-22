@@ -1,221 +1,329 @@
-package HTML::FormWidgets::Table;
+# @(#)$Id: Table.pm 295 2011-01-30 20:28:56Z pjf $
 
-# @(#)$Id: Table.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Table;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 295 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+__PACKAGE__->mk_accessors( qw(add_tip assets data edit hide
+                              number_rows remove_tip select
+                              sort_tip sortable table_class) );
 
-__PACKAGE__->mk_accessors( qw(add_tip assets data edit hide js_obj
-                              remove_tip select) );
+my $HASH_CHAR = chr 35;
+my $NBSP      = '&#160;';
+my $NUL       = q();
+my $TTS       = q( ~ );
 
-my $TTS = q( ~ );
-
-sub _init {
+sub init {
    my ($self, $args) = @_; my $text;
 
-   $text  = 'Enter a new item into the adjacent text ';
-   $text .= 'fields and then click this button to add ';
-   $text .= 'it to the list';
-   $text  = $self->loc( q(tableAddTip) ) || $text;
-   $self->add_tip     ( $self->hint_title.$TTS.$text );
-   $self->assets      ( q() );
-   $self->class       ( q(small table) );
-   $self->container   ( 0 );
-   $self->data        ( { flds => [], values => [] } );
-   $self->edit        ( 0 );
-   $self->hide        ( [] );
-   $self->js_obj      ( q(behaviour.table) );
-   $text  = 'Select one or more items from the ';
-   $text .= 'above list and then click this button ';
-   $text .= 'to remove them';
-   $text  = $self->loc( q(tableRemoveTip) ) || $text;
-   $self->remove_tip  ( $self->hint_title.$TTS.$text );
-   $self->select      ( q() );
+   $self->assets     ( $NUL );
+   $self->class      ( q(normal) );
+   $self->container  ( 0 );
+   $self->data       ( { flds => [], values => [] } );
+   $self->edit       ( 0 );
+   $self->hide       ( [] );
+   $self->hint_title ( $self->loc( q(Hint) ) ) unless ($self->hint_title);
+   $self->number_rows( 0 );
+   $self->select     ( $NUL );
+   $self->sortable   ( 0 );
+   $self->table_class( undef );
+
+   $text = $self->loc( q(Add_table_row) );
+   $self->add_tip    ( $self->hint_title.$TTS.$text );
+   $text = $self->loc( q(Remove_table_row) );
+   $self->remove_tip ( $self->hint_title.$TTS.$text );
+   $text = $self->loc( q(Sort_table_rows) );
+   $self->sort_tip   ( $self->hint_title.$TTS.$text );
    return;
 }
 
-sub _render {
+sub render_field {
    my ($self, $args) = @_;
-   my ($class, $fld, $fld_val, $r_no, $rows, $text, $text1, $type, $val);
 
-   my $c_no  = 0;
-   my $cells = q();
-   my $data  = $self->data;
-   my $hacc  = $self->hacc;
+   my $c_no    = 0;
+   my $cells   = $NUL;
+   my $data    = $self->data;
+   my $hacc    = $self->hacc;
+   my $class   = $self->prompt ? q(editable) : q(std);
+   my $caption = $data->{caption}
+               ? "\n".$hacc->caption( $data->{caption} ) : $NUL;
 
-   if ($self->select eq q(left)) {
-      $args           = { class => $self->class };
-      $args->{class} .= $self->edit ? q( select) : q( minimal);
-      $cells         .= $hacc->th( $args, 'Select' );
+   $self->table_class       or  $self->table_class( $class );
+   $self->id                or  $self->id( $self->name || q(table) );
+   $self->number_rows       and $cells .= $self->_number_header( $c_no++ );
+   $self->edit   eq q(left) and $cells .= $self->_drag_header  ( $c_no++ );
+   $self->select eq q(left) and $cells .= $self->_select_header( $c_no++ );
+
+   for (@{ $data->{flds} }) {
+      $cells .= $self->_field_header( $data, $_, $c_no++ );
    }
 
-   for $fld (@{ $data->{flds} }) {
-      $args = { class => $self->class };
+   $self->select eq q(right) and $cells .= $self->_select_header( $c_no++ );
+   $self->edit   eq q(right) and $cells .= $self->_drag_header  ( $c_no++ );
+   $args = { class => $self->table_class.q(_head) };
 
-      if (exists $data->{hclass}->{ $fld }) {
-         next if ($data->{hclass}->{ $fld } eq q(hide));
+   my $thead = $hacc->thead( $hacc->tr( $args, $cells ) );
 
-         $args->{class} .= q( ).$data->{hclass}->{ $fld };
-      }
+   my $r_no  = 0; my $rows;
 
-      if (exists $data->{widths}->{ $fld }) {
-         $args->{style} = q(width: ).$data->{widths}->{ $fld }.q(;);
-      }
+   $rows .= $self->_render_row( $data, $_, $r_no++ ) for (@{ $data->{values} });
 
-      $args->{class} .= q( nowrap) unless (exists $data->{wrap}->{ $fld });
-      $cells         .= $hacc->th( $args, $data->{labels}->{ $fld } );
-      $c_no++;
-   }
+   my $tbody = $hacc->tbody( $rows ); $self->_add_row_count( $r_no );
 
-   if ($self->select eq q(right)) {
-      $args           = { class => $self->class };
-      $args->{class} .= $self->edit ? q( select) : q( minimal);
-      $cells         .= $hacc->th( $args, 'Select' );
-   }
+   my $tfoot = q();
 
-   $rows = $hacc->tr( $cells ); $r_no = 0;
+   $self->edit
+      and $tfoot = $hacc->tfoot( $self->_add_edit_row( $data, $r_no ) );
 
-   for $val (@{ $data->{values} }) {
-      $cells = q(); $c_no = 0;
+   $args = { editSide   => '"'.$self->edit.'"',
+             selectSide => '"'.$self->select.'"' };
+   $self->_js_config( 'tables', $self->id, $args );
 
-      if ($self->select eq q(left) and $data->{values}->[0]) {
-         $cells .= $self->_check_box( $r_no, $c_no, $val->{id} );
-      }
+   $args = { cellspacing => 0, class => $self->table_class, id => $self->id };
 
-      for $fld (@{ $data->{flds} }) {
-         if ($self->edit) {
-            $args            = {};
-            $args->{default} = $val->{ $fld };
-            $args->{name}    = $self->name.q(_).$fld.$r_no;
-            $cells          .= $self->_editable_cell( $data, $fld, $args );
-         }
-         else {
-            next if ($data->{hclass}->{ $fld }
-                     and $data->{hclass}->{ $fld } eq q(hide));
-
-            $args          = {};
-            $args->{align} = exists $data->{align}->{ $fld }
-                           ? $data->{align}->{ $fld } : q(left);
-            $class         = $data->{class} || q(dataValue);
-
-            if (ref $class and exists $class->{ $fld }) {
-               $args->{class} = $class->{ $fld };
-            }
-            else { $args->{class} = $class }
-
-            $args->{class} .= $c_no % 2 == 0 ? q( even) : q( odd);
-
-            unless (exists $data->{wrap}->{ $fld }) {
-               $args->{class} .= q( nowrap);
-            }
-
-            $fld_val = $self->inflate( $val->{ $fld } ) || q(&nbsp;);
-            $cells  .= $hacc->td( $args, $fld_val )."\n";
-         }
-
-         $c_no++;
-      }
-
-      if ($self->select eq q(right) and $data->{values}->[0]) {
-         $cells .= $self->_check_box( $r_no, $c_no, $val->{id} );
-      }
-
-      $class = $data->{class} || q(dataValue);
-      $args  = { class => $class, id => $self->name.q(_row).$r_no };
-      $rows .= $hacc->tr( $args, $cells ); $r_no++;
-   }
-
-   my $content = $self->inflate( { name    => $self->name.q(_nrows),
-                                   default => $r_no,
-                                   type    => q(hidden),
-                                   widget  => 1 } );
-   push @{ $self->hide }, { content => $content };
-
-   if ($self->edit) {
-      $cells = q();
-
-      for $c_no (0 .. $#{ $data->{flds} }) {
-         $fld          = $data->{flds}->[ $c_no ];
-         $args         = { id => $self->name.q(_add).$c_no };
-         $args->{name} = $self->name.q(_).$fld;
-         $cells       .= $self->_editable_cell( $data, $fld, $args );
-      }
-
-      $args             = {};
-      $args->{class  }  = $args->{name} = q(button);
-      $args->{onclick}  = 'return '.$self->js_obj.".addTableRow('";
-      $args->{onclick} .= $self->name."', 1)";
-      $args->{src    }  = $self->assets.'add_item.png';
-      $args->{value  }  = $self->name.q(_add);
-      $text             = $hacc->image_button( $args );
-      $args             = { class => q(help tips), title => $self->add_tip };
-      $text             = $hacc->span( $args, $text );
-
-      if ($self->select) {
-         $args             = {};
-         $args->{class  }  = $args->{name} = q(button);
-         $args->{onclick}  = 'return '.$self->js_obj;
-         $args->{onclick} .= ".removeTableRow('".$self->name."')";
-         $args->{src    }  = $self->assets.'remove_item.png';
-         $args->{value  }  = $self->name.q(_remove);
-         $text1            = $hacc->image_button( $args );
-         $args             = { class => q(help tips),
-                               title => $self->remove_tip };
-         $text            .= $hacc->span( $args, $text1 );
-      }
-
-      $class  = $data->{class} || q(dataValue);
-      $cells .= $hacc->td( $text );
-      $rows  .= $hacc->tr( { class => $class,
-                             id    => $self->name.q(_add) }, $cells );
-   }
-
-   $self->class( q(fullWidth) );
-
-   $class = $self->prompt ? q(form ) : q(std);
-
-   return $hacc->table( { class => $class }, $rows );
+   return $hacc->table( $args, "${caption}\n${thead}\n${tbody}\n${tfoot}" );
 }
 
 # Private methods
 
-sub _editable_cell {
-   my ($self, $data, $fld, $args) = @_;
+sub _add_edit_row {
+   my ($self, $data, $r_no) = @_; my $hacc = $self->hacc;
 
-   if (exists $data->{maxlengths}->{ $fld }) {
-      $args->{maxlength} = $data->{maxlengths}->{ $fld };
+   my $cells = $NUL; my $c_no = 0;
+
+   for (0 .. $#{ $data->{flds} }) {
+      my $args      = { id => $self->id.q(_add).$_ };
+      my $field     = $data->{flds}->[ $_ ];
+
+      $args->{name} = q(_).$self->id.q(_).$field;
+      $cells       .= $self->_editable_cell( $data, $field, $args, $c_no );
+      $c_no++;
    }
 
-   my $type = $data->{typelist}->{ $fld } || q(textfield);
+   my $text   = $hacc->span( { class => q(add_item_icon) }, q( ) );
+   my $args   = {
+      class   => q(icon_button tips add),
+      id      => $self->id.q(_add),
+      title   => $self->add_tip };
 
-   if ($type eq q(textarea)) {
-      $args->{rows} = exists $data->{rows}->{ $fld }
-                    ? $data->{rows}->{ $fld } : 5;
-      $args->{cols} = exists $data->{cols}->{ $fld }
-                    ? $data->{cols}->{ $fld } : 60;
-   }
-   elsif ($type eq q(textfield)) {
-      $args->{size} = exists $data->{sizes}->{ $fld }
-                    ? $data->{sizes}->{ $fld } : 10;
-   }
+   $text      = $hacc->span( $args, $text );
 
-   my $text = $self->hacc->$type( $args );
+   my $text1  = $hacc->span( { class => q(remove_item_icon) }, q( ) );
 
-   return $self->hacc->td( { class => q(dataValue) }, $text );
+   $args      = {
+      class   => q(icon_button tips remove),
+      id      => $self->id.q(_remove),
+      title   => $self->remove_tip };
+   $text     .= $hacc->span( $args, $text1 );
+   $text      = $hacc->span( { class => q(table_edit_buttons) }, $text );
+   $cells    .= $hacc->td( $text );
+
+   my $class  = ($data->{class} || q(edit_row)).__row_class( $r_no );
+
+   $args      = { class => $class, id => $self->id.q(_edit) };
+
+   return $hacc->tr( $args, $cells );
+}
+
+sub _add_row_count {
+   my ($self, $default) = @_;
+
+   my $content = $self->inflate( { name    => q(_).$self->id.q(_nrows),
+                                   default => $default,
+                                   type    => q(hidden),
+                                   widget  => 1 } );
+
+   push @{ $self->hide }, { content => $content };
+   return;
 }
 
 sub _check_box {
-   my ($self, $r_no, $c_no, $id) = @_; my ($text, $args);
+   my ($self, $r_no, $c_no, $id) = @_; my $hacc = $self->hacc;
 
-   $args = { name => $self->name.q(_select).$r_no };
-   $args->{value} = $id if ($id);
-   $text = $self->hacc->checkbox( $args );
-   $args = { align => q(center), class => $c_no % 2 == 0 ? q(odd) : q(even) };
+   my $args = { name => $self->id.q(_select).$r_no };
 
-   return $self->hacc->td( $args, $text );
+   $id and $args->{value} = $id;
+
+   my $text  = $hacc->checkbox( $args );
+   my $class = q(row_select).__column_class( $c_no );
+
+   return $hacc->td( { class => $class }, $text );
+}
+
+sub _drag_icon {
+   my ($self, $c_no) = @_; my $hacc = $self->hacc;
+
+   my $span  = $hacc->span( { class => q(drag_icon) } );
+   my $class = q(row_drag).__column_class( $c_no );
+
+   return $hacc->td( { class => $class }, $span );
+}
+
+sub _drag_header {
+   my ($self, $c_no) = @_; my $name = q(col).$c_no;
+
+   my $args = { class => $self->class.q( minimal), id => $self->id.q(_).$name };
+
+   return $self->hacc->th( $args, $self->loc( 'Drag' ) );
+}
+
+sub _editable_cell {
+   my ($self, $data, $field, $args, $c_no) = @_; my $hacc = $self->hacc;
+
+   $args->{class} = q(ifield);
+
+   exists $data->{maxlengths}->{ $field }
+      and $args->{maxlength} = $data->{maxlengths}->{ $field };
+
+   my $type = $data->{typelist}->{ $field } || q(textfield);
+
+   if ($type eq q(textarea)) {
+      $args->{rows} = exists $data->{rows}->{ $field }
+                    ? $data->{rows}->{ $field } : 5;
+      $args->{cols} = exists $data->{cols}->{ $field }
+                    ? $data->{cols}->{ $field } : 60;
+   }
+   elsif ($type eq q(textfield)) {
+      $args->{size} = exists $data->{sizes}->{ $field }
+                    ? $data->{sizes}->{ $field } : 10;
+   }
+
+   my $class = q(data_field).__column_class( $c_no );
+
+   return $hacc->td( { class => $class }, $hacc->$type( $args ) );
+}
+
+sub _field_header {
+   my ($self, $data, $field, $c_no) = @_; my $name = q(col).$c_no;
+
+   my $args = { class => $self->class };
+
+   if (exists $data->{hclass}->{ $field }) {
+      $data->{hclass}->{ $field } eq q(hide) and return;
+      $args->{class} .= q( ).$data->{hclass}->{ $field };
+   }
+
+   exists $data->{widths}->{ $field }
+      and $args->{style} = q(width: ).$data->{widths}->{ $field }.q(;);
+
+   exists $data->{wrap  }->{ $field } or $args->{class} .= q( nowrap);
+
+   my $type = exists $data->{typelist}->{ $field }
+            ? $data->{typelist}->{ $field } : $NUL;
+
+   $args->{id} = $self->id.q(.).$name.($type ? q(.).$type : $NUL);
+
+   if ($self->sortable) {
+      $args->{class} .= q( sort tips); $args->{title} = $self->sort_tip;
+   }
+
+   return $self->hacc->th( $args, $data->{labels}->{ $field } );
+}
+
+sub _number_header {
+   my ($self, $c_no) = @_; my $name = q(col).$c_no;
+
+   my $args = { class => $self->class.q( minimal),
+                id    => $self->id.q(.).$name.q(.numeric) };
+
+   if ($self->sortable) {
+      $args->{class} .= q( sort tips); $args->{title} = $self->sort_tip;
+   }
+
+   return $self->hacc->th( $args, $HASH_CHAR );
+}
+
+sub _render_row {
+   my ($self, $data, $val, $r_no) = @_; my $hacc = $self->hacc;
+
+   my $c_no = 0; my $cells = $NUL; my $first_value = $data->{values}->[ 0 ];
+
+   $self->number_rows and $cells .= $self->_row_number( $r_no + 1, $c_no++ );
+
+   $self->edit eq q(left) and $first_value
+      and $cells .= $self->_drag_icon( $c_no++ );
+
+   $self->select eq q(left) and $first_value
+      and $cells .= $self->_check_box( $r_no, $c_no++, $val->{id} );
+
+   for my $field (@{ $data->{flds} }) {
+      my $args = {};
+
+      if ($self->edit) {
+         $args->{default} = $val->{ $field };
+         $args->{name   } = $self->id.q(_).$r_no.q(_).$c_no;
+         $cells .= $self->_editable_cell( $data, $field, $args, $c_no );
+      }
+      else {
+         exists $data->{hclass}->{ $field }
+            and $data->{hclass}->{ $field } eq q(hide) and next;
+
+         my $class = $data->{class} || q(data_value);
+
+         $args->{class}  = ref $class eq q(HASH) ? $class->{ $field } : $class;
+         exists $data->{typelist}->{ $field }
+            and $args->{class   } .= q( ).$data->{typelist}->{ $field };
+         $args->{class} .= __column_class( $c_no );
+         exists $data->{wrap}->{ $field } or $args->{class} .= q( nowrap);
+
+         my $fld_val = $self->inflate( $val->{ $field } ) || $NBSP;
+
+         $cells .= $hacc->td( $args, $fld_val );
+      }
+
+      $c_no++;
+   }
+
+   $self->select eq q(right) and $first_value
+      and $cells .= $self->_check_box( $r_no, $c_no++, $val->{id} );
+
+   $self->edit eq q(right) and $first_value
+      and $cells .= $self->_drag_icon( $c_no++ );
+
+   my $class = $self->table_class.q(_row).__row_class( $r_no );
+
+   $self->sortable and $class .= q( sortable_row);
+
+   my $args  = { class => $class, id => $self->id.q(_row).$r_no };
+
+   return $hacc->tr( $args, "\n".$cells );
+}
+
+sub _row_number {
+   my ($self, $row, $col) = @_;
+
+   my $args = { class => $self->class.q( lineNumber minimal) };
+
+   $args->{class} .= __column_class( $col );
+
+   return $self->hacc->td( $args, $row );
+}
+
+sub _select_header {
+   my ($self, $c_no) = @_; my $name = q(col).$c_no;
+
+   my $args = { class => $self->class, id => $self->id.q(_).$name };
+
+   $args->{class} .= $self->edit ? q( select) : q( minimal);
+
+   return $self->hacc->th( $args, $self->loc( 'Select' ) );
+}
+
+# Private subroutines
+
+sub __column_class {
+   return __even_or_odd( $_[ 0 ] ).q(_col);
+}
+
+sub __even_or_odd {
+   return ($_[ 0 ] + 1) % 2 == 0 ? q( even) : q( odd);
+}
+
+sub __row_class {
+   return __even_or_odd( $_[ 0 ] ).q(_row);
 }
 
 1;

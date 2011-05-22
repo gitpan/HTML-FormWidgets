@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    $Rev: 200 $
+    0.6.$Rev: 310 $
 
 Synopsis
        package CatalystX::Usul::View;
@@ -33,8 +33,7 @@ Synopsis
           $config->{root        } = $c->config->{root};
           $config->{static      } = $s->{static};
           $config->{swidth      } = $s->{width} if ($s->{width});
-          $config->{templatedir } = $self->dynamic_templates;
-          $config->{url         } = $c->req->path;
+          $config->{template_dir} = $c->config->{template_dir};
 
           HTML::FormWidgets->build( $config, $data );
           return $data;
@@ -124,11 +123,11 @@ Subroutines/Methods
        "<label>" element
 
     sep
-       If true it's value is wrapped in a "<div class="separator">" element
+       If true it's value is wrapped in a "<span class="separator">" element
        and appended to the return value
 
     container
-       If true the value return by the "_render" method is wrapped in "<div
+       If true the value return by the "_render" method is wrapped in "<span
        class="container">" element. The value of the *align* attribute is
        added to the space separated class list
 
@@ -181,7 +180,7 @@ Subroutines/Methods
     "<fieldset>" element with a legend
 
   __merge_hashes
-       $widget = $class->new( __merge_hashes( $config, $item ) );
+       $widget = $class->new( __merge_hashes( $config, $item->{content} ) );
 
     Does a simple merging of the two hash refs that are passed as arguments.
     The second argument takes precedence over the first
@@ -214,6 +213,10 @@ Configuration and Environment
        So that the "File" and "Table" subclasses can store the number of
        rows added as the hidden form attribute *nRows*
 
+    js_object
+       This is the name of the global Javascript variable that holds config
+       object. Defaults to html_formwidgets
+
     messages
        Many of the subclasses use this hash to supply literal text in a
        language of the users choosing
@@ -228,9 +231,6 @@ Configuration and Environment
 
     templatedir
        The path to template files used by the "Template" subclass
-
-    url
-       Only used by the "Tree" subclass to create self referential URIs
 
     Sensible defaults are provided by "new" if any of the above are
     undefined
@@ -336,16 +336,19 @@ Factory Subclasses
   Note
     Calls "localize" with the *name* attribute as the message key. If the
     message does not exist the value if the *text* attribute is used. The
-    text is wrapped in a c<< <div class="note"> >> with *align* setting the
+    text is wrapped in a c<< <span class="note"> >> with *align* setting the
     style text alignment and *width* setting the style width
+
+  POD
+    Uses Pod::Html to render the POD in the given module as HTML
 
   Paragraphs
     Newspaper like paragraphs rendered in a given number of columns, each
     approximately the same length. Defines these attributes;
 
     column_class
-       CSS class name of the "<div>" wrapped around each column. Defaults to
-       null
+       CSS class name of the "<span>" wrapped around each column. Defaults
+       to null
 
     columns
        Number of columns to render the paragraphs in. Defaults to 1
@@ -416,11 +419,6 @@ Factory Subclasses
        If the *display* attribute is false the current value is pushed onto
        this array. Defaults to []
 
-    js_obj
-       This is the callback method for the sliders *onchange* event handler.
-       It is passed the slider *name* and current *value*. Defaults to
-       behaviour.submit.setField
-
     mode
        Which orientation to render in. Defaults to horizontal
 
@@ -466,46 +464,41 @@ Diagnostics
 Dependencies
     Class::Accessor::Fast
     Class::Inspector
+    Class::MOP
     HTML::Accessors
     Syntax::Highlight::Perl
     Text::Markdown
     Text::ParseWords
     Text::Tabs
+    Try::Tiny
 
     Included in the distribution are the Javascript files whose methods are
     called by the event handlers associated with these widgets
 
-  10htmlparser.js
+  05htmlparser.js
        HTML Parser By John Resig (ejohn.org)
        Original code by Erik Arvidsson, Mozilla Public License
        http://erik.eae.net/simplehtmlparser/simplehtmlparser.js
 
     Used to reimplement "innerHTML" assignments from XHTML
 
-  20mootools.js
+  10mootools.js
        Mootools - My Object Oriented javascript.
        License: MIT-style license.
        WWW: http://mootools.net/
 
     This is the main JS library used with this package
 
-  30ourtools.js
+  15html-formwidgets.js
     Replaces Mootools' "setHTML" method with one that uses the HTML parser.
     The included copy has a few hacks that improve the Accordion widget
 
-  40calendar.js
+  50calendar.js
        Copyright Mihai Bazon, 2002-2005  |  www.bazon.net/mishoo
        The DHTML Calendar, version 1.0   |  www.dynarch.com/projects/calendar
        License: GNU Lesser General Public License
 
     Implements the calendar popup used by the *::Date* subclass
-
-  60tree.js
-       Originally Cross Browser Tree Widget 1.17
-       Created by Emil A Eklund (http://webfx.eae.net/contact.html#emil)
-       Copyright (c) 1999 - 2002 Emil A Eklund
-
-    Implements the tree widget used by the *::Tree* subclass
 
   behaviour.js
     Is included from the App::Munchies default skin. It uses the MooTools
@@ -528,7 +521,7 @@ Author
     Peter Flanigan, "<Support at RoxSoft.co.uk>"
 
 License and Copyright
-    Copyright (c) 2008 Peter Flanigan. All rights reserved
+    Copyright (c) 2011 Peter Flanigan. All rights reserved
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself. See perlartistic

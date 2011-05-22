@@ -1,106 +1,87 @@
-package HTML::FormWidgets::GroupMembership;
+# @(#)$Id: GroupMembership.pm 273 2010-07-27 19:13:07Z pjf $
 
-# @(#)$Id: GroupMembership.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::GroupMembership;
 
 use strict;
 use warnings;
-use parent qw(HTML::FormWidgets);
-
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 273 $ =~ /\d+/gmx );
+use parent q(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(add_tip all assets atitle ctitle current
-                              fhelp height js_obj remove_tip labels) );
+                              fhelp height remove_tip labels) );
 
 my $TTS = q( ~ );
 
-sub _init {
+sub init {
    my ($self, $args) = @_; my $text;
 
-   $self->all(     [] );
-   $self->assets(  q() );
-   $self->atitle(  q(All) );
-   $self->ctitle(  q(Current) );
-   $self->current( [] );
-   $self->fhelp(   q() );
-   $self->height(  10 );
-   $self->js_obj(  q(behaviour.groupMember) );
-   $self->labels(  undef );
-   $self->sep(     $self->space ) unless ($args->{prompt});
+   $self->all            ( [] );
+   $self->assets         ( q() );
+   $self->atitle         ( q(All) );
+   $self->container_class( q(groupmember_container) );
+   $self->ctitle         ( q(Current) );
+   $self->current        ( [] );
+   $self->fhelp          ( q() );
+   $self->height         ( 10 );
+   $self->hint_title     ( $self->loc( q(Hint) ) ) unless ($self->hint_title);
+   $self->labels         ( undef );
+   $self->sep            ( $self->space ) unless ($args->{prompt});
 
-   unless ($self->hint_title) {
-      $self->hint_title( $self->loc( q(Hint ) ) );
-   }
-
-   $text  = 'Select one or more entries from the list on the ';
-   $text .= 'left and then click this button to add them to the ';
-   $text .= 'list on the right';
-   $text  = $self->loc( q(groupMembershipAddTip) ) || $text;
-   $self->add_tip(    $self->hint_title.$TTS.$text );
-   $text  = 'Select one or more entries from the list on the ';
-   $text .= 'right and then click this button to remove them';
-   $text  = $self->loc( q(groupMembershipRemoveTip) ) || $text;
-   $self->remove_tip( $self->hint_title.$TTS.$text );
+   $text = $self->loc( q(groupMembershipAddTip) );
+   $self->add_tip    ( $self->hint_title.$TTS.$text );
+   $text = $self->loc( q(groupMembershipRemoveTip) );
+   $self->remove_tip ( $self->hint_title.$TTS.$text );
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_;
-   my ($fargs, $hacc, $html, $ref, $text, $text1, $tip, $val);
+sub render_field {
+   my ($self, $args)  = @_;
+   my $hacc           = $self->hacc;
+   my $fargs          = { class => q(instructions) };
+   my $html;
 
-   $hacc              = $self->hacc;
-   $fargs             = { class => q(instructions) };
-   $fargs->{style}   .= 'text-align: '.$self->palign.'; ' if ($self->palign);
-   $fargs->{style}   .= 'width: '.$self->pwidth.q(;)      if ($self->pwidth);
-   $html              = $hacc->div( $fargs, $self->fhelp );
-   $text              = $hacc->span( { class => q(title) }, $self->atitle );
-   $text             .= $hacc->br();
-   $args->{class   } .= q( group);
-   $args->{id      }  = $self->id     if ($self->id);
+   $self->palign and $fargs->{style} .= 'text-align: '.$self->palign.'; ';
+   $self->pwidth and $fargs->{style} .= 'width: '.$self->pwidth.q(;);
+   $self->fhelp  and $html            = $hacc->span( $fargs, $self->fhelp );
+
+   my $text  = $hacc->span( { class => q(title) }, $self->atitle );
+   my $class = ($args->{class} || q()).q( ifield group);
+
+   $args->{class   }  = $class.q( groupmembers);
+   $args->{id      }  = $self->id;
    $args->{labels  }  = $self->labels if ($self->labels);
    $args->{multiple}  = q(true);
    $args->{size    }  = $self->height;
-   $args->{name    }  = $self->name.q(_all);
+   $args->{name    }  = q(_).$self->name;
    $args->{values  }  = $self->all;
-   $text             .= $hacc->scrolling_list( $args );
-   $html             .= $hacc->div( { class => q(container) }, $text );
-   $html             .= $hacc->div( { class => q(separator) }, $self->space );
 
-   $text1             = $hacc->br().$hacc->br().$hacc->br();
-   $ref               = {};
-   $ref->{class  }    = $ref->{name} = q(button);
-   $ref->{onclick}    = 'return '.$self->js_obj.".addItem('".$self->name."')";
-   $ref->{src    }    = $self->assets.'add_item.png';
-   $ref->{value  }    = q(add).(ucfirst $self->name);
-   $text              = $hacc->image_button( $ref );
-   $ref               = { class => q(help tips), title => $self->add_tip };
-   $text1            .= $hacc->span( $ref, $text ).$hacc->br().$hacc->br();
+   $text     .= $hacc->scrolling_list( $args );
+   $html     .= $hacc->span( { class => q(groupmember_ifields) }, $text );
+   $text      = $hacc->span( { class => q(add_item_icon) }, q( ) );
 
-   $ref               = {};
-   $ref->{class  }    = $ref->{name} = q(button);
-   $ref->{onclick}    = 'return '.$self->js_obj.".removeItem('";
-   $ref->{onclick}   .= $self->name."')";
-   $ref->{src    }    = $self->assets.'remove_item.png';
-   $ref->{value  }    = q(remove).(ucfirst $self->name);
-   $text              = $hacc->image_button( $ref );
-   $ref               = { class => q(help tips), title => $self->remove_tip };
-   $text1            .= $hacc->span( $ref, $text );
-   $html             .= $hacc->div( { class => q(container) }, $text1 );
+   my $ref    = {
+      class   => q(icon_button tips add),
+      id      => $self->id.q(_add),
+      title   => $self->add_tip };
+   my $text1  = $hacc->span( $ref, $text );
 
-   delete $args->{id};
-   $html             .= $hacc->div(  { class => q(separator) }, $self->space );
-   $text              = $hacc->span( { class => q(title) }, $self->ctitle );
-   $text             .= $hacc->br();
-   $args->{name  }    = $self->name.q(_current);
-   $args->{values}    = $self->current;
-   $text             .= $hacc->scrolling_list( $args );
-   $html             .= $hacc->div( { class => q(container) }, $text );
+   $text      = $hacc->span( { class => q(remove_item_icon) }, q( ) );
+   $ref       = {
+      class   => q(icon_button tips remove),
+      id      => $self->id.q(_remove),
+      title   => $self->remove_tip };
+   $text1    .= $hacc->span( $ref, $text );
+   $html     .= $hacc->span( { class => q(groupmember_buttons) }, $text1 );
+   $text      = $hacc->span( { class => q(title) }, $self->ctitle );
 
-   $args              = {};
-   $args->{name  }    = $self->name.q(_n_added);
-   $args->{value }    = 0;
-   $html             .= $hacc->hidden( $args );
-   $args->{name  }    = $self->name.q(_n_deleted);
-   $html             .= $hacc->hidden( $args );
+   $args->{class } = $class;
+   $args->{id    } = $self->id.q(_current);
+   $args->{name  } = q(_).$self->name.q(_current);
+   $args->{values} = $self->current;
+
+   $text     .= $hacc->scrolling_list( $args );
+   $html     .= $hacc->span( { class => q(groupmember_ifields) }, $text );
+
    return $html;
 }
 

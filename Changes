@@ -1,5 +1,35 @@
 Revision history for HTML::FormWidgets
 
+0.6.311  2011-05-22
+         - Made the build class method ignore bad input data structure
+         - Suppressed dcollins CPAN testing
+         - Switched to using Try::Tiny
+         - Added step number iterator
+         - Changed default class names for Anchor and Button
+         - Moved boilerplate M::B subclass code to inc/Bob.pm
+         - Suppressed Konig CPAN testing again
+         - Added ScrollPin
+         - Added SidebarPanel
+         - Added TabSwapper
+         - Added clear field to date
+         - Tables are now client side sortable
+         - Optional JS files are now selectable by the widget
+         - Tree widget now self renders via HTML parser
+         - Refactored html class names
+         - Added ifield class to all input fields not buttons
+         - Added row numbering to Table subclass
+         - Fixed missing filler top line menu subclass
+         - Switched to using TryCatch
+         - Fixed readonly attribte in Date and slider subclasses
+         - Moved English hint text out of subclasses
+         - Can provide absolute (+) class names as widget types
+         - Added POD widget type
+         - Added _text attribute to Tree. Adds id to container div
+         - Fixed undefined warning in Tree if no data
+         - No longer calls markdown from localize
+         - Label now localizes text then does markdown
+         - Stopped Menu from sqealing about no value to inflate
+
 0.5.200  27/06/2009
          - Changed key used to sign distro
          - Use Class::MOP in ensure_class_loaded

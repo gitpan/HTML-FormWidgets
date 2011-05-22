@@ -1,54 +1,53 @@
-package HTML::FormWidgets::Date;
+# @(#)$Id: Date.pm 303 2011-04-04 10:43:30Z pjf $
 
-# @(#)$Id: Date.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Date;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 303 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+__PACKAGE__->mk_accessors( qw(clear_hint config hint width) );
 
-__PACKAGE__->mk_accessors( qw(assets format readonly width) );
-
+my $SPC = q( );
 my $TTS = q( ~ );
 
-sub _init {
-   my ($self, $args) = @_;
+sub init {
+   my ($self, $args) = @_; my $hint = $self->loc( q(Hint) );
 
-   $self->assets(   q() );
-   $self->format(   q(%d/%m/%Y) );
-   $self->readonly( 1 );
-   $self->width(    10 );
+   $self->clear_hint( $hint.$TTS.$self->loc( q(clearFieldTip) ) );
+   $self->config    ( { align       => q("bR"),
+                        ifFormat    => q("%d/%m/%Y"),
+                        singleClick => q(true) } );
+   $self->hint      ( $hint.$TTS.$self->loc( q(dateWidgetTip) ) );
+   $self->readonly  ( 1 );
+   $self->width     ( 10 );
+
+   push @{ $self->optional_js }, qw(calendar.js calendar-setup.js);
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_; my ($hacc, $html, $text);
+sub render_field {
+   my ($self, $args) = @_;
 
-   $hacc              = $self->hacc;
-   $args->{readonly}  = 1 if ($self->readonly);
-   $args->{size    }  = $self->width;
-   $text              = $hacc->textfield( $args );
-   $html              = $hacc->div( { class => q(container) }, $text );
-   $html             .= $hacc->div( { class => q(separator) }, q(&nbsp;) );
-   $args              = { alt => q(Calendar), class => q(icon) };
-   $args->{id      }  = $self->id.'_trigger';
-   $args->{src     }  = $self->assets.'calendar.png';
-   $text              = $hacc->img( $args );
-   $args              = {};
-   $args->{class   }  = q(tips);
-   $args->{href    }  = q();
-   $args->{title   }  = $self->hint_title.$TTS.$self->loc( q(dateWidgetTip) );
-   $text              = $hacc->a( $args, $text );
-   $html             .= $hacc->div( { class => q(container) }, $text );
-   $text              = "\n";
-   $text             .= 'Calendar.setup( {'."\n";
-   $text             .= '   inputField : "'.$self->id.'", '."\n";
-   $text             .= '   ifFormat   : "'.$self->format.'", '."\n";
-   $text             .= '   button     : "'.$self->id.'_trigger", '."\n";
-   $text             .= '   align      : "bR", '."\n";
-   $text             .= '   singleClick: true } );';
-   $html             .= $hacc->script( { type => q(text/javascript) }, $text );
+   $self->_js_config( 'calendars', $self->id, $self->config );
+
+   $args->{class} .= q( ifield calendars);
+   $args->{size }  = $self->width;
+
+   my $hacc = $self->hacc;
+   my $html = $hacc->textfield( $args );
+   my $icon = $hacc->span( { class => q(calendar_icon) }, $SPC );
+   my $text = $hacc->span( { class => q(icon_button tips),
+                             id    => $self->id.q(_trigger),
+                             title => $self->hint }, $icon );
+
+   $icon    = $hacc->span( { class => q(clear_field_icon) }, $SPC );
+   $text   .= $hacc->span( { class => q(icon_button tips),
+                             id    => $self->id.q(_clear),
+                             title => $self->clear_hint }, $icon );
+   $html   .= $hacc->span( { class => q(icon_buttons) }, $text );
+
    return $html;
 }
 

@@ -1,124 +1,131 @@
-package HTML::FormWidgets::Tree;
+# @(#)$Id: Tree.pm 279 2010-08-29 00:17:46Z pjf $
 
-# @(#)$Id: Tree.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Tree;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 279 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
+
 use English qw(-no_match_vars);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
-
-__PACKAGE__->mk_accessors( qw(base behaviour data node_count
-                              selected target url) );
+__PACKAGE__->mk_accessors( qw(base class_prefix data node_count
+                              selected static) );
 
 my $NUL = q();
+my $SPC = q( );
+my $TTS = q( ~ );
 
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
-   $self->base(      $NUL );
-   $self->behaviour( q(classic) );
-   $self->data(      {} );
-   $self->selected(  undef );
-   $self->target(    q() );
-   $self->url(       undef );
+   $self->base           ( $NUL         );
+   $self->class_prefix   ( q(tree)      );
+   $self->container_class( q(container) );
+   $self->data           ( {}           );
+   $self->node_count     ( 0            );
+   $self->selected       ( undef        );
+   $self->static         ( $NUL         );
    return;
-}
-
-sub _render {
-   my ($self, $args) = @_;
-
-   my @root = grep { ! m{ \A _ }mx } keys %{ $self->data };
-
-   if (defined $root[1]) {
-      return $self->hacc->span
-         ( { class => q(error) }, 'Your tree has more than one root' );
-   }
-
-   $self->node_count( 0 );
-
-   my $code    = $self->scan_hash(    { data   => $self->data,
-                                        parent => $NUL, prev_key => $NUL } );
-   my $jscript = $self->hacc->script( { type   => 'text/javascript' }, $code );
-
-   return $self->hacc->div( { class => q(tree) }, $jscript );
 }
 
 sub node_id {
    my $self = shift; return $self->name.q(_node_).$self->{node_count}++;
 }
 
-sub scan_hash {
-   my ($self, $args) = @_; my $jscript = $NUL; my $node;
+sub render_field {
+   my $self = shift;
+   my $hacc = $self->hacc;
+   my @root = grep { ! m{ \A _ }mx } keys %{ $self->data };
 
-   my @keys = grep { !m{ \A _ }mx } keys %{ $args->{data} };
+   defined $root[ 1 ] and return $hacc->span
+      ( { class => q(error) }, 'Your tree has more than one root' );
 
-   for my $key (sort { lc $a cmp lc $b } @keys) {
-      $node         = $self->node_id;
+   $self->hint_title
+      or $self->hint_title( $self->loc( q(handy_hint_title) ) );
 
-      my $new_key   = $args->{prev_key}
-                    ? $args->{prev_key}.$SUBSEP.$key : $key;
-      my $data      = $args->{data}->{ $key };
-      my $open_icon = $NUL;
-      my $shut_icon = $NUL;
-      my $tip       = $NUL;
-      my $url       = $self->url;
+   my $html  = $self->_image_button( $hacc, q(expand),   q(Expand All)   );
+      $html .= $self->_image_button( $hacc, q(collapse), q(Collapse All) );
+   my $args  = { class => $self->class_prefix.q(_controls) };
+      $html  = $hacc->span( $args, $html );
+      $html .= "\n".$self->traverse( { data => $self->data, fill => $NUL } );
+
+   return $html;
+}
+
+sub traverse {
+   my ($self, $args) = @_;
+
+   my @keys = sort  { lc $a cmp lc $b }
+              grep  { ! m{ \A _ }mx   }
+              keys %{ $args->{data}   };
+
+   $keys[ 0 ] or return $NUL;
+
+   my $hacc  = $self->hacc; my $prefix = $self->class_prefix; my $html;
+   my $class = $prefix.($self->node_count > 0 ? q(_branch) : $SPC.$self->class);
+   my $attrs = { class => $class };
+
+   $self->node_count > 0 or $attrs->{id} = $self->id;
+
+   for my $key_no (0 .. $#keys) {
+      my $attrs = { class => $prefix.q(_link fade) };
+      my $key   = $keys[ $key_no ];
+      my $data  = $args->{data}->{ $key };
+      my $last  = $key_no == $#keys;
+      my $node  = $self->node_id;
+      my $text  = $key;
+      my $tip   = $NUL;
+      my ($list, $url);
 
       if (ref $data eq q(HASH)) {
-         $node      = $data->{_node_id } || $node;
-         $open_icon = $data->{_openIcon} || $open_icon;
-         $shut_icon = $data->{_shutIcon} || $shut_icon;
-         $tip       = $data->{_tip     } || $tip;
-         $url       = $data->{_url     } || $url;
+         $node = $data->{_node_id} || $node;
+         $text = $data->{_text   } || $text;
+         $tip  = $data->{_tip    } || $tip;
+         $url  = $data->{_url    };
       }
 
-      $url  = $self->base.$url unless ($url =~ m{ \A http: }mx);
-
-      $url .= q(?).$self->name.q(_node=).$node if ($self->selected);
-
-      unless ($args->{parent}) {
-         $jscript  = "\n".'var '.$node.' = new Tree.Trunk("'.$key.'", "';
-         $jscript .= $url.'", "'.$tip.'");'."\n";
-         $jscript .= $node.'.setBehavior("'.$self->behaviour.'");'."\n";
+      if ($url) {
+         $url =~ m{ \A http: }mx or $url = $self->base.$url;
+         $self->selected and $url .= q(?).$self->name.q(_node=).$node;
+         $attrs->{href} = $url;
       }
-      else {
-         $jscript .= 'var '.$node.' = new Tree.Branch("'.$key.'", "';
-         $jscript .= $url.'", "'.$tip.'");'."\n";
-      }
+      else { $attrs->{href} = '#top' }
 
-      if ($self->target) {
-         $jscript .= $node.'.target = "'.$self->target.'"; '."\n";
-      }
+      my $link = $hacc->a( $attrs, $text );
 
-      if ($shut_icon) {
-         $jscript .= $node.'.icon = "'.$shut_icon.'"; '."\n";
-      }
+      $attrs = { class => q(tips), title => $self->hint_title.$TTS.$tip };
+      $link  = $hacc->span( $attrs, $link );
+      $attrs = { class => $prefix.($last ? q(_last) : $NUL).q(_fill) };
 
-      if ($open_icon) {
-         $jscript .= $node.'.openIcon = "'.$open_icon.'"; '."\n";
-      }
+      my $fill = $args->{fill}.($self->node_count > 1
+                                ? $hacc->span( $attrs, $SPC ) : $NUL);
 
-      if ($self->selected && ($self->selected eq $node)) {
-         $jscript .= $node.'.selected = true; '."\n";
-      }
+      ref $data eq q(HASH)
+         and $list = $self->traverse( { data => $data, fill => $fill } );
 
-      if ($args->{parent}) {
-         $jscript .= $args->{parent}.'.add('.$node.'); '."\n";
-      }
+      my $class = $prefix.($list ? q(_node) : q(_leaf));
+      my $ctrl  = ($fill
+                   ? $hacc->span( { class => $class.q(_ctrl) }, $SPC ) : $NUL);
+      my $icon  = $hacc->span( { class => $class.q(_icon) }, $SPC );
+      my $item  = ($args->{fill} ? $args->{fill} : $NUL).$ctrl.$icon.$link;
 
-      if (ref $data eq q(HASH)) { # Recurse
-         $jscript .= $self->scan_hash
-            ( { data => $data, parent => $node, prev_key => $new_key } );
-      }
+      $last and $class .= q(_last); $list and $class .= q(_open);
+
+      $item  = $hacc->dt( { class => $class, id => $node }, $item );
+      $html .= $item.($list ? $hacc->dd( { class => $class }, $list ) : $NUL);
    }
 
-   unless ($args->{parent}) {
-      $jscript .= 'document.write('.$node.');'."\n";
-      $jscript .= $self->selected.'.focus();'."\n" if ($self->selected);
-   }
+   return $hacc->dl( $attrs, $html );
+}
 
-   return $jscript;
+sub _image_button {
+   my ($self, $hacc, $dirn, $tip) = @_;
+
+   return $hacc->span( {
+      class => q(action tips ).$dirn,
+      id    => $self->id.q(_).$dirn.q(_button),
+      title => $self->hint_title.$TTS.$self->loc( $tip ) }, $SPC );
 }
 
 1;

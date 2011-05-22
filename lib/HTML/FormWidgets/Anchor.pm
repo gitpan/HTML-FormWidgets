@@ -1,47 +1,49 @@
-package HTML::FormWidgets::Anchor;
+# @(#)$Id: Anchor.pm 302 2011-03-28 04:14:12Z pjf $
 
-# @(#)$Id: Anchor.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Anchor;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 302 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+__PACKAGE__->mk_accessors( qw(config fhelp href imgclass target) );
 
-__PACKAGE__->mk_accessors( qw(fhelp href imgclass onclick) );
-
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
-   $self->class(    q(linkFade) );
-   $self->fhelp(    q()         );
-   $self->href(     undef       );
-   $self->imgclass( undef       );
-   $self->onclick(  undef       );
-   $self->text(     q(link)     );
-   $self->tiptype(  q(normal)   );
+   $self->class   ( q(anchor_button fade) );
+   $self->config  ( undef     );
+   $self->fhelp   ( q()       );
+   $self->href    ( undef     );
+   $self->imgclass( undef     );
+   $self->target  ( undef     );
+   $self->text    ( q(link)   );
+   $self->tiptype ( q(normal) );
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_;
+sub render_field {
+   my ($self, $args) = @_; my $hacc = $self->hacc;
 
-   if ($self->imgclass) {
-      $self->text( $self->hacc->img( { alt   => $self->fhelp,
-                                       class => $self->imgclass,
-                                       src   => $self->text } ) );
-   }
+   $self->id and $self->config
+      and $self->_js_config( 'anchors', $self->id, $self->config );
 
-   if ($self->href) {
-      delete $args->{name};
-      $args->{href   } = $self->href;
-      $args->{class  } = $self->class;
-      $args->{onclick} = $self->onclick if ($self->onclick);
+   my $html = $self->imgclass
+            ? $self->text
+            ? $hacc->img ( { alt   => $self->fhelp,
+                             class => $self->imgclass,
+                             src   => $self->text } )
+            : $hacc->span( { class => $self->imgclass } )
+            : $self->text;
 
-      return $self->hacc->a( $args, $self->text );
-   }
+   $self->href or return $html; delete $args->{name};
 
-   return $self->text;
+   $args->{class} = $self->class; $args->{href} = $self->href;
+
+   defined $self->target and $args->{target} = $self->target;
+
+   return $hacc->a( $args, $html );
 }
 
 1;

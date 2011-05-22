@@ -1,16 +1,15 @@
-package HTML::FormWidgets::Password;
+# @(#)$Id: Password.pm 293 2011-01-10 02:52:12Z pjf $
 
-# @(#)$Id: Password.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Password;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 293 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
-
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(subtype width) );
 
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
    $self->subtype( undef );
@@ -19,15 +18,17 @@ sub _init {
 }
 
 
-sub _render {
+sub render_field {
    my ($self, $args) = @_; my $html;
 
-   $args->{size} = $self->width;
-   $html         = $self->hacc->password_field( $args );
+   $args->{class} .= q( ifield);
+   $args->{size }  = $self->width;
+   $html           = $self->hacc->password_field( $args );
 
    return $html unless ($self->subtype && $self->subtype eq q(verify));
 
-   $html .= $self->loc( q(vPasswordPrompt) );
+   $html .= $self->hacc->span( { class => q(prompt) },
+                               $self->loc( q(vPasswordPrompt) ) );
    $args->{name} =~ s{ 1 }{2}mx; $args->{id} =~ s{ 1 }{2}mx;
    $html .= $self->hacc->password_field( $args );
    return $html;

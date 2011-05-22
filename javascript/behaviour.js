@@ -1,346 +1,202 @@
-/* $Id: behaviour.js 149 2009-03-30 23:02:16Z pjf $ */
+/* $Id: behaviour.js 1151 2011-04-24 15:44:49Z pjf $ */
 
-var State = new Class( {
+var Behaviour = new Class( {
+   Implements: [ Events, Options ],
+
+   options             : {
+      config           : {
+         anchors       : {},
+         calendars     : {},
+         scrollPins    : { fadeInDuration: 1500, showDelay: 1000,
+                           trayPadding   : 0 },
+         server        : {},
+         sidebars      : {},
+         sliders       : {},
+         tables        : {
+            iconClasses: [ 'down_point_icon', 'up_point_icon' ] },
+         tabSwappers   : {
+            defaults   : { smooth        : true, smoothSize: true } },
+         tips          : { fadeInDuration: 500,  showDelay : 666  } },
+      cookieDomain     : '',
+      cookiePath       : '/',
+      cookiePrefix     : 'behaviour',
+      formName         : null,
+      minMarginBottom  : 5,
+      minMarginRight   : 10,
+      onStateComplete  : function() {},
+      popup            : false,
+      target           : null,
+      defaultURL       : null
+   },
+
    initialize: function( options ) {
-      this.popup   = options.popup;
-      this.assets  = options.assets;
-      this.cookies = new Cookies( { path  : options.path,
-                                    prefix: options.prefix } );
+      this.setOptions( options ); var opt = this.options;
+
+      this.config  = Object.merge( opt.config );
+      this.cookies = new Cookies( { domain: opt.cookieDomain,
+                                    path  : opt.cookiePath,
+                                    prefix: opt.cookiePrefix } );
+
+      window.addEvent( 'load',   function() {
+         this.load( options.firstField ) }.bind( this ) );
+      window.addEvent( 'resize', function() { this.resize() }.bind( this ) );
    },
 
-   getAccordionHeight: function( elem ) {
-      var togglers_len = $$( 'div.sidebarHeader' ).length;
-      var height       = elem.getSize().size.y - ( 25 * togglers_len ) - 15;
-      return Math.max( 1, height );
+   load: function( first_field ) {
+      var cfg = this.config, el, opt = this.options;
+
+      this.stylesheet = new PersistantStyleSheet( { cookies: this.cookies } );
+
+      this._restoreStateFromCookie();
+
+      this.checkboxReplacements = new CheckboxReplace();
+
+      var f_replace_boxes = function() {
+         this.build() }.bind( this.checkboxReplacements );
+
+      this.submit      = new SubmitUtils( {
+         config        : cfg.anchors,
+         cookies       : this.cookies,
+         formName      : opt.formName } );
+      this.window      = new WindowUtils( {
+         config        : cfg.anchors,
+         cookieDomain  : opt.cookieDomain,
+         cookiePath    : opt.cookiePath,
+         cookiePrefix  : opt.cookiePrefix,
+         target        : opt.target } );
+
+      this.autosizer   = new AutoSize();
+      this.calendars   = new Calendars( {
+         config        : cfg.calendars,
+         submit        : this.submit } );
+      this.freeList    = new FreeList();
+      this.groupMember = new GroupMember();
+      this.loadMore    = new LoadMore( this, opt.defaultURL );
+      this.server      = new ServerUtils( {
+            config     : cfg.server,
+            url        : opt.defaultURL } );
+      this.sidebar     = new Sidebar ( this, { config: cfg.sidebars } );
+      this.sliders     = new Sliders( {
+         config        : cfg.sliders,
+         submit        : this.submit } );
+      this.tables      = new TableUtils( {
+         config        : cfg.tables,
+         formName      : opt.formName,
+         onRowAdded    : f_replace_boxes,
+         onSortComplete: f_replace_boxes,
+         url           : opt.defaultURL } );
+      this.tabSwappers = new TabSwappers( {
+         config        : cfg.tabSwappers,
+         cookies       : this.cookies } );
+      this.togglers    = new Togglers( this, { config: cfg.anchors } );
+      this.trees       = new Trees( {
+         cookieDomain  : opt.cookieDomain,
+         cookiePath    : opt.cookiePath,
+         cookiePrefix  : opt.cookiePrefix } );
+      this.wysiwyg     = new WYSIWYG();
+      this.linkFade    = new LinkFader();
+
+      this.resize();
+
+      this.columnizers = new Columnizers();
+      this.scrollPins  = new ScrollPins( {
+         config        : cfg.scrollPins,
+         log           : this.window.log,
+         onAttach      : function( el ) {
+            this.addEvent( 'build', function() {
+               this.set( 'opacity', 0 )
+                   .set( 'tween', { duration: cfg.scrollPins.fadeInDuration } );
+            }.bind( el.pin.markup ) );
+
+            this.addEvent( 'show', function() {
+               this.tween( 'opacity', 1 ) }.bind( el.pin.markup ) );
+         },
+         onInitialize  : function() {
+            this.fireEvent.delay( cfg.scrollPins.showDelay, this, [ 'show' ] ) }
+      } );
+      this.tips        = new Tips( {
+         onHide        : function() { this.fx.start( 0 ) },
+         onInitialize  : function() {
+            this.fx    = new Fx.Tween( this.tip, {
+               duration: cfg.tips.fadeInDuration,
+               property: 'opacity' } ).set( 0 ); },
+         onShow        : function() { this.fx.start( 1 ) },
+         showDelay     : cfg.tips.showDelay } );
+
+      if (first_field && (el = $( first_field ))) el.focus();
    },
 
-   resize: function( changed ) {
-      var append, content, elem;
-      var elemHeight, elemWidth, grippy_height, offset, sb_height;
-      var height = 5, h = window.getHeight(), w = window.getWidth();
+   resize: function() {
+      var append, content, footer, foot_height = 0, opt = this.options;
+      var h = window.getHeight(), w = window.getWidth();
+      var margin_bottom = opt.minMarginBottom;
 
-      if (!this.popup) {
+      if (! opt.popup) {
          this.cookies.set( 'width',  w );
          this.cookies.set( 'height', h );
+         window.defaultStatus = 'w: ' + w + ' h: ' + h;
       }
-
-      window.defaultStatus = 'w: ' + w + ' h: ' + h;
 
       if (! (content = $( 'content' ))) return;
 
-      if (elem = $( 'footerDisp' )) {
-         elemHeight = elem.getStyle( 'height' ).toInt();
-         height    += elem.getStyle( 'display' ) != 'none' ? elemHeight : 0;
+      if (footer = $( 'footerDisp' )) {
+         foot_height = footer.getStyle( 'display' ) != 'none'
+                     ? footer.getStyle( 'height' ).toInt() : 0;
+         margin_bottom += foot_height;
       }
 
-      if (append = $( 'append' )) {
-         height += append.getStyle( 'height' ).toInt();
+      if (append = $( 'appendDisp' )) {
+         margin_bottom += append.getStyle( 'height' ).toInt();
 
-         if (elem = $( 'footerDisp' )) {
-            if (elem.getStyle( 'display' ) != 'none') {
-               elemHeight = elem.getStyle( 'height' ).toInt();
-               append.setStyle( 'marginBottom', elemHeight + 'px' );
-            }
-            else { append.setStyle( 'marginBottom', '0px' ) }
-         }
+         if (footer) append.setStyle( 'marginBottom', foot_height + 'px' );
       }
 
-      content.setStyle( 'marginBottom', height + 'px' );
+      content.setStyle( 'marginBottom', margin_bottom + 'px' );
 
-      if (elem = $( 'sidebarDisp' )) {
-         if (this.cookies.get( 'sidebar' )) elem.setStyle( 'display', '' );
+      var margin_left = this.sidebar ? this.sidebar.resize( margin_bottom ) : 0;
 
-         elem.setStyle( 'marginBottom', height + 'px' );
+      content.setStyle( 'marginLeft', margin_left + 'px' );
 
-         // Calculate and set vertical offset for side bar grippy
-         sb_height = elem.getSize().size.y;
-         grippy_height = $( 'sidebarGrippy' ).getSize().size.y;
-         offset = Math.max( 1, Math.round( sb_height / 2 )
-                            - Math.round( grippy_height / 2 ) );
-         $( 'sidebarGrippy' ).setStyle( 'marginTop', offset + 'px' );
+      var buttons = $( 'buttonDisp' ), margin_right = opt.minMarginRight;
 
-         if (this.accordion) {
-            this.accordion.resize( this.getAccordionHeight( elem ), null );
-         }
+      if (buttons) margin_right = buttons.getStyle( 'width' ).toInt();
 
-         if (this.cookies.get( 'sidebar' )) {
-            if (changed) {
-               elemWidth = elem.getStyle( 'width' ).toInt();
-               this.cookies.set( 'sidebarWidth',  elemWidth );
-               this.slider.wrapper.setStyle( 'width', elemWidth + 'px' );
-            }
-            else {
-               elemWidth = this.cookies.get( 'sidebarWidth' );
-            }
-         }
-         else { elemWidth = 0 }
-
-         elem.setStyle( 'width', elemWidth + 'px' );
-         content.setStyle( 'marginLeft', elemWidth + 'px' );
-      }
-      else { content.setStyle( 'marginLeft', '0px' ) }
-
-      if (elem = $( 'buttonDisp' )) {
-         elemWidth = elem.getStyle( 'width' ).toInt();
-         content.setStyle( 'marginRight', elemWidth + 'px' );
-      }
-      else { content.setStyle( 'marginRight', '0px' ) }
-
-      return;
+      content.setStyle( 'marginRight', margin_right + 'px' );
+      content.fireEvent( 'resize' );
    },
 
-   setState: function( first_fld ) {
-      var cookie_ref, cookies, elem, height, i, p0, p1, pair;
-      var sb_panel = 0, sb_state = false, sb_width = 150;
-
-      /* Initialize the fading links event handlers */
-      this.linkFade  = new LinkFader( { links: document.links,
-                                        view : document.defaultView } );
-
+   _restoreStateFromCookie: function() {
       /* Use state cookie to restore the visual state of the page */
-      if (cookie_ref = this.cookies.get()) {
-         cookies = cookie_ref.split( '+' );
+      var cookie_str; if (! (cookie_str = this.cookies.get())) return;
 
-         for (i = 0; i < cookies.length; i++) {
-            if (cookies[i]) {
-               pair = cookies[ i ].split( '~' );
-               p0 = unescape( pair[ 0 ] );
-               p1 = unescape( pair[ 1 ] );
+      var cookies = cookie_str.split( '+' ), el;
 
-               /* Restore state of any checkboxes whose ids end in Box */
-               if (elem = $( p0 + 'Box' )) {
-                  elem.checked = (p1 == 'true' ? true : false);
-               }
+      for (var i = 0, cl = cookies.length; i < cl; i++) {
+         if (! cookies[ i ]) continue;
 
-               /* Restore the state of any elements whose ids end in Disp */
-               if (elem = $( p0 + 'Disp' )) {
-                  elem.setStyle( 'display', (p1 != 'false' ? '' : 'none') );
-               }
+         var pair = cookies[ i ].split( '~' );
+         var p0   = unescape( pair[ 0 ] );
+         var p1   = unescape( pair[ 1 ] );
 
-               /* Restore the source URL for elements whose ids end in Img */
-               if (elem = $( p0 + 'Img' )) { if (p1) elem.src = p1; }
+         /* Deprecated */
+         /* Restore state of any checkboxes whose ids end in Box */
+         if (el = $( p0 + 'Box' )) el.checked = (p1 == 'true' ? true : false);
 
-               /* Recover the width and panel number of the sidebar */
-               if (p0 == 'sidebar') sb_state = true;
-               if (p0 == 'sidebarWidth') sb_width = p1;
-               if (p0 == 'sidebarPanel') sb_panel = p1;
-            }
-         }
+         /* Restore the state of any elements whose ids end in Disp */
+         if (el = $( p0 + 'Disp' ))
+            el.setStyle( 'display', (p1 != 'false' ? '' : 'none') );
+
+         /* Restore the className for elements whose ids end in Icon */
+         if (el = $( p0 + 'Icon' )) { if (p1) el.className = p1; }
+
+         /* Restore the source URL for elements whose ids end in Img */
+         if (el = $( p0 + 'Img' )) { if (p1) el.src = p1; }
       }
-
-      /* If this page has a side bar */
-      if (elem = $( 'sidebarDisp' )) {
-         if (!this.cookies.get( 'sidebarWidth' )) {
-            this.cookies.set( 'sidebarWidth', '150' );
-         }
-
-         height = this.getAccordionHeight( elem );
-
-         /* Setup the slide in/out effect */
-         this.slider = new Fx.Slide( 'sidebarContainer', {
-            mode: 'horizontal',
-            onComplete: function() {
-               var sb_image = $( 'sidebarImg' );
-
-               /* When the effect is complete toggle the state */
-               if (this.cookies.get( 'sidebar' )) {
-                  if (sb_image) sb_image.src = this.assets + 'pushedpin.gif';
-
-                  panel = this.cookies.get( 'sidebarPanel' );
-                  this.accordion.reload( panel );
-                  this.accordion.display( panel );
-               }
-               else {
-                  if (sb_image) sb_image.src = this.assets + 'pushpin.gif';
-
-                  this.resize();
-               }
-            }.bind( this ),
-         } );
-
-         /* Setup the event handler to turn the side bar on/off */
-         $( 'sidebar' ).addEvent( 'click', function( e ) {
-            if (!this.cookies.get( 'sidebar' )) {
-               this.cookies.set( 'sidebar', this.assets + 'pushedpin.gif' );
-               this.resize();
-               e = Event( e );
-               this.slider.slideIn();
-               e.stop();
-            }
-            else {
-               this.cookies.delete( 'sidebar' );
-               e = Event( e );
-               this.slider.slideOut();
-               e.stop();
-            }
-         }.bind( this ) );
-
-         /* Setup the horizontal resize grippy for the side bar */
-         $( 'sidebarGrippy' ).addEvent( 'mousedown', function( sidebar ) {
-            sidebar.makeResizable( {
-               modifiers:             { x: 'width', y: false },
-               limit:                 { x: [ 150, 450 ] },
-               onComplete: function() { this.detach() },
-               onDrag:     function() { this.resize( true ) }.bind( this )
-            } );
-         }.bind( this, elem ) );
-
-         /* Create an Accordion widget in the side bar */
-         this.accordion
-            = new Accordion( 'div.sidebarHeader', 'div.sidebarPanel', {
-               fixedHeight : height,
-               opacity     : false,
-               onActive    : function( toggler, element ) {
-                  toggler.setStyle( 'background-color', '#663' );
-                  toggler.setStyle( 'color', '#FFC' );
-                  behaviour.state.cookies.set
-                     ( 'sidebarPanel', this.togglers.indexOf( toggler ) );
-               },
-               onBackground: function( toggler, element ) {
-                  toggler.setStyle( 'background-color', '#CC9' );
-                  toggler.setStyle( 'color', '#000' );
-               }
-            }, $( 'accordionDiv' ) );
-
-         /* Redisplay and reload the last accordion side bar panel */
-         if (sb_state) this.accordion.reload( sb_panel );
-
-         this.accordion.display( sb_panel );
-      }
-
-      this.tips = new Tips( $$( '.tips' ), {
-         initialize: function() {
-		      this.fx = new Fx.Style( this.toolTip, 'opacity',
-               { duration: 500, wait: false } ).set( 0 );
-         },
-	      onShow:     function( toolTip ) { this.fx.start( 1 ) },
-         onHide:     function( toolTip ) { this.fx.start( 0 ) },
-         showDelay:  666
-      } );
-
-      if (this.scroller) {
-         this.scroller
-            = new Scroller( 'content', { area: 150, velocity: 1 });
-
-         $( 'content' ).addEvent( 'mousedown', function() {
-            this.setStyle( 'cursor',
-                           'url(/static/images/closedhand.cur), move' );
-            this.scroller.start();
-         } );
-
-         $( 'content' ).addEvent( 'mouseup', function() {
-            this.setStyle( 'cursor',
-                           'url(/static/images/openhand.cur), move' );
-            this.scroller.stop();
-         } );
-      }
-
-      this.resize();
-
-      if (first_fld && (elem = $( first_fld ))) elem.focus();
-   },
-
-   toggle: function( e ) {
-      var elem = $( e.id + 'Disp' );
-
-      if (elem.getStyle( 'display' ) != 'none') {
-         elem.setStyle( 'display', 'none' ); this.cookies.delete( e.id );
-      }
-      else {
-         elem.setStyle( 'display', '' ); this.cookies.set( e.id, 'true' );
-      }
-
-      this.resize();
-   },
-
-   toggleState: function( id ) {
-      var elem = $( id + 'Box' );
-
-      this.cookies.set( id, (elem.checked ? 'true' : 'false') );
-   },
-
-   toggleSwap: function( e, s1, s2 ) {
-      var elem;
-
-      if (elem = $( e.id + 'Disp' )) {
-         if (elem.getStyle( 'display' ) !=  'none') {
-            elem.setStyle( 'display', 'none' );
-            this.cookies.delete( e.id );
-
-            if (elem = $( e.id )) elem.setHTML( s2 );
-         }
-         else {
-            elem.setStyle( 'display', '' );
-            this.cookies.set( e.id, s2 );
-
-            if (elem = $( e.id )) elem.setHTML( s1 );
-         }
-      }
-
-      this.resize();
-   },
-
-   toggleSwapImg: function( e, s1, s2 ) {
-      var elem;
-
-      if (elem = $( e.id + 'Disp' )) {
-         if (elem.getStyle( 'display' ) != 'none') {
-            elem.setStyle( 'display', 'none' );
-            this.cookies.delete( e.id );
-
-            if (elem = $( e.id + 'Img' )) elem.src = s1;
-         }
-         else {
-            elem.setStyle( 'display', '' );
-            this.cookies.set( e.id, s2 );
-
-            if (elem = $( e.id + 'Img' )) elem.src = s2;
-         }
-      }
-
-      this.resize();
-   },
-
-   toggleSwapText: function( id, cookie, s1, s2 ) {
-      var elem = $( id );
-
-      if (this.cookies.get( cookie ) == 'true') {
-         this.cookies.set( cookie, 'false' );
-
-         if (elem) elem.setHTML( s2 );
-
-         if (elem = $( cookie + 'Disp' )) elem.setStyle( 'display', 'none' );
-      }
-      else {
-         this.cookies.set( cookie, 'true' );
-
-         if (elem) elem.setHTML( s1 );
-
-         if (elem = $( cookie + 'Disp' )) elem.setStyle( 'display', '' );
-      }
-
-      this.resize();
    }
 } );
 
-behaviour.freeList    = new FreeList(    { form  : behaviour.formName } );
-behaviour.groupMember = new GroupMember( { form  : behaviour.formName } );
-behaviour.loadMore    = new LoadMore(    { url   : behaviour.url } );
-behaviour.server      = new ServerUtils( { url   : behaviour.url } );
-behaviour.state       = new State(       { assets: behaviour.assetsPath,
-                                           path  : behaviour.sessionPath,
-                                           popup : behaviour.isPopup,
-                                           prefix: behaviour.sessionPrefix } );
-behaviour.submit      = new SubmitUtils( { form  : behaviour.formName,
-                                           path  : behaviour.sessionPath,
-                                           prefix: behaviour.sessionPrefix } );
-behaviour.table       = new TableUtils(  { form  : behaviour.formName,
-                                           url   : behaviour.url } );
-behaviour.window      = new WindowUtils( { path  : behaviour.sessionPath,
-                                           prefix: behaviour.sessionPrefix } );
-
-function Expand_Collapse() {}
-
-if (behaviour.target == 'top') behaviour.window.placeOnTop();
-
-onresize = behaviour.state.resize( true );
+/* Local Variables:
+ * mode: javascript
+ * tab-width: 3
+ * End:
+ */

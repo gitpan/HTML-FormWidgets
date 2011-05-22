@@ -1,18 +1,17 @@
-package HTML::FormWidgets::Menu;
+# @(#)$Id: Menu.pm 278 2010-08-24 18:47:53Z pjf $
 
-# @(#)$Id: Menu.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Menu;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 278 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
-
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(data select spacer) );
 
-my $NBSP = q(&nbsp;);
+my $NBSP = '&#160;';
 
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
    $self->container( 0   );
@@ -22,14 +21,14 @@ sub _init {
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_; my ($data, $fill, $html, $text);
+sub render_field {
+   my ($self, $args) = @_; my ($content, $data, $fill, $html, $text);
 
    my $hacc = $self->hacc;
 
    unless ($data = $self->data and $data->[ 0 ]) {
-      $html  = $hacc->b   ( { class => q(pad)              }, $NBSP );
-      $html .= $hacc->span( { class => q(navigationFiller) }, $NBSP );
+      $html  = $hacc->b   ( { class => q(pad)               }, $NBSP );
+      $html .= $hacc->span( { class => q(navigation_filler) }, $NBSP );
 
       return $html;
    }
@@ -39,15 +38,16 @@ sub _render {
    for my $index (0 .. $#{ $data }) {
       if ($self->spacer and $index > 0) {
          $text  = $hacc->b   ( { class => q(pad) }, $NBSP );
-         $text .= $hacc->span( { class => q(navigationFiller) },
+         $text .= $hacc->span( { class => q(navigation_filler) },
                                $self->spacer );
          $html .= $hacc->li  ( $text );
       }
 
-      $text  = $self->select && $index == $selected
-             ? $self->_top_filler( $hacc )
-             : $hacc->b( { class => q(pad) }, $NBSP );
-      $text .= $self->inflate( $data->[ $index ]->{items}->[ 0 ]->{content} );
+      $text    = $self->select && $index == $selected
+               ? $self->_top_filler( $hacc )
+               : $hacc->b( { class => q(pad) }, $NBSP );
+      $content = $data->[ $index ]->{items}->[ 0 ]->{content} || q();
+      $text   .= $self->inflate( $content );
 
       my $count = 0; my $dlist = q();
 
@@ -63,7 +63,7 @@ sub _render {
       $html  .= $hacc->li( $text.$hacc->dl( $dlist ) );
    }
 
-   return $hacc->ul( { id => $args->{id} }, $html );
+   return $hacc->ul( { class => q(menu), id => $args->{id} }, $html );
 }
 
 # Private methods
@@ -88,7 +88,7 @@ sub _top_filler {
    $fill .= $hacc->b( { class => q(tl3) } );
    $fill .= $hacc->b( { class => q(tl4) } );
    $html  = $hacc->b( { class => q(left) }, $fill );
-   $html .= $NBSP;
+   $html .= $hacc->span( { class => q(menu_top_middle_filler) }, $NBSP );
    $fill  = $hacc->b( { class => q(tr1) } );
    $fill .= $hacc->b( { class => q(tr2) } );
    $fill .= $hacc->b( { class => q(tr3) } );

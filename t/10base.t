@@ -1,20 +1,21 @@
-# @(#)$Id: 10base.t 184 2009-06-13 22:25:28Z pjf $
+# @(#)$Id: 10base.t 304 2011-04-11 04:34:19Z pjf $
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 304 $ =~ /\d+/gmx );
 use File::Spec::Functions;
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
 
 use English qw( -no_match_vars );
+use Module::Build;
 use Test::More;
 
 BEGIN {
-   if ($ENV{AUTOMATED_TESTING} || $ENV{PERL_CR_SMOKER_CURRENT}
-       || ($ENV{PERL5OPT} || q()) =~ m{ CPAN-Reporter }mx) {
-      plan skip_all => q(CPAN Testing stopped);
-   }
+   my $current = eval { Module::Build->current };
+
+   $current and $current->notes->{stop_tests}
+            and plan skip_all => $current->notes->{stop_tests};
 
    plan tests => 16;
 }
@@ -28,7 +29,7 @@ ok( $widget->render =~ m{ input \s value="" \s name="test" \s type="text" }mx,
 
 $widget = HTML::FormWidgets->new( href => q(test), type => q(anchor) );
 
-ok( $widget->render =~ m{ a \s href="test" \s class="linkFade" }mx,
+ok( $widget->render =~ m{ a \s href="test" \s class="anchor_button \s fade" }mx,
     q(Anchor) );
 
 $widget = HTML::FormWidgets->new( id => q(test), type => q(checkbox) );
@@ -39,14 +40,15 @@ ok( $widget->render
 
 $widget = HTML::FormWidgets->new( id => q(test), type => q(date) );
 
-ok( $widget->render =~ m{ class="icon" \s+ id="test_trigger" }mx, q(Date) );
+ok( $widget->render =~ m{ id="test_trigger" }mx, q(Date) );
 
 $widget = HTML::FormWidgets->new( hide => [],
                                   name => q(file),
                                   path => q(honestly),
                                   type => q(file) );
 
-ok( $widget->render =~ m{ Not \s found \s honestly }mx, q(File not found) );
+ok( $widget->render =~ m{ Path \s honestly \s not \s found }mx,
+    q(File not found) );
 
 $widget->path( q(t/10base.t) );
 
@@ -63,7 +65,7 @@ $widget = HTML::FormWidgets->new( id   => q(test),
                                   text => q(Test text),
                                   type => q(note) );
 
-ok( $widget->render =~ m{ class="note">Test \s text</div> }mx, q(Note) );
+ok( $widget->render =~ m{ >Test \s text</span> }mx, q(Note) );
 
 $widget = HTML::FormWidgets->new( id      => q(test1),
                                   subtype => q(verify),
@@ -111,14 +113,13 @@ ok( $widget->render =~ m{ tr \s class=".*" \s id="table_row0" }mx, q(Table) );
 
 $widget = HTML::FormWidgets->new( name => q(textarea), type => q(textarea) );
 
-ok( $widget->render =~ m{ id="textarea" \s rows="5" \s cols="60" }mx,
-    q(Text area) );
+ok( $widget->render =~ m{ id="textarea" \s class="\s ifield" \s rows="5" \s cols="60" }mx, q(Text area) );
 
 $widget = HTML::FormWidgets->new( default => q(test),
                                   name    => q(textfield),
                                   type    => q(textfield) );
 
-ok( $widget->render =~ m{ input \s value="test" \s name="textfield" \s type="text" \s id="textfield" \s size="40" }mx, q(Textfield) );
+ok( $widget->render =~ m{ input \s value="test" \s name="textfield" \s type="text" \s id="textfield" \s class="\s ifield" \s size="40" }mx, q(Textfield) );
 
 # Local Variables:
 # mode: perl

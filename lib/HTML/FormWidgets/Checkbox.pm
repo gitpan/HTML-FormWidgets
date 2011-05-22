@@ -1,27 +1,26 @@
-package HTML::FormWidgets::Checkbox;
+# @(#)$Id: Checkbox.pm 278 2010-08-24 18:47:53Z pjf $
 
-# @(#)$Id: Checkbox.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Checkbox;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 278 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
-
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(checked label_class labels value) );
 
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
-   $self->checked(     0 );
-   $self->label_class( q(note) );
-   $self->labels(      {} );
-   $self->value(       1 );
+   $self->checked    ( 0 );
+   $self->label_class( q(checkbox_label) );
+   $self->labels     ( {} );
+   $self->value      ( 1 );
    return;
 }
 
-sub _render {
-   my ($self, $args)  = @_;
+sub render_field {
+   my ($self, $args) = @_;
 
    $args->{checked} = $self->is_xml ? q(checked) : undef if ($self->checked);
    $args->{value  } = $self->value;
@@ -30,9 +29,8 @@ sub _render {
    my $label = exists $self->labels->{ $self->value }
                     ? $self->labels->{ $self->value } : undef;
 
-   if ($label) {
-      $html .= $self->hacc->span( { class => $self->label_class }, $label );
-   }
+   $label
+      and $html .= $self->hacc->span( { class => $self->label_class }, $label );
 
    return $html;
 }

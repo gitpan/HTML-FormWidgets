@@ -1,64 +1,59 @@
-package HTML::FormWidgets::Cloud;
+# @(#)$Id: Cloud.pm 292 2010-12-31 18:15:37Z pjf $
 
-# @(#)$Id: Cloud.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Cloud;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 292 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+__PACKAGE__->mk_accessors( qw(data) );
 
-__PACKAGE__->mk_accessors( qw(data js_obj) );
-
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
-   $self->data(   {} );
-   $self->js_obj( q(behaviour.table.liveGrid) );
+   $self->container( 0  );
+   $self->data     ( {} );
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_;
-   my ($anchor, $attrs, $class, $class_pref, $hacc, $href, $html);
-   my ($id_pref, $item, $onclick, $ref, $style, $text);
+sub render_field {
+   my ($self, $args) = @_; my $hacc = $self->hacc; my $html;
 
-   $hacc = $self->hacc;
+   for my $item (@{ $self->data }) {
+      my $ref        = $item->{value};
+      my $class_pref = $ref->{class_pref};
+      my $id_pref    = $ref->{id_pref   };
+      my $href       = $ref->{href      } || 'javascript:Expand_Collapse()';
+      my $style      = $ref->{style     };
+      my $id         = $id_pref.q(_).$ref->{name};
+      my $attrs      = { class   => $class_pref.q(_header fade live_grid),
+                         href    => $href,
+                         id      => $id };
+      if ($item->{size}) {
+         # Assumes 1em = 10px and line height = 1.8em
+         my $mult        = 1 + int ($item->{size} / 1.8);
+         my $line_height = (int 0.5 + (1800 * $mult / $item->{size})) / 1000;
 
-   for $item (@{ $self->data }) {
-      $ref        = $item->{value};
-      $class_pref = $ref->{class_pref};
-      $id_pref    = $ref->{id_pref   };
-      $href       = $ref->{href      };
-      $onclick    = $ref->{onclick   };
-      $style      = $ref->{style     };
-      $attrs      = { class => $class_pref.q(HeaderFade),
-                      id    => $id_pref.$ref->{name} };
-
-      $style     .= 'font-size: '.$item->{size}.'em; ' if ($item->{size});
-      $style     .= 'color: #'.$item->{colour}.'; '    if ($item->{colour});
-
-      if (!$href && !$onclick ) {
-         $href     = 'javascript:Expand_Collapse()';
-         $onclick  = $self->js_obj."('$id_pref', '".$ref->{name};
-         $onclick .= "', 'a~b', ".$ref->{table_len}.', 1)';
+         $style .= 'font-size: '.$item->{size}.'em; ';
+         $style .= 'line-height: '.$line_height.'em; ';
+         $style .= 'height: '.(18 * $mult).'px; ';
       }
 
-      $attrs->{href   } = $href    if ($href);
-      $attrs->{onclick} = $onclick if ($onclick);
-      $attrs->{style  } = $style   if ($style);
+      $item->{colour} and $style .= 'color: '.$item->{colour}.'; ';
+      $style and $attrs->{style}  = $style;
 
-      $text       = $ref->{labels}->{ $ref->{name} };
-      $text      .= '('.$ref->{total}.')' if exists $ref->{total};
-      $anchor     = $hacc->a( $attrs, "\n".$text );
+      my $text    = $ref->{labels}->{ $ref->{name} };
+         $text   .= '('.$ref->{total}.')' if exists $ref->{total};
+      my $anchor  = $hacc->a( $attrs, "\n".$text );
+      my $class   = $class_pref.q(_header).q( ).$class_pref.q(Subject);
 
-      $class      = $class_pref.q(Header).q( ).$class_pref.q(Subject);
       $html      .= $hacc->div( { class => $class }, "\n".$anchor )."\n";
 
-      if (!$ref->{href} && !$ref->{onclick}) {
+      if (not $ref->{href}) {
          $style   = 'display: none; width: '.$ref->{width}.'px;';
          $html   .= $hacc->div( { class => $class_pref.q(Panel),
-                                  id    => $id_pref.$ref->{name}.q(Disp),
+                                  id    => $id.q(Disp),
                                   style => $style }, 'Loading...' );
       }
    }

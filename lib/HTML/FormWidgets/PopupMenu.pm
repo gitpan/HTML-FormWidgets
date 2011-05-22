@@ -1,16 +1,15 @@
-package HTML::FormWidgets::PopupMenu;
+# @(#)$Id: PopupMenu.pm 224 2010-02-12 18:44:46Z pjf $
 
-# @(#)$Id: PopupMenu.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::PopupMenu;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 224 $ =~ /\d+/gmx );
 use parent q(HTML::FormWidgets);
-
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
 
 __PACKAGE__->mk_accessors( qw(labels values) );
 
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
    $self->labels( undef );
@@ -18,9 +17,10 @@ sub _init {
    return;
 }
 
-sub _render {
+sub render_field {
    my ($self, $args)   = @_;
 
+   $args->{class }  .= q( ifield);
    $args->{labels}   = $self->labels   if ($self->labels);
    $args->{onchange} = $self->onchange if ($self->onchange);
    $args->{values}   = $self->values;

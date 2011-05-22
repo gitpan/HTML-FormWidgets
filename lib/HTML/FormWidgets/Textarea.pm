@@ -1,28 +1,30 @@
-package HTML::FormWidgets::Textarea;
+# @(#)$Id: Textarea.pm 255 2010-06-24 23:41:32Z pjf $
 
-# @(#)$Id: Textarea.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Textarea;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 255 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+__PACKAGE__->mk_accessors( qw(height width wrap) );
 
-__PACKAGE__->mk_accessors( qw(height width) );
-
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
-   $self->height( 5 );
-   $self->width(  60 );
+   $self->height( 5  );
+   $self->width ( 60 );
+   $self->wrap  ( q(soft) );
    return;
 }
 
-sub _render {
+sub render_field {
    my ($self, $args)  = @_;
 
-   $args->{cols} = $self->width;
-   $args->{rows} = $self->height;
+   $args->{class} .= q( ifield).($self->class ? q( ).$self->class : q());
+   $args->{cols }  = $self->width;
+   $args->{rows }  = $self->height;
+   $args->{wrap }  = $self->wrap;
 
    return $self->hacc->textarea( $args );
 }

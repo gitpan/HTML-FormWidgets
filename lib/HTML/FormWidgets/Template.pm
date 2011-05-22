@@ -1,36 +1,29 @@
-package HTML::FormWidgets::Template;
+# @(#)$Id: Template.pm 268 2010-07-11 16:29:08Z pjf $
 
-# @(#)$Id: Template.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Template;
 
 use strict;
 use warnings;
-use parent qw(HTML::FormWidgets);
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 268 $ =~ /\d+/gmx );
+use parent q(HTML::FormWidgets);
+
 use English qw(-no_match_vars);
 use File::Spec;
 use IO::File;
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
-
-__PACKAGE__->mk_accessors( qw(templatedir) );
-
-sub _init {
+sub render_field {
    my ($self, $args) = @_;
 
-   $self->templatedir( undef );
-   return;
-}
+   my $path = File::Spec->catfile( $self->template_dir, $self->name.q(.tt) );
 
-sub _render {
-   my ($self, $args) = @_; my ($content, $path, $rdr);
+   -f $path or return "Path $path not found";
 
-   $path = File::Spec->catfile( $self->templatedir, $self->id.q(.tt) );
+   my $rdr = IO::File->new( $path, q(r) ) or return "Path $path cannot read";
 
-   return 'Not found '.$path   unless (-f $path);
-   return 'Cannot read '.$path unless ($rdr = IO::File->new( $path, q(r) ));
+   my $content = do { local $RS = undef; <$rdr> }; $rdr->close();
+   my $id      = $self->id;
 
-   $content = do { local $RS = undef; <$rdr> }; $rdr->close();
-
-   return $content;
+   return "[% ref = template_data.${id}; %]\n$content";
 }
 
 1;

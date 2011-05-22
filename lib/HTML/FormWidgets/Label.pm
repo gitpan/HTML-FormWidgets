@@ -1,35 +1,33 @@
-package HTML::FormWidgets::Label;
+# @(#)$Id: Label.pm 280 2010-09-04 22:24:26Z pjf $
 
-# @(#)$Id: Label.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Label;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 280 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+__PACKAGE__->mk_accessors( qw(dropcap) );
 
-__PACKAGE__->mk_accessors( qw(dropcap markdown) );
-
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
-   $self->container( 0 );
-   $self->dropcap(   0 );
-   $self->markdown(  0 );
-   $self->text(      q() );
+   $self->class    ( q(label_text) );
+   $self->container( 0   );
+   $self->dropcap  ( 0   );
+   $self->text     ( q() );
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_; my ($markup, $text);
+sub render_field {
+   my ($self, $args) = @_; my $text = $self->text;
 
-   $text    = $self->text;
-   $text    = $self->text_obj->markdown( $text ) if ($text && $self->markdown);
    ($text ||= $self->loc( $self->name ) || q()) =~ s{ \A \n }{}msx;
-
-   return unless ($text);
+   $text or return;
 
    if ($self->dropcap) {
+      my $markup;
+
       if ($text =~ m{ \A (\<[A-Za-z0-9]+\>) }mx) {
          $markup  = $1;
          $markup .= $self->hacc->span( { class => q(dropcap) },
@@ -45,7 +43,9 @@ sub _render {
       $text = $markup;
    }
 
-   return $text;
+   $args = { class => $self->class, id => $self->id };
+
+   return $self->hacc->span( $args, $text );
 }
 
 1;

@@ -1,44 +1,37 @@
-package HTML::FormWidgets::Chooser;
+# @(#)$Id: Chooser.pm 278 2010-08-24 18:47:53Z pjf $
 
-# @(#)$Id: Chooser.pm 184 2009-06-13 22:25:28Z pjf $
+package HTML::FormWidgets::Chooser;
 
 use strict;
 use warnings;
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 278 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-use version; our $VERSION = qv( sprintf '0.5.%d', q$Rev: 184 $ =~ /\d+/gmx );
+__PACKAGE__->mk_accessors( qw(config field href) );
 
-__PACKAGE__->mk_accessors( qw(button field height href js_obj key
-                              screen_x screen_y width) );
-
-sub _init {
+sub init {
    my ($self, $args) = @_;
 
-   $self->button(     q() );
-   $self->container(  0 );
-   $self->field(      q() );
-   $self->height(     400 );
-   $self->href(       undef );
-   $self->js_obj(     q(behaviour.submit.chooser) );
-   $self->key(        q() );
-   $self->screen_x(   10 );
-   $self->screen_y(   10 );
-   $self->width(      200 );
+   $self->class  ( q(chooser_button fade) );
+   $self->config ( { height   => 500, screen_x => 10,
+                     screen_y => 10,  width    => 500 } );
+   $self->default( q(Choose) );
+   $self->field  ( q() );
+   $self->href   ( undef );
    return;
 }
 
-sub _render {
-   my ($self, $args) = @_; my $onclick;
+sub render_field {
+   my $self = shift;
 
-   $onclick  = 'return '.$self->js_obj."('".$self->field."', '";
-   $onclick .= $self->key."', '".$self->href;
-   $onclick .= "', 'width=".$self->width.', screenX='.$self->screen_x.', ';
-   $onclick .= 'height='.$self->height.', screenY='.$self->screen_y;
-   $onclick .= ", dependent=yes, titlebar=no, scrollbars=yes')";
-   $args->{onclick} = $onclick;
-   $args->{value  } = $self->button;
+   $self->config->{field} = '"'.$self->field.'"';
+   $self->config->{href } = '"'.$self->href.'"';
+   $self->_js_config( 'anchors', $self->id, $self->config );
 
-   return $self->hacc->submit( $args );
+   return $self->hacc->submit( { class => $self->class,
+                                 id    => $self->id,
+                                 name  => q(_method),
+                                 value => $self->default } );
 }
 
 1;
