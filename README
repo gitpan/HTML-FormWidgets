@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML form markup
 
 Version
-    0.6.$Rev: 310 $
+    0.6.$Rev: 311 $
 
 Synopsis
        package CatalystX::Usul::View;

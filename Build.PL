@@ -1,9 +1,9 @@
-# @(#)$Id: Build.PL 301 2011-03-24 20:25:02Z pjf $
+# @(#)$Id: Build.PL 311 2011-05-22 16:21:13Z pjf $
 
 use strict;
 use warnings;
 use inc::Bob; # Module::Build subclass
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 301 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 311 $ =~ /\d+/gmx );
 
 Bob->new( {
    stop_tests => 1,

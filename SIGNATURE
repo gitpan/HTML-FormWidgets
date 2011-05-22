@@ -14,13 +14,13 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 ab6a7a833b6ba3d743a35a3b14a1186ad2ddfa52 Build.PL
+SHA1 328a185c66b0e15f0ae78603d433b85dec87b62c Build.PL
 SHA1 ab8ab1a2a934b0e33251e44b1fab284c3f997cdd Changes
 SHA1 12e8c95d11cd08121fd9b8b5e5169b0cbf68b160 LICENSE
 SHA1 be3763b762e213841fbce06e319f0e0fb1c6953e MANIFEST
-SHA1 ced90959ae6b20813411856041f05325cf5faa28 META.json
-SHA1 5ba3ce18753df9d0efcae1e398c91f410b4a1264 META.yml
-SHA1 a281f25fa6e95880f27f54edec88636e11e65c28 README
+SHA1 2dbde1e91f03776eb7398c8bf36659d1cffc47b4 META.json
+SHA1 042227bc499a0e7db9f057c1ac3d7ffb33c56da8 META.yml
+SHA1 ea2c41e702a1ac67dae8da214a77b11f6f01a697 README
 SHA1 f1b31d1dc30c34bcbb00ff419b0672ae890e1e91 css/colour-green.css
 SHA1 f7be71353e48aca1c95f133023502993924b3bf1 css/green.css
 SHA1 98dfdac5c44b02a0094f4fcba06e61a97a1e7cac css/presentation.css
@@ -31,14 +31,14 @@ SHA1 e2cd51d0c887c4480d7efd2a133a351bd19a65cb javascript/10mootools.js
 SHA1 e910e10774be95cfeb4dbd4717abff14a4f14732 javascript/15html-formwidgets.js
 SHA1 c97702990f6774e30b9ea88d6a2fa3dba87063a3 javascript/50calendar.js
 SHA1 b7ee35fdd2c2ffb8ab5139a4e4f244585af621e8 javascript/51calendar-setup.js
-SHA1 a82a61744ebca09fef26ceebbc43d0c62ff08b17 javascript/behaviour.js
+SHA1 0f739637749b27fc9c819cf4f1a946684945edd5 javascript/behaviour.js
 SHA1 de85977bb656ff5313b44994627b95fd5fa3c4d5 javascript/lang/calendar-de.js
 SHA1 76250042c24ef04826eb632546dd6627448cd0da javascript/lang/calendar-en.js
 SHA1 d53134b7f86d825ed986dbfc2a51c55fa9a415ef javascript/lang/calendar-es.js
 SHA1 dea52d5d64db5827fbfb88794b03d576f7cf778e javascript/lang/calendar-nl.js
 SHA1 05a45213b2a0f3b5b89889d88e117db4921fe7e8 javascript/lang/calendar-pl.js
 SHA1 061a5722da745cce6c21f1a0a80f0a1f543117ac javascript/lang/calendar-ru.js
-SHA1 7f97b228423588472524cfa477d40ceed9867cd8 lib/HTML/FormWidgets.pm
+SHA1 27faa0f6aa50d2be48143e1e90bd6d47c8e68a42 lib/HTML/FormWidgets.pm
 SHA1 a0b6c682abd99b7081d3177662f7a12e9d39dea8 lib/HTML/FormWidgets/Anchor.pm
 SHA1 d427352583ae24bd503f5fb5d67010f4c59d167f lib/HTML/FormWidgets/Button.pm
 SHA1 62e32939180b5468e74293bbacf6ad3a53c63c65 lib/HTML/FormWidgets/Checkbox.pm
@@ -75,11 +75,11 @@ SHA1 c6153040d789c4812cb1db5ffe83b03b596c3690 t/10base.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iQEcBAEBAgAGBQJN2TZ5AAoJEK492j4Im1BpmooH/2OVw1rHjoxoXDVBJST5CdWj
-7Xreh0omFysexOg3ikPr9RjAMFoRN4lzEC4H1W3fhteuwYZqbMp5hmH8/E3IXes8
-c/prBBh6qSz4UZilK1iDPuOvk9T84AK4V7gDY08pn3wDTXigycUujn30I2wxhAZ7
-I2trQz/s/ug9s9R3q0p5+OSLV71awfYcfAtgg/ZvlCtFlxnGmjvSUfCiPgGmXHUc
-OkgHMEYKPG9U1vGqIFnpS9mctoHXm26U6+h2UezePw9nlmPluF0hMGqR4SPOKKw2
-udkikcjQwquzWuan2Bo8lvNOJAaypslurb4pTbQNgq4xT9CkScgVNF8z/uMjc0w=
-=831V
+iQEcBAEBAgAGBQJN2TgjAAoJEK492j4Im1BpvaEIAMV0Q5mHUCcF3xysTAuRmBTG
+hURBiVKA9/Xj64wRuJUeSsTbVc9pC8oWU8vAwLj6FukJ5PbZ/2w6EYhDutCS5Vmq
+VGn0ZUGVP4wuOzu394p+/JqVfX9vZNQvl5zxaZ1AAEWafqY1UsYVAfAV27kIARF7
+t4rmDSBAZPiVOBOyQpo5MulpHHGBLPJxzbZHeStPhKq80KahfMv6pfxNGPvBpiEc
+21g1K3PJeC3wNXMQlzwDiC+7gr69DTAi4fwmfbf0E3xtJlr3A0h42ledD4i2PcR6
+G2nHFvBdC5ef/qZpTrBPepIOFyHhCqAEGGV8pmXEhANwHiK6ppjCqwSpridpGh4=
+=ynTK
 -----END PGP SIGNATURE-----
