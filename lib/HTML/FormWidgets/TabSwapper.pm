@@ -1,10 +1,10 @@
-# @(#)$Id: TabSwapper.pm 249 2010-06-18 00:18:06Z pjf $
+# @(#)$Id: TabSwapper.pm 312 2011-06-26 19:36:57Z pjf $
 
 package HTML::FormWidgets::TabSwapper;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 249 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(data) );

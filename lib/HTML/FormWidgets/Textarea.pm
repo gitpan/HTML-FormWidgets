@@ -1,10 +1,10 @@
-# @(#)$Id: Textarea.pm 255 2010-06-24 23:41:32Z pjf $
+# @(#)$Id: Textarea.pm 312 2011-06-26 19:36:57Z pjf $
 
 package HTML::FormWidgets::Textarea;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 255 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(height width wrap) );

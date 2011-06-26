@@ -8,7 +8,7 @@ configure_requires:
   Module::Build: 0.32
   version: 0.74
 dynamic_config: 1
-generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110580'
+generated_by: 'Module::Build version 0.38, CPAN::Meta::Converter version 2.110930'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -22,101 +22,101 @@ no_index:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: v0.6.311
+    version: v0.7.312
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
-    version: v0.6.302
+    version: v0.7.312
   HTML::FormWidgets::Button:
     file: lib/HTML/FormWidgets/Button.pm
-    version: v0.6.302
+    version: v0.7.312
   HTML::FormWidgets::Checkbox:
     file: lib/HTML/FormWidgets/Checkbox.pm
-    version: v0.6.278
+    version: v0.7.312
   HTML::FormWidgets::Chooser:
     file: lib/HTML/FormWidgets/Chooser.pm
-    version: v0.6.278
+    version: v0.7.312
   HTML::FormWidgets::Cloud:
     file: lib/HTML/FormWidgets/Cloud.pm
-    version: v0.6.292
+    version: v0.7.312
   HTML::FormWidgets::Date:
     file: lib/HTML/FormWidgets/Date.pm
-    version: v0.6.303
+    version: v0.7.312
   HTML::FormWidgets::File:
     file: lib/HTML/FormWidgets/File.pm
-    version: v0.6.281
+    version: v0.7.312
   HTML::FormWidgets::Freelist:
     file: lib/HTML/FormWidgets/Freelist.pm
-    version: v0.6.273
+    version: v0.7.312
   HTML::FormWidgets::GroupMembership:
     file: lib/HTML/FormWidgets/GroupMembership.pm
-    version: v0.6.273
+    version: v0.7.312
   HTML::FormWidgets::Hidden:
     file: lib/HTML/FormWidgets/Hidden.pm
-    version: v0.6.248
+    version: v0.7.312
   HTML::FormWidgets::Image:
     file: lib/HTML/FormWidgets/Image.pm
-    version: v0.6.224
+    version: v0.7.312
   HTML::FormWidgets::Label:
     file: lib/HTML/FormWidgets/Label.pm
-    version: v0.6.280
+    version: v0.7.312
   HTML::FormWidgets::Menu:
     file: lib/HTML/FormWidgets/Menu.pm
-    version: v0.6.278
+    version: v0.7.312
   HTML::FormWidgets::Note:
     file: lib/HTML/FormWidgets/Note.pm
-    version: v0.6.275
+    version: v0.7.312
   HTML::FormWidgets::POD:
     file: lib/HTML/FormWidgets/POD.pm
-    version: v0.6.276
+    version: v0.7.312
   HTML::FormWidgets::Paragraphs:
     file: lib/HTML/FormWidgets/Paragraphs.pm
-    version: v0.6.276
+    version: v0.7.312
   HTML::FormWidgets::Password:
     file: lib/HTML/FormWidgets/Password.pm
-    version: v0.6.293
+    version: v0.7.312
   HTML::FormWidgets::PopupMenu:
     file: lib/HTML/FormWidgets/PopupMenu.pm
-    version: v0.6.224
+    version: v0.7.312
   HTML::FormWidgets::RadioGroup:
     file: lib/HTML/FormWidgets/RadioGroup.pm
-    version: v0.6.224
+    version: v0.7.312
   HTML::FormWidgets::Rule:
     file: lib/HTML/FormWidgets/Rule.pm
-    version: v0.6.273
+    version: v0.7.312
   HTML::FormWidgets::ScrollPin:
     file: lib/HTML/FormWidgets/ScrollPin.pm
-    version: v0.6.280
+    version: v0.7.312
   HTML::FormWidgets::ScrollingList:
     file: lib/HTML/FormWidgets/ScrollingList.pm
-    version: v0.6.224
+    version: v0.7.312
   HTML::FormWidgets::SidebarPanel:
     file: lib/HTML/FormWidgets/SidebarPanel.pm
-    version: v0.6.273
+    version: v0.7.312
   HTML::FormWidgets::Slider:
     file: lib/HTML/FormWidgets/Slider.pm
-    version: v0.6.273
+    version: v0.7.312
   HTML::FormWidgets::TabSwapper:
     file: lib/HTML/FormWidgets/TabSwapper.pm
-    version: v0.6.249
+    version: v0.7.312
   HTML::FormWidgets::Table:
     file: lib/HTML/FormWidgets/Table.pm
-    version: v0.6.295
+    version: v0.7.312
   HTML::FormWidgets::Template:
     file: lib/HTML/FormWidgets/Template.pm
-    version: v0.6.268
+    version: v0.7.312
   HTML::FormWidgets::Textarea:
     file: lib/HTML/FormWidgets/Textarea.pm
-    version: v0.6.255
+    version: v0.7.312
   HTML::FormWidgets::Textfield:
     file: lib/HTML/FormWidgets/Textfield.pm
-    version: v0.6.279
+    version: v0.7.312
   HTML::FormWidgets::Tree:
     file: lib/HTML/FormWidgets/Tree.pm
-    version: v0.6.279
+    version: v0.7.312
 requires:
   Class::Accessor::Fast: 0.31
   Class::MOP: 0.84
-  HTML::Accessors: v0.4.0
+  HTML::Accessors: v0.5.0
   Pod::Xhtml: 1.61
   Scalar::Util: 1.23
   Syntax::Highlight::Perl: 1.00
@@ -130,4 +130,4 @@ resources:
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-FormWidgets
   homepage: http://www.roxsoft.co.uk
   license: http://dev.perl.org/licenses/
-version: 0.6.311
+version: 0.7.312

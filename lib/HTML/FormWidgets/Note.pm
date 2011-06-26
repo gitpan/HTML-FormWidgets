@@ -1,10 +1,10 @@
-# @(#)$Id: Note.pm 275 2010-08-02 17:56:49Z pjf $
+# @(#)$Id: Note.pm 312 2011-06-26 19:36:57Z pjf $
 
 package HTML::FormWidgets::Note;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 275 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(width) );

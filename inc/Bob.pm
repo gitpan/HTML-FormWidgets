@@ -1,4 +1,4 @@
-# @(#)$Id: Bob.pm 306 2011-04-12 19:38:22Z pjf $
+# @(#)$Id: Bob.pm 312 2011-06-26 19:36:57Z pjf $
 
 package Bob;
 
@@ -14,7 +14,7 @@ BEGIN {
    $ENV{PATH}   =~ m{ \A /home/sand }mx and whimper 'Stopped Konig';
 }
 
-use version; our $VERSION = qv( sprintf '0.4.%d', q$Rev: 306 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
 
 use File::Spec::Functions;
 use Module::Build;

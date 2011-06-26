@@ -1,10 +1,10 @@
-# @(#)$Id: File.pm 281 2010-09-22 00:10:45Z pjf $
+# @(#)$Id: File.pm 312 2011-06-26 19:36:57Z pjf $
 
 package HTML::FormWidgets::File;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 281 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 use English qw(-no_match_vars);

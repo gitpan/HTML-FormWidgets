@@ -1,4 +1,4 @@
-/* $Id: behaviour.js 311 2011-05-22 16:21:13Z pjf $ */
+/* $Id: behaviour.js 1151 2011-04-24 15:44:49Z pjf $ */
 
 var Behaviour = new Class( {
    Implements: [ Events, Options ],
