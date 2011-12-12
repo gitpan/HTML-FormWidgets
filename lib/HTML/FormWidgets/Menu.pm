@@ -1,10 +1,10 @@
-# @(#)$Id: Menu.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Menu.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Menu;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(data select spacer) );

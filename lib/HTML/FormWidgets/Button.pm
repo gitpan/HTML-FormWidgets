@@ -1,20 +1,19 @@
-# @(#)$Id: Button.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Button.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Button;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-__PACKAGE__->mk_accessors( qw(assets button_name config src) );
+__PACKAGE__->mk_accessors( qw(button_name config src) );
 
 my $TTS = q( ~ );
 
 sub init {
    my ($self, $args) = @_;
 
-   $self->assets     ( q()        );
    $self->button_name( q(_method) );
    $self->config     ( undef      );
    $self->container  ( 0          );
@@ -24,10 +23,10 @@ sub init {
 }
 
 sub render_field {
-   my $self = shift; my $hacc = $self->hacc; my $args = { id => $self->id };
+   my $self = shift; my $hacc = $self->hacc; my $args = {};
 
-   $self->id and $self->config
-      and $self->_js_config( 'anchors', $self->id, $self->config );
+   $self->id and $args->{id} = $self->id and $self->config
+      and $self->add_literal_js( 'anchors', $self->id, $self->config );
 
    return $self->src && ref $self->src eq q(HASH)
         ? $self->_markup_button( $args )
@@ -40,7 +39,7 @@ sub _image_button {
    my ($self, $args) = @_; my $hacc = $self->hacc;
 
    my $src   = q(http:) eq (substr $self->src, 0, 5)
-             ? $self->src : $self->assets.$self->src;
+             ? $self->src : $self->options->{assets}.$self->src;
    my $image = $hacc->img( { alt   => ucfirst $self->name,
                              class => q(button),
                              src   => $src } );

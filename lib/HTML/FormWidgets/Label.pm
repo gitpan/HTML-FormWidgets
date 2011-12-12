@@ -1,10 +1,10 @@
-# @(#)$Id: Label.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Label.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Label;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(dropcap) );
@@ -20,10 +20,9 @@ sub init {
 }
 
 sub render_field {
-   my ($self, $args) = @_; my $text = $self->text;
+   my ($self, $args) = @_; my $text = $self->text or return;
 
-   ($text ||= $self->loc( $self->name ) || q()) =~ s{ \A \n }{}msx;
-   $text or return;
+   ($text = $self->loc( $self->text )) =~ s{ \A \n }{}msx;
 
    if ($self->dropcap) {
       my $markup;
@@ -43,7 +42,7 @@ sub render_field {
       $text = $markup;
    }
 
-   $args = { class => $self->class, id => $self->id };
+   $args = { class => $self->class }; $self->id and $args->{id} = $self->id;
 
    return $self->hacc->span( $args, $text );
 }

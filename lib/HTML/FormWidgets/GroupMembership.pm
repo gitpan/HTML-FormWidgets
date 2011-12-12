@@ -1,50 +1,42 @@
-# @(#)$Id: GroupMembership.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: GroupMembership.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::GroupMembership;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent q(HTML::FormWidgets);
 
-__PACKAGE__->mk_accessors( qw(add_tip all assets atitle ctitle current
-                              fhelp height remove_tip labels) );
+__PACKAGE__->mk_accessors( qw(all current fhelp height labels) );
 
-my $TTS = q( ~ );
+my $SPACE = '&#160;' x 3;
+my $TTS   = q( ~ );
 
 sub init {
    my ($self, $args) = @_; my $text;
 
    $self->all            ( [] );
-   $self->assets         ( q() );
-   $self->atitle         ( q(All) );
    $self->container_class( q(groupmember_container) );
-   $self->ctitle         ( q(Current) );
    $self->current        ( [] );
    $self->fhelp          ( q() );
    $self->height         ( 10 );
-   $self->hint_title     ( $self->loc( q(Hint) ) ) unless ($self->hint_title);
    $self->labels         ( undef );
-   $self->sep            ( $self->space ) unless ($args->{prompt});
-
-   $text = $self->loc( q(groupMembershipAddTip) );
-   $self->add_tip    ( $self->hint_title.$TTS.$text );
-   $text = $self->loc( q(groupMembershipRemoveTip) );
-   $self->remove_tip ( $self->hint_title.$TTS.$text );
+   $self->pclass         ( q(instructions) );
+   $self->sep            ( $SPACE ) unless ($args->{prompt});
    return;
 }
 
 sub render_field {
-   my ($self, $args)  = @_;
-   my $hacc           = $self->hacc;
-   my $fargs          = { class => q(instructions) };
-   my $html;
+   my ($self, $args) = @_; my $hacc = $self->hacc; my $html;
 
-   $self->palign and $fargs->{style} .= 'text-align: '.$self->palign.'; ';
+   my $add_tip = $self->hint_title.$TTS.$self->loc( q(groupMembershipAddTip) );
+   my $rm_tip = $self->hint_title.$TTS.$self->loc( q(groupMembershipRemoveTip));
+   my $fargs   = { class => $self->pclass };
+
    $self->pwidth and $fargs->{style} .= 'width: '.$self->pwidth.q(;);
-   $self->fhelp  and $html            = $hacc->span( $fargs, $self->fhelp );
+   $self->fhelp  and $html            = $hacc->div( $fargs, $self->fhelp );
 
-   my $text  = $hacc->span( { class => q(title) }, $self->atitle );
+   my $text  = $hacc->span( { class => q(title) }, $self->loc( q(All) ) );
    my $class = ($args->{class} || q()).q( ifield group);
 
    $args->{class   }  = $class.q( groupmembers);
@@ -56,23 +48,23 @@ sub render_field {
    $args->{values  }  = $self->all;
 
    $text     .= $hacc->scrolling_list( $args );
-   $html     .= $hacc->span( { class => q(groupmember_ifields) }, $text );
+   $html     .= $hacc->div( { class => q(groupmember_ifields) }, $text );
    $text      = $hacc->span( { class => q(add_item_icon) }, q( ) );
 
    my $ref    = {
       class   => q(icon_button tips add),
       id      => $self->id.q(_add),
-      title   => $self->add_tip };
+      title   => $add_tip };
    my $text1  = $hacc->span( $ref, $text );
 
    $text      = $hacc->span( { class => q(remove_item_icon) }, q( ) );
    $ref       = {
       class   => q(icon_button tips remove),
       id      => $self->id.q(_remove),
-      title   => $self->remove_tip };
+      title   => $rm_tip };
    $text1    .= $hacc->span( $ref, $text );
-   $html     .= $hacc->span( { class => q(groupmember_buttons) }, $text1 );
-   $text      = $hacc->span( { class => q(title) }, $self->ctitle );
+   $html     .= $hacc->div( { class => q(groupmember_buttons) }, $text1 );
+   $text      = $hacc->span( { class => q(title) }, $self->loc( q(Current) ) );
 
    $args->{class } = $class;
    $args->{id    } = $self->id.q(_current);
@@ -80,7 +72,7 @@ sub render_field {
    $args->{values} = $self->current;
 
    $text     .= $hacc->scrolling_list( $args );
-   $html     .= $hacc->span( { class => q(groupmember_ifields) }, $text );
+   $html     .= $hacc->div( { class => q(groupmember_ifields) }, $text );
 
    return $html;
 }

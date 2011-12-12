@@ -1,278 +1,62 @@
-/* @(#)$Id: 15html-formwidgets.js 1158 2011-05-09 00:12:14Z pjf $
-
-   Portions of this code are taken from MooTools 1.3 which is:
-   Copyright (c) 2006-2010 [Valerio Proietti](http://mad4milk.net/).
-*/
+/* @(#)$Id: 15html-formwidgets.js 1249 2011-11-03 03:16:26Z pjf $
+ * Portions of this code are taken from MooTools 1.3 which is:
+ * Copyright (c) 2006-2010 [Valerio Proietti](http://mad4milk.net/). */
 
 Options.implement( {
-    build: function() {
-        var selector = this.options.selector;
+   build: function() {
+      var selector = this.options.selector;
 
-        if (selector) $$( selector ).each( function( el ) {
-            if (! this.collection.contains( el )) {
-                this.collection.include( el );
-                this.attach( el );
-            }
-        }, this );
-    },
+      if (selector) $$( selector ).each( function( el ) {
+         if (! this.collection.contains( el )) {
+            this.collection.include( el );
+            this.attach( el );
+         }
+      }, this );
+   },
 
-    setBuildOptions: function( options ) {
-        options    = options || {};
-        this.debug = options.debug || false;  delete options[ 'debug' ];
-        this.log   = options.log   || function(){}; delete options[ 'log' ];
-        this.collection = [];
+   setBuildOptions: function( options ) {
+      options    = options || {};
+      this.debug = options.debug || false;  delete options[ 'debug' ];
+      this.log   = options.log   || function(){}; delete options[ 'log' ];
+      this.collection = [];
 
-        return this.setOptions( options );
-    },
+      return this.setOptions( options );
+   },
+
+   setConfigOptions: function( el ) {
+      var opt = this.options, cfg = opt.config[ el.id || 'none' ] || {};
+
+      for (var key in cfg) { opt[ key ] = cfg[ key ] }
+   }
 } );
 
 String.implement( {
-    escapeHTML: function() {
-        var text = this;
-        text = text.replace( /\</g, '&lt;'   );
-        text = text.replace( /\>/g, '&gt;'   );
-        text = text.replace( /\"/g, '&quot;' );
-        text = text.replace( /\&/g, '&amp;'  );
-        return text;
-    },
+   escapeHTML: function() {
+      var text = this;
+      text = text.replace( /\</g, '&lt;'   );
+      text = text.replace( /\>/g, '&gt;'   );
+      text = text.replace( /\"/g, '&quot;' );
+      text = text.replace( /\&/g, '&amp;'  );
+      return text;
+   },
 
-    unescapeHTML: function() {
-        var text = this;
-        text = text.replace( /\&lt\;/g,   '<' );
-        text = text.replace( /\&gt\;/g,   '>' );
-        text = text.replace( /\&quot\;/g, '"' );
-        text = text.replace( /\&amp\;/g,  '&' );
-        return text;
-    }
-} );
-
-/*
-
-Description: An Fx.Elements extension which allows you to easily
-             create accordion type controls.
-
-License: MIT-style license
-
-Authors: Valerio Proietti, Peter Flanigan
-
-*/
-
-Fx.Accordion = new Class( {
-    Extends: Fx.Elements,
-
-    options               : {
-        alwaysHide        : false,
-        display           : 0,
-        fixedHeight       : false,
-        fixedWidth        : false,
-        height            : true,
-        initialDisplayFx  : true,
-/*      onActive          : function( togglers, index, section ) {}, */
-/*      onBackground      : function( togglers, index, section ) {}, */
-        opacity           : true,
-        returnHeightToAuto: true,
-        show              : false,
-        trigger           : 'click',
-        wait              : false,
-        width             : false
-    },
-
-    initialize: function() {
-        var defined = function( obj ) { return obj != null };
-        var params  = Array.link( arguments, {
-            'options'  : Type.isObject,
-            'togglers' : defined,
-            'elements' : defined
-        } );
-
-        this.parent( params.elements, params.options );
-        this.togglers      = $$( params.togglers );
-        this.internalChain = new Chain();
-        this.previous      = -1;
-        this.effects       = {};
-
-        var opt = this.options;
-
-        if (opt.alwaysHide) opt.wait = true;
-
-        if (opt.show || opt.show === 0) {
-            opt.display = false; this.previous = opt.show;
-        }
-
-        if (opt.opacity) this.effects.opacity = 'fullOpacity';
-
-        if (opt.width) this.effects.width = opt.fixedWidth ? 'fullWidth'
-                                                           : 'offsetWidth';
-
-        if (opt.height) this.effects.height = opt.fixedHeight ? 'fullHeight'
-                                                              : 'scrollHeight';
-
-        for (var i = 0, l = this.togglers.length; i < l; i++) {
-            var toggler = this.togglers[ i ];
-
-            if (i == 0) toggler.addClass( 'accordion_header_first' );
-
-            this.addSection( toggler, this.elements[ i ] );
-        }
-
-        this.elements.each( function( el, i ) {
-            if (opt.show === i) {
-                this.fireEvent( 'active', [ this.togglers, i, el ] );
-            }
-            else {
-                for (var fx in this.effects) el.setStyle( fx, 0 );
-            }
-        }, this );
-
-        if (opt.display || opt.display === 0)
-            this.display( opt.display, opt.initialDisplayFx );
-
-        this.addEvent( 'complete',
-                       this.internalChain.callChain.bind( this.internalChain ));
-    },
-
-    addSection: function( toggler, el ) {
-        toggler = document.id( toggler ); el = document.id( el );
-
-        var test = this.togglers.contains( toggler );
-
-        this.togglers.include( toggler ); this.elements.include( el );
-
-        var opt       = this.options;
-        var index     = this.togglers.indexOf( toggler );
-        var displayer = this.display.pass( [ index, true ], this );
-
-        toggler.addEvent( opt.trigger, displayer );
-        toggler.store( 'accordion:display', displayer );
-        el.setStyle( 'overflow-y', opt.fixedHeight ? 'auto' : 'hidden' );
-        el.setStyle( 'overflow-x', opt.fixedWidth  ? 'auto' : 'hidden' );
-        el.fullOpacity = 1;
-
-        if (! test) { for (var fx in this.effects) el.setStyle( fx, 0 ); }
-
-        this.internalChain.chain( function() {
-            if (! opt.fixedHeight && opt.returnHeightToAuto
-                && ! this.selfHidden) {
-                if (this.now == index) el.setStyle( 'height', 'auto' );
-            };
-        }.bind( this ) );
-
-        return this;
-    },
-
-    detach: function( toggler ) {
-        var remove = function( toggler ) {
-            toggler.removeEvent( this.options.trigger,
-                                 toggler.retrieve( 'accordion:display' ) );
-        }.bind( this );
-
-        if (! toggler) this.togglers.each( remove );
-        else remove( toggler );
-
-        return this;
-    },
-
-    display: function( index, useFx ) {
-        if (! this.check( index, useFx )) return this;
-
-        var els = this.elements, opt = this.options;
-
-        index = (typeOf( index ) == 'element') ? els.indexOf( index )
-                                               : index;
-        index = index >= els.length ? els.length - 1 : index;
-        useFx = useFx != null ? useFx : true;
-
-        if (! opt.fixedHeight && opt.returnHeightToAuto) {
-            var prev = this.previous > -1 ? els[ this.previous ] : false;
-
-            if (prev && ! this.selfHidden) {
-                for (var fx in this.effects) {
-                    prev.setStyle( fx, prev[ this.effects[ fx ] ] );
-                }
-            }
-        }
-
-        if (this.timer && opt.wait) return this;
-
-        this.previous = this.now != undefined ? this.now : -1;
-        this.now      = index;
-
-        var obj = this._element_iterator( function( el, i, hide ) {
-            this.fireEvent( hide ? 'background' : 'active',
-                            [ this.togglers, i, el ] );
-        }.bind( this ) );
-
-        return useFx ? this.start( obj ) : this.set( obj );
-    },
-
-    _element_iterator: function( f ) {
-        var obj = {}, opt = this.options;
-
-        this.elements.each( function( el, i ) {
-            var hide = false; obj[ i ] = {};
-
-            if (i != this.now) { hide = true }
-            else if (opt.alwaysHide && ((el.offsetHeight > 0 && opt.height)
-                                      || el.offsetWidth  > 0 && opt.width)) {
-                hide = this.selfHidden = true;
-            }
-
-            f( el, i, hide );
-
-            for (var fx in this.effects)
-                obj[ i ][ fx ] = hide ? 0 : el[ this.effects[ fx ] ];
-        }, this );
-
-        return obj;
-    },
-
-    removeSection: function( toggler, displayIndex ) {
-        var index   = this.togglers.indexOf( toggler );
-        var el      = this.elements[ index ];
-        var remover = function() {
-            this.togglers.erase( toggler );
-            this.elements.erase( el );
-            this.detach( toggler );
-        }.bind( this );
-
-        if (this.now == index || displayIndex != null){
-            this.display( displayIndex != null ? displayIndex
-                          : (index - 1 >= 0 ? index - 1 : 0) ).chain( remover );
-        }
-        else { remover() }
-
-        return this;
-    },
-
-    resize: function() {
-        var opt    = this.options;
-        var height = typeOf( opt.fixedHeight ) == 'function'
-                   ? opt.fixedHeight.call() : opt.fixedHeight;
-        var width  = typeOf( opt.fixedWidth  ) == 'function'
-                   ? opt.fixedWidth.call()  : opt.fixedWidth;
-        var obj    = this._element_iterator( function( el, i, hide ) {
-            if (height) el.fullHeight = height;
-            if (width)  el.fullWidth  = width;
-        }.bind( this ) );
-
-        this.set( obj );
-    }
+   unescapeHTML: function() {
+      var text = this;
+      text = text.replace( /\&lt\;/g,   '<' );
+      text = text.replace( /\&gt\;/g,   '>' );
+      text = text.replace( /\&quot\;/g, '"' );
+      text = text.replace( /\&amp\;/g,  '&' );
+      return text;
+   }
 } );
 
 var AutoSize = new Class( {
    Implements: [ Events, Options ],
 
-   options      : {
-      animate   : true,       // animate transition or just set new height
-      duration  : 1000,       // time taken to animate height change in ms
-      interval  : 1100,       // update interval in milliseconds
-      margin    : 30,         // gap (in px) to maintain between last line
-                              // of text and bottom of textarea
-      max_y     : 1000,       // maximum height of textarea
-      min_y     : 48,         // minimum height of textarea
-/*    onResize  : function(){}, */// fire this event when resize method called
-/*    onComplete: function(){}, */// fire this event when animation complete
-      selector  : '.autosize' // element class to search for
+   options           : {
+      container_class: 'expanding_area',
+      preformat_class: 'expanding_spacer',
+      selector       : '.autosize' // element class to search for
    },
 
    initialize: function( options ) {
@@ -280,45 +64,18 @@ var AutoSize = new Class( {
    },
 
    attach: function( el ) {
-      var auto_size = {}, opt = this.options, styles = el.getStyles
-      ( 'font-family', 'font-size', 'letter-spacing',
-        'line-height', 'padding',   'text-decoration', 'width' );
+      var opt  = this.options;
+      var div  = new Element( 'div', { 'class': opt.container_class } );
+      var pre  = new Element( 'pre', { 'class': opt.preformat_class }  );
+      var span = new Element( 'span' );
 
-      auto_size.clone   = new Element( 'textarea', {
-         styles         : {
-            'overflow-y': 'hidden',
-            'position'  : 'absolute',
-            'top'       : '0px',
-            'left'      : '-9999px' },
-         tabIndex       : -1
-      } ).setStyles( styles ).inject( el, 'before' );
-      auto_size.element = el;
-      auto_size.fx      = new Fx.Tween( el, {
-         duration       : opt.duration,
-         onComplete     : function() {
-            if (opt.onComplete) opt.onComplete.call( this, auto_size ); },
-         property       : 'height',
-         transition     : Fx.Transitions.linear } );
-      auto_size.min_y   = Math.max( el.getSize().y, opt.min_y );
+      div.inject( el, 'before' ); pre.inject( div ); div.grab( el );
 
-      this.resize.periodical( opt.interval, this, auto_size );
-   },
+      span.inject( pre ); new Element( 'br' ).inject( pre );
 
-   resize: function( auto_size ) {
-      var clone = auto_size.clone, el = auto_size.element;
+      el.addEvent( 'keyup', function() { span.set( 'text', el.value ) } );
 
-      clone.setStyle( 'height', 0 ).value = el.value; clone.scrollTop = 10000;
-
-      var opt = this.options, new_y = clone.getScroll().y + opt.margin;
-
-      new_y = Math.min( Math.max( new_y, auto_size.min_y ), opt.max_y );
-
-      if (el.clientHeight == new_y) return;
-
-      if (opt.animate) auto_size.fx.start( new_y );
-      else el.setStyle( 'height', new_y );
-
-      this.fireEvent( 'resize', [ auto_size ] );
+      span.set( 'text', el.value );
    }
 } );
 
@@ -426,8 +183,7 @@ var CheckboxReplace = new Class( {
 } );
 
 /* Originally created by: Adam Wulf adam.wulf@gmail.com Version 1.4.0
- * http://welcome.totheinter.net/columnizer-jquery-plugin/
- */
+ * http://welcome.totheinter.net/columnizer-jquery-plugin/ */
 
 var Columnizer = new Class( {
    Implements: [ Events, Options ],
@@ -533,7 +289,7 @@ var Columnizer = new Class( {
       this.cache.getChildren().each( function( el ) {
          this.node.grab( el.clone() ) }.bind( this ) );
 
-      var tgt_height = Math.floor( this.node.getSize().y / num_cols );
+      var tgt_height = Math.floor( this.node.getHeight() / num_cols );
 
       this.node.removeProperty( 'style' );
 
@@ -659,7 +415,7 @@ var Columnizer = new Class( {
       var totalH    = 0;
 
       columns.each( function( col ) {
-         var h = col.getSize().y; lastIsMax = false; totalH += h;
+         var h = col.getHeight(); lastIsMax = false; totalH += h;
 
          if (h > max) { max = h; lastIsMax = true; }
          if (h < min) { min = h; }
@@ -698,7 +454,7 @@ var Columnizer = new Class( {
    },
 
    columnize: function( putInHere, pullOutHere, parentColumn, height ) {
-      while (parentColumn.getSize().y < height
+      while (parentColumn.getHeight() < height
              && pullOutHere.childNodes.length ) {
          putInHere.appendChild( pullOutHere.childNodes[ 0 ] );
       }
@@ -720,7 +476,7 @@ var Columnizer = new Class( {
                       ? this.options.accuracy : this.options.width / 18;
          var columnText, latestTextNode = null;
 
-         while (parentColumn.getSize().y < height && oText.length) {
+         while (parentColumn.getHeight() < height && oText.length) {
             if (oText.indexOf( ' ', counter2 ) != '-1')
                columnText = oText.substring( 0, oText.indexOf( ' ', counter2));
             else columnText = oText;
@@ -733,7 +489,7 @@ var Columnizer = new Class( {
             else oText = '';
          }
 
-         if (parentColumn.getSize().y >= height
+         if (parentColumn.getHeight() >= height
              && latestTextNode != null) {
             // too tall :(
             putInHere.removeChild( latestTextNode );
@@ -804,11 +560,11 @@ var Columnizer = new Class( {
       clone.inject( putInHere, 'inside' );
 
       if (clone.tag == 'img'
-          && parentColumn.getSize().y < height + opt.lineHeight) {
+          && parentColumn.getHeight() < height + opt.lineHeight) {
          cloneMe.dispose();
       }
       else if (! cloneMe.hasClass( 'dontsplit' )
-               && parentColumn.getSize().y < height + opt.lineHeight) {
+               && parentColumn.getHeight() < height + opt.lineHeight) {
          cloneMe.dispose();
       }
       else if (clone.tag == 'img' || cloneMe.hasClass( 'dontsplit' )) {
@@ -997,6 +753,213 @@ var FreeList = new Class( {
       }
 
       el.focus();
+   }
+} );
+
+/* Description: An Fx.Elements extension which allows you to easily
+ *              create accordion type controls.
+ * License: MIT-style license
+ * Authors: Valerio Proietti, Peter Flanigan */
+
+Fx.Accordion = new Class( {
+   Extends: Fx.Elements,
+
+   options               : {
+      alwaysHide        : false,
+      display           : 0,
+      fixedHeight       : false,
+      fixedWidth        : false,
+      height            : true,
+      initialDisplayFx  : true,
+/*    onActive          : function( togglers, index, section ) {}, */
+/*    onBackground      : function( togglers, index, section ) {}, */
+      opacity           : true,
+      returnHeightToAuto: true,
+      show              : false,
+      trigger           : 'click',
+      wait              : false,
+      width             : false
+   },
+
+   initialize: function() {
+      var defined = function( obj ) { return obj != null };
+      var params  = Array.link( arguments, {
+         'options'  : Type.isObject,
+         'togglers' : defined,
+         'elements' : defined
+      } );
+
+      this.parent( params.elements, params.options );
+      this.togglers      = $$( params.togglers );
+      this.internalChain = new Chain();
+      this.previous      = -1;
+      this.effects       = {};
+
+      var opt = this.options;
+
+      if (opt.alwaysHide) opt.wait = true;
+
+      if (opt.show || opt.show === 0) {
+         opt.display = false; this.previous = opt.show;
+      }
+
+      if (opt.opacity) this.effects.opacity = 'fullOpacity';
+
+      if (opt.width) this.effects.width = opt.fixedWidth ? 'fullWidth'
+                                                         : 'offsetWidth';
+
+      if (opt.height) this.effects.height = opt.fixedHeight ? 'fullHeight'
+                                                            : 'scrollHeight';
+
+      for (var i = 0, l = this.togglers.length; i < l; i++) {
+         var toggler = this.togglers[ i ];
+
+         if (i == 0) toggler.addClass( 'accordion_header_first' );
+
+         this.addSection( toggler, this.elements[ i ] );
+      }
+
+      this.elements.each( function( el, i ) {
+         if (opt.show === i) {
+            this.fireEvent( 'active', [ this.togglers, i, el ] );
+         }
+         else {
+            for (var fx in this.effects) el.setStyle( fx, 0 );
+         }
+      }, this );
+
+      if (opt.display || opt.display === 0)
+         this.display( opt.display, opt.initialDisplayFx );
+
+      this.addEvent( 'complete',
+                     this.internalChain.callChain.bind( this.internalChain ) );
+   },
+
+   addSection: function( toggler, el ) {
+      toggler = document.id( toggler ); el = document.id( el );
+
+      var test = this.togglers.contains( toggler );
+
+      this.togglers.include( toggler ); this.elements.include( el );
+
+      var opt       = this.options;
+      var index     = this.togglers.indexOf( toggler );
+      var displayer = this.display.pass( [ index, true ], this );
+
+      toggler.addEvent( opt.trigger, displayer );
+      toggler.store( 'accordion:display', displayer );
+      el.setStyle( 'overflow-y', opt.fixedHeight ? 'auto' : 'hidden' );
+      el.setStyle( 'overflow-x', opt.fixedWidth  ? 'auto' : 'hidden' );
+      el.fullOpacity = 1;
+
+      if (! test) { for (var fx in this.effects) el.setStyle( fx, 0 ); }
+
+      this.internalChain.chain( function() {
+         if (! opt.fixedHeight && opt.returnHeightToAuto
+             && ! this.selfHidden) {
+            if (this.now == index) el.setStyle( 'height', 'auto' );
+         };
+      }.bind( this ) );
+
+      return this;
+   },
+
+   detach: function( toggler ) {
+      var remove = function( toggler ) {
+         toggler.removeEvent( this.options.trigger,
+                              toggler.retrieve( 'accordion:display' ) );
+      }.bind( this );
+
+      if (! toggler) this.togglers.each( remove );
+      else remove( toggler );
+
+      return this;
+   },
+
+   display: function( index, useFx ) {
+      if (! this.check( index, useFx )) return this;
+
+      var els = this.elements, opt = this.options;
+
+      index = (typeOf( index ) == 'element') ? els.indexOf( index )
+                                             : index;
+      index = index >= els.length ? els.length - 1 : index;
+      useFx = useFx != null ? useFx : true;
+
+      if (! opt.fixedHeight && opt.returnHeightToAuto) {
+         var prev = this.previous > -1 ? els[ this.previous ] : false;
+
+         if (prev && ! this.selfHidden) {
+            for (var fx in this.effects) {
+               prev.setStyle( fx, prev[ this.effects[ fx ] ] );
+            }
+         }
+      }
+
+      if (this.timer && opt.wait) return this;
+
+      this.previous = this.now != undefined ? this.now : -1;
+      this.now      = index;
+
+      var obj = this._element_iterator( function( el, i, hide ) {
+         this.fireEvent( hide ? 'background' : 'active',
+                         [ this.togglers, i, el ] );
+      }.bind( this ) );
+
+      return useFx ? this.start( obj ) : this.set( obj );
+   },
+
+   _element_iterator: function( f ) {
+      var obj = {}, opt = this.options;
+
+      this.elements.each( function( el, i ) {
+         var hide = false; obj[ i ] = {};
+
+         if (i != this.now) { hide = true }
+         else if (opt.alwaysHide && ((el.offsetHeight > 0 && opt.height)
+                                     || el.offsetWidth  > 0 && opt.width)) {
+            hide = this.selfHidden = true;
+         }
+
+         f( el, i, hide );
+
+         for (var fx in this.effects)
+            obj[ i ][ fx ] = hide ? 0 : el[ this.effects[ fx ] ];
+      }, this );
+
+      return obj;
+   },
+
+   removeSection: function( toggler, displayIndex ) {
+      var index   = this.togglers.indexOf( toggler );
+      var el      = this.elements[ index ];
+      var remover = function() {
+         this.togglers.erase( toggler );
+         this.elements.erase( el );
+         this.detach( toggler );
+      }.bind( this );
+
+      if (this.now == index || displayIndex != null){
+         this.display( displayIndex != null ? displayIndex
+                       : (index - 1 >= 0 ? index - 1 : 0) ).chain( remover );
+      }
+      else { remover() }
+
+      return this;
+   },
+
+   resize: function() {
+      var opt    = this.options;
+      var height = typeOf( opt.fixedHeight ) == 'function'
+                 ? opt.fixedHeight.call() : opt.fixedHeight;
+      var width  = typeOf( opt.fixedWidth  ) == 'function'
+                 ? opt.fixedWidth.call()  : opt.fixedWidth;
+      var obj    = this._element_iterator( function( el, i, hide ) {
+         if (height) el.fullHeight = height;
+         if (width)  el.fullWidth  = width;
+      }.bind( this ) );
+
+      this.set( obj );
    }
 } );
 
@@ -1578,13 +1541,72 @@ var PersistantStyleSheet = new Class( {
    }
 } );
 
+var RotateList = new Class( {
+   Implements: [ Options ],
+
+   options      : {
+      config    : {},        // Per list config keyed by list id
+      direction : 'up',      // Direction in which to scroll
+      duration  : 1000,      // Millisecs for each transition
+      nitems    : 3,         // Number of items to display
+      selector  : '.rotate', // Class name matching lists to rotate
+      speed     : 5000,      // Millisecs between rotations
+      transition: 'linear',  // Transition style
+      zero_style: { height : 0, marginBottom : 0, marginTop : 0,
+                    opacity: 0, paddingBottom: 0, paddingTop: 0 }
+   },
+
+   initialize: function( options ) {
+      this.setBuildOptions( options ); this.build();
+   },
+
+   attach: function( el ) {
+      var opt = this.options; this.setConfigOptions( el );
+
+      var first; if (! (first = el.getElement( 'li' ))) return;
+
+      el.setStyle( 'height', (opt.nitems * first.getHeight()) + 'px' );
+      el.timer = opt.direction == 'up'
+               ? this.rotateListUp.periodical  ( opt.speed, this, [ el ] )
+               : this.rotateListDown.periodical( opt.speed, this, [ el ] );
+   },
+
+   rotateListDown: function( el ) {
+      var opt      = this.options;
+      var first    = el.getElement ( 'li' );
+      var last     = el.getElements( 'li' ).getLast();
+      var styles   = last.getStyles( 'height',        'marginBottom',
+                                     'marginTop',     'opacity',
+                                     'paddingBottom', 'paddingTop' );
+      var disposed = last.dispose();
+
+      disposed.setStyles( opt.zero_style );
+
+      var inserted = el.insertBefore( disposed, first );
+
+      inserted.set  ( 'morph', { duration  : opt.duration,
+                                 transition: opt.transition } );
+      inserted.morph( styles );
+   },
+
+   rotateListUp: function( el ) {
+      var opt    = this.options;
+      var first  = el.getElement( 'li' );
+      var clone  = first.clone();
+      var rotate = function() {
+          this.destroy(); el.appendChild( clone ) }.bind( first );
+
+      first.set  ( 'morph', { onComplete: rotate,
+                              duration  : opt.duration,
+                              transition: opt.transition } );
+      first.morph( opt.zero_style );
+   }
+} );
+
 /* Adds markers to the page scrollbar to indicate the location of key
    elements on the page. Inspired by a simmilar mechanism used on MSNBC.com
-
    Was rewritten from from a Scriptaculous extension which was
-
    Copyright (c) 2010, Jarvis Badgley - chiper[at]chipersoft[dot]com
-
    Usage:
 
    var sp = new ScrollPins( { config: { Pintray: { pins: {
@@ -1603,8 +1625,7 @@ var PersistantStyleSheet = new Class( {
       'div.lavender': { element:document.body.getChildren()[0] },
       //remove pins created by higher up in the array
       'div.eggplant': null
-   } } } } );
- */
+   } } } } ); */
 
 var ScrollPins = new Class( {
    Implements: [ Events, Options ],
@@ -1925,8 +1946,8 @@ var Sidebar = new Class( {
       sb.setStyle( 'marginBottom', margin_bottom + 'px' );
 
       // Calculate and set vertical offset for side bar grippy
-      var sb_height     = sb.getSize().y;
-      var grippy_height = $( prefix + 'Grippy' ).getSize().y;
+      var sb_height     = sb.getHeight();
+      var grippy_height = $( prefix + 'Grippy' ).getHeight();
       var offset        = Math.max( 1, Math.round( sb_height / 2 )
                                      - Math.round( grippy_height / 2 ) );
 
@@ -1946,7 +1967,7 @@ var Sliders = new Class( {
    options    : {
       config  : {},
       selector: '.slider',
-      submit  : function(){}
+      submit  : function() {}
    },
 
    initialize: function( options ) {
@@ -1969,6 +1990,288 @@ var Sliders = new Class( {
       } );
 
       el.slider = new Slider( el, knob, cfg ).set( default_v );
+   }
+} );
+
+/* Originally Copyright (c) 2011 Felix Gnass [fgnass at neteye dot de]
+ * https://fgnass.github.com/spin.js
+ * Licensed under the MIT license */
+
+Spinner.JS = new Class( {
+   Extends: Spinner,
+
+   options       : {
+      fill_args  : '0 0 1px rgba(0,0,0,.1)',
+      length     : 7,
+      line_width : 5,
+      lines      : 12,
+      opacity    : 0.25,
+      prefixes   : [ 'webkit', 'Moz', 'ms', 'O' ],
+      radius     : 10,
+      shadow     : false,
+      shadow_args: '0 0 4px black',
+      speed      : 1,
+      tag        : [ 'group', 'roundrect', 'fill', 'stroke' ],
+      trail      : 100,
+      url_vml    : 'url(#default#VML)'
+   },
+
+   hide: function( no_fx ) {
+      window.clearTimeout( this.timeout );
+
+      if (this.js_spinner && this.js_spinner.parentNode)
+         this.js_spinner.parentNode.removeChild( this.js_spinner );
+
+      this.js_spinner = undefined;
+      return this.parent( no_fx );
+   },
+
+   render: function() {
+      this.parent();
+      this.animations = {};
+      this.styleSheet = this._styleSheet();
+      this.use_vml    = false;
+
+      var opt = this.options, group = new Element( opt.tag[ 0 ] );
+
+      this._setStyles( group, 'behavior', opt.url_vml );
+
+      if (!this._vendor( group, 'transform' ) && group.adj) {
+         this.use_vml = true;
+
+         for (var i = 0, limit = opt.tag.length; i < limit; i++) {
+            this.styleSheet.addRule( opt.tag[ i ], 'behavior:' + opt.url_vml );
+         }
+      }
+      else this.use_css_animations = this._vendor( group, 'animation' );
+   },
+
+   show: function( no_fx ) {
+      this.js_spinner = this.use_vml ? this._init_vml()
+                                     : this._init_css_animations();
+
+      this._insert( this.content, this.js_spinner, this.content.firstChild );
+
+      if (! this.use_css_animations) this._use_js_animations();
+
+      return this.parent( no_fx );
+   },
+
+
+   toggle: function() {
+      return this.js_spinner == undefined ? this.show() : this.hide();
+   },
+
+   /* Private methods */
+
+   _addAnimation: function( to, end ) {
+      var name  = [ 'opacity', end, ~~(to * 100) ].join( '-' );
+
+      if (this.animations[ name ]) return name;
+
+      var opt = this.options, dest = '{ opacity:' + to + '}';
+
+      for (var i = 0, limit = opt.prefixes.length; i < limit; i++) {
+         try {
+            var rule = '@' +
+               (opt.prefixes[ i ] && '-' + opt.prefixes[ i ].toLowerCase()
+                + '-' || '') + 'keyframes ' + name + '{0%{opacity:1}' +
+               end + '%' + dest + 'to' + dest + '}';
+
+            this.styleSheet.insertRule( rule, this.styleSheet.cssRules.length );
+         }
+         catch (err) {}
+      }
+
+      this.animations[ name ] = 1;
+      return name;
+   },
+
+   _eachPair: function( args, it ) {
+      for (var i = 1, limit = ~~((args.length - 1) / 2); i <= limit; i++) {
+         it( args[ i * 2 - 1 ], args[ i * 2 ] );
+      }
+   },
+
+   _init_css_animations: function() {
+      var opt     = this.options;
+      var aname   = this._addAnimation( opt.opacity, opt.trail );
+      var offset  = 4 + opt.length + opt.radius + opt.line_width;
+      var size    = (2 * offset) + 'px';
+      var el      = new Element( 'div', { 'class': 'spinner-group' } )
+         .setStyles( { 'position': 'relative',
+                       'height'  : size, 'width': size } );
+      var content = function( i, type ) {
+         var klass  = type == 'shadow' ? 'spinner-shadow' : 'spinner-fill';
+         var shadow = type == 'shadow' ? opt.shadow_args  : opt.fill_args;
+
+         return this._setStyles
+         ( new Element( 'div', { 'class': klass } ),
+           'position',        'absolute',
+           'width',           (opt.length + opt.line_width) + 'px',
+           'height',          opt.line_width + 'px',
+           'boxShadow',       shadow,
+           'transformOrigin', 'left',
+           'transform',       'rotate( '
+              + ~~(360 / opt.lines * i) + 'deg) translate('
+              + opt.radius + 'px, 0px )',
+           'borderRadius',    '100em'
+         );
+      }.bind( this );
+
+      for (var i = 0, limit = opt.lines; i < limit; i++) {
+         var segment = this._setStyles
+         ( new Element( 'div' ),
+           'position',  'absolute',
+           'left',      offset + 'px',
+           'top',       (1 + offset + ~(opt.line_width / 2)) + 'px',
+           'animation', aname + ' ' + (1 / opt.speed)
+              + 's linear ' + (-1 + 1 / opt.lines * i / opt.speed)
+              + 's infinite'
+         );
+
+         if (opt.shadow)
+            this._insert( segment, this._setStyles( content( i, 'shadow' ),
+                                                    'top', '2px' ) );
+
+         this._insert( el, this._insert( segment, content( i, 'fill' ) ) );
+      }
+
+      return el;
+   },
+
+   _init_vml: function() {
+      // VML support detected. Insert CSS rules
+      var opt    = this.options;
+      var r      = opt.length + opt.line_width, s = 2 * r;
+      var grp    = function() {
+         return this._setStyles( new Element( opt.tag[ 0 ], {
+            'coordSize'  :  s + ' ' +  s,
+            'coordOrigin': -r + ' ' + -r } ), 'width', s, 'height', s );
+      }.bind( this );
+      var g      = grp();
+      var seg    = function( i, dx, filter ) {
+         this._insert
+         ( g,
+           this._insert
+           ( this._setStyles( grp(),
+                              'rotation', (360 / opt.lines * i) + 'deg',
+                              'left', ~~dx ),
+             this._insert
+             ( this._setStyles( new Element( opt.tag[ 1 ], { 'arcsize': 1 } ),
+                                'width', r, 'height', opt.line_width,
+                                'left', opt.radius, 'top', -opt.line_width / 2,
+                                'filter', filter ),
+               new Element( opt.tag[ 2 ], { 'opacity': opt.opacity } ),
+               new Element( opt.tag[ 3 ], { 'opacity': 0 } )
+             )
+           )
+         );
+      }.bind( this );
+
+      if (opt.shadow) {
+         for (var i = 1, limit = opt.lines; i <= limit; i++) {
+            seg( i, -2, 'progid:DXImagetransform.Microsoft.Blur(pixelradius=2,makeshadow=1,shadowopacity=.3)' );
+         }
+      }
+
+      for (var i = 1, limit = opt.lines; i <= limit; i++) { seg( i ) }
+
+      var margin = ~(opt.length + opt.radius + opt.line_width) + 'px';
+      var el     = new Element( 'div', { 'class': 'spinner-group' } )
+         .setStyles( { 'position': 'relative',
+                       'margin'  : margin + ' 0 0 ' + margin } );
+
+      return this._insert( el, g );
+   },
+
+   _insert: function( parent, child1, child2 ) {
+      if (child2 && !child2.parentNode) this._insert( parent, child2 );
+
+      parent.insertBefore( child1, child2 || null );
+      return parent;
+   },
+
+   _opacity: function( el, i, val ) {
+      if (this.use_vml) {
+         var opt = this.options, l = opt.shadow && opt.lines || 0;
+
+         el.firstChild.childNodes[ i + l ].firstChild.firstChild.opacity = val;
+      }
+      else el.childNodes[ i ].style.opacity = val;
+   },
+
+   _setStyles: function( el ) {
+      this._eachPair( arguments, function( k, v ) {
+         el.style[ this._vendor( el, k ) || k ] = v;
+      }.bind( this ) );
+
+      return el;
+   },
+
+   _styleSheet: function() {
+      var sheets = document.styleSheets, style = new Element( 'style' );
+
+      this._insert( document.getElementsByTagName( 'head' )[ 0 ], style );
+
+      return sheets[ sheets.length - 1 ];
+   },
+
+   _use_js_animations: function() {
+      // No CSS animation support, use setTimeout() instead
+      var i     = 0, opt = this.options, self = this;
+      var f     = 20 / opt.speed;
+      var ostep = (1 - opt.opacity) / (f * opt.trail / 100);
+      var astep = f / opt.lines;
+
+      (function anim() {
+         i++;
+
+         for (var s = opt.lines; s > 0; s--) {
+            var alpha = Math.max( 1 - (i + s * astep) % f * ostep,
+                                  opt.opacity );
+
+            self._opacity( self.el, opt.lines - s, alpha );
+         }
+
+         self.timeout = self.el && window.setTimeout( anim, 50 );
+      } )();
+   },
+
+   _vendor: function( el, prop ) {
+      // Tries various vendor prefixes and returns the first supported property
+      var opt = this.options, s = el.style;
+
+      if (s[ prop ] !== undefined) return prop;
+
+      prop = prop.charAt( 0 ).toUpperCase() + prop.slice( 1 );
+
+      for (var i = 0, limit = opt.prefixes.length; i < limit; i++) {
+         var pp = opt.prefixes[ i ] + prop;
+
+         if (s[ pp ] !== undefined) return pp;
+      }
+
+      return;
+   }
+} );
+
+var Spinners = new Class( {
+   Implements: [ Options ],
+
+   options: { config: {}, selector: '.spinner' },
+
+   initialize: function( options ) {
+      this.setBuildOptions( options ); this.build();
+   },
+
+   attach: function( el ) {
+      var cfg     = this.options.config;
+      var options = cfg[ el.id ] || cfg[ 'defaults' ] || {};
+
+      options.class = 'spinner-js'; options.img = false;
+
+      new Spinner.JS( el, options );
    }
 } );
 
@@ -2275,7 +2578,7 @@ var TableUtils = new Class( {
    build: function() {
       var opt = this.options;
 
-      if (opt.editSelector) $$( opt.editSelector ).each( function( el ) {
+      if (opt.editSelector)  $$( opt.editSelector ).each( function( el  ) {
          el.getElements( 'tr.' + opt.editRowClass ).each( function( row ) {
             $uid( row );
          } );
@@ -2283,11 +2586,15 @@ var TableUtils = new Class( {
          el.sortables = new Sortables( el.getElement( 'tbody' ),
                                        opt.sortableOptions );
 
-         $( el.id + '_add' ).addEvent( 'click', function( ev ) {
+         var button = $( el.id + '_add' );
+
+         if (button) button.addEvent( 'click', function( ev ) {
              new Event( ev ).stop(); return this.addRow( el );
          }.bind( this ) );
 
-         $( el.id + '_remove' ).addEvent( 'click', function( ev ) {
+         button = $( el.id + '_remove' );
+
+         if (button) button.addEvent( 'click', function( ev ) {
             new Event( ev ).stop(); return this.removeRows( el );
          }.bind( this ) );
       }, this );
@@ -2308,28 +2615,30 @@ var TableUtils = new Class( {
    addRow: function( table ) {
       var cNo     = 0, el,
           opt     = this.options,
-          cfg     = opt.config[ table.id ] || {}
+          cfg     = opt.config[ table.id ] || {},
           edit    = cfg.editSide   || 'left',
           select  = cfg.selectSide || 'left',
           klass   = opt.inputCellClass,
           rows    = table.getElements( 'tr.' + opt.editRowClass ),
           nrows   = rows ? rows.length : 0,
+          row_id  = nrows,
           row     = new Element( 'tr', {
-             id   : table.id + '_row' + nrows,
+             id   : table.id + '_row' + row_id,
              class: opt.editRowClass + ' ' + opt.sortRowClass } ),
-          new_id  = $uid( row );
+          id_a    = table.id.split( '.' ),
+          name    = id_a[ 1 ];
 
       if (edit == 'left') row.appendChild( this._add_drag( cNo++ ) );
 
       if (select == 'left')
-         row.appendChild( this._add_select( table, new_id, cNo++ ) );
+         row.appendChild( this._add_select( name, row_id, cNo++ ) );
 
       while (el = $( table.id + '_add' + cNo )) {
          var cell  = new Element( 'td' ),
-             type  = el.tag == 'textarea' ? 'textarea' : 'input',
+             type  = el.type == 'textarea' ? 'textarea' : 'input',
              input = new Element( type, {
                 class: 'ifield',
-                name : table.id + '_' + new_id + '_' + cNo,
+                name : name + '_' + row_id + '_' + cNo,
                 value: el.value
              } );
 
@@ -2345,11 +2654,11 @@ var TableUtils = new Class( {
       }
 
       if (select == 'right')
-         row.appendChild( this._add_select( table, new_id, cNo++ ) );
+         row.appendChild( this._add_select( name, row_id, cNo++ ) );
 
       if (edit == 'right') row.appendChild( this._add_drag( cNo++ ) );
 
-      this.form.elements[ '_' + table.id + '_nrows' ].value = nrows + 1;
+      this.form.elements[ '_' + name + '_nrows' ].value = nrows + 1;
       row.inject( $( table.id ).getElement( 'tbody' ) );
       table.sortables.attach();
       this.fireEvent( 'rowAdded' );
@@ -2366,9 +2675,9 @@ var TableUtils = new Class( {
       return cell;
    },
 
-   _add_select: function( table, new_id, cNo ) {
+   _add_select: function( name, new_id, cNo ) {
       var input = new Element( 'input', {
-         name: table.id + '_select' + new_id, type: 'checkbox'
+         name: name + '.select' + new_id, type: 'checkbox'
       } );
       var cell  = new Element( 'td', {
          class: 'row_select' + this._col_class( cNo )
@@ -2428,11 +2737,9 @@ var TableUtils = new Class( {
 
    _get_sort_order: function( table_id, default_column, column_id ) {
       var sortable = this.sortables[ table_id ]
-                  || { sort_column: default_column, reverse: 0 };
-      var reverse  = sortable.reverse;
-
-      if (column_id == sortable.sort_column) reverse = 1 - reverse;
-      else reverse = 0;
+                  || { sort_column: default_column, reverse: false };
+      var reverse  = (column_id == sortable.sort_column)
+                   ? ! sortable.reverse : false;
 
       sortable.reverse = reverse; sortable.sort_column = column_id;
       this.sortables[ table_id ] = sortable;
@@ -2478,6 +2785,8 @@ var TableUtils = new Class( {
    removeRows: function( table ) {
       var rows      = table.getElements( 'tr.' + this.options.editRowClass ),
           nrows     = rows ? rows.length : 0,
+          id_a      = table.id.split( '.' ),
+          name      = id_a[ 1 ],
           destroyed = 0;
 
       rows.map( function( row ) {
@@ -2488,7 +2797,7 @@ var TableUtils = new Class( {
          } );
       } );
 
-      this.form.elements[ '_' + table.id + '_nrows' ].value = nrows - destroyed;
+      this.form.elements[ '_' + name + '_nrows' ].value = nrows - destroyed;
 
       if (destroyed > 0) this.fireEvent( 'rowsRemoved' );
 
@@ -2497,8 +2806,8 @@ var TableUtils = new Class( {
 
    sortRows: function( table_header ) {
       var id       = table_header.id,
-          a        = id.split( '.' ),
-          table_id = a[ 0 ], column_type = a[ 2 ],
+          id_a     = id.split( '.' ),
+          table_id = id_a[ 0 ], column_type = id_a[ 2 ],
           table    = $( table_id ),
           columns  = table.getElements( 'th' ),
           col_ids  = columns.map( function( column ) { return column.id } );
@@ -2536,7 +2845,6 @@ var TableUtils = new Class( {
       } );
 
       this.fireEvent( 'sortComplete' );
-      return;
    },
 
    _updateHeader: function( offset ) {
@@ -2562,17 +2870,8 @@ var TableUtils = new Class( {
 } );
 
 /* Clientcide Copyright (c) 2006-2009
-
-Contents: TabSwapper
-
-name: TabSwapper.js
-description: Handles the scripting for a common UI layout; the tabbed box.
-License: http://www.clientcide.com/wiki/cnet-libraries#license
-
-requires:
- - core: Element.Event, Fx.Tween, Fx.Morph
- - more: Element.Shortcuts, Element.Dimensions, Element.Measure
-*/
+   Description: Handles the scripting for a common UI layout; the tabbed box.
+   License: http://www.clientcide.com/wiki/cnet-libraries#license */
 
 var TabSwapper = new Class( {
    Implements: [ Options, Events ],
@@ -2600,10 +2899,11 @@ var TabSwapper = new Class( {
    tabs: [],
 
    initialize: function( el, options ) {
+      this.cookies = options.cookies || function() {};
+
       this.setOptions( options ); var opt = this.options;
 
       this.cookieName = opt.cookieName + el.id;
-      this.cookies    = options.cookies || function(){};
 
       var sections = el.getElements( opt.sections );
 
@@ -2614,7 +2914,7 @@ var TabSwapper = new Class( {
          this.hideSection( index );
       }, this );
 
-      this.show( this.recall() );
+      this.show( this.recall() ); el.store( 'tabSwapper', this );
    },
 
    addTab: function( tab, section, index ) {
@@ -2663,7 +2963,7 @@ var TabSwapper = new Class( {
       var section; if (! (section = tab.retrieve( 'section' ))) return this;
 
       if (section.getStyle( 'display' ) != 'none') {
-         this.lastHeight = section.getSize().y;
+         this.lastHeight = section.getHeight();
          section.setStyle( 'display', 'none' );
          tab.swapClass( this.options.selectedClass,
                         this.options.deselectedClass );
@@ -2709,8 +3009,9 @@ var TabSwapper = new Class( {
    },
 
    save: function( index ) {
-      if (this.options.usePersistance)
-         this.cookies.set( this.cookieName, index );
+      var opt = this.options;
+
+      if (opt.usePersistance) this.cookies.set( this.cookieName, index );
 
       return this;
    },
@@ -2794,42 +3095,28 @@ var TabSwapper = new Class( {
 var TabSwappers = new Class( {
    Implements: [ Options ],
 
-   options          : {
-      config        : {},
-      cookies       : function(){},
-      selector      : '.tabswapper',
-      usePersistance: true
-   },
+   options: { config: {}, selector: '.tabswapper' },
 
    initialize: function( options ) {
+      this.cookies = options.cookies;
       this.setBuildOptions( options );
-
-      this.config = Object.merge( this.options.config.defaults );
-
-      var attrs = [ 'cookies', 'usePersistance' ];
-
-      attrs.each( function( attr ) {
-         this.config[ attr ] = this.options[ attr ] }, this );
       this.build();
    },
 
    attach: function( el ) {
-      var cfg = Object.merge( this.config, this.options.config[ el.id ] );
+      var cfg     = this.options.config;
+      var options = cfg[ el.id ] || cfg[ 'defaults' ] || {};
 
-      el.tabSwapper = new TabSwapper( el, cfg );
+      options.cookies = this.cookies;
+
+      new TabSwapper( el, options );
    }
 } );
 
-/*
-
-Description: Class for creating nice tips that follow the mouse cursor
-             when hovering an element.
-
-License: MIT-style license
-
-Authors: Valerio Proietti, Christoph Pojer, Luis Merino
-
-*/
+/* Description: Class for creating nice tips that follow the mouse cursor
+                when hovering an element.
+   License: MIT-style license
+   Authors: Valerio Proietti, Christoph Pojer, Luis Merino */
 
 (function() {
 
@@ -3093,65 +3380,16 @@ var Togglers = new Class( {
       }.bind( this ) );
    },
 
-   toggle: function( el ) {
-      var disp = $( el.id + 'Disp' );
+   toggle: function( id, obj ) {
+      var el = $( id ); if (! el) return;
 
-      if (disp.getStyle( 'display' ) != 'none') {
-         disp.setStyle( 'display', 'none' ); this.cookies.remove( el.id );
-      }
-      else {
-         disp.setStyle( 'display', '' ); this.cookies.set( el.id, 'true' );
-      }
+      var toggler = el.retrieve( obj ); if (! toggler) return;
 
-      this.resize();
-   },
-
-   toggleState: function( id ) {
-      var el; if (! (el = $( id + 'Box' ))) return;
-
-      this.cookies.set( id, (el.checked ? 'true' : 'false') );
-   },
-
-   toggleSwap: function( el, s1, s2 ) {
-      var disp;
-
-      if (disp = $( el.id + 'Disp' )) {
-         if (disp.getStyle( 'display' ) != 'none') {
-            disp.setStyle( 'display', 'none' ); this.cookies.remove( el.id );
-
-            if (el = $( el.id )) el.set( 'html', s2 );
-         }
-         else {
-            disp.setStyle( 'display', '' ); this.cookies.set( el.id, s2 );
-
-            if (el = $( el.id )) el.set( 'html', s1 );
-         }
-      }
-
-      this.resize();
-   },
-
-   toggleSwapImg: function( el, s1, s2 ) {
-      var disp;
-
-      if (disp = $( el.id + 'Disp' )) {
-         if (disp.getStyle( 'display' ) != 'none') {
-            disp.setStyle( 'display', 'none' ); this.cookies.remove( el.id );
-
-            if (el = $( el.id + 'Img' )) el.src = s1;
-         }
-         else {
-            disp.setStyle( 'display', '' ); this.cookies.set( el.id, s2 );
-
-            if (el = $( el.id + 'Img' )) el.src = s2;
-         }
-      }
-
-      this.resize();
+      toggler.toggle( this.cookies ); this.resize();
    },
 
    toggleSwapText: function( id, cookie, s1, s2 ) {
-      var el = $( id );
+      var el = $( id ); if (! el) return;
 
       if (this.cookies.get( cookie ) == 'true') {
          this.cookies.set( cookie, 'false' );
@@ -3457,9 +3695,8 @@ var WindowUtils = new Class( {
 } );
 
 /* Author  : luistar15, <leo020588 [at] gmail.com>
- * License : MIT License
  * Class   : wysiwyg (rev.06-07-08)
- */
+ * License : MIT License */
 
 var WYSIWYG = new Class( {
    Implements: [ Events, Options ],
@@ -3468,67 +3705,69 @@ var WYSIWYG = new Class( {
       barNum           : 4,
       buttonWidth      : 24,
       buttons          : {
-         anchor        : [ 20, 'Anchor', 'anchor', 'Enter anchor id', '#' ],
-         bigger        : [ 72, 'Increase Font Size', 'increasefontsize', null ],
-         blockquote    : [ 19, 'Blockquote', 'formatblock', '<BLOCKQUOTE>' ],
-         bold          : [ 30, 'Bold', 'bold', null ],
-         clear         : [  0, 'Clear', 'selectall+delete', null ],
-         copy          : [  3, 'Copy to Clipboard', 'copy', null ],
-         cut           : [  4, 'Cut to Clipboard', 'cut', null ],
-         div           : [ 56, 'Div Element', 'formatblock', '<DIV>' ],
-         elfinder      : [ 58, 'Find Element', 'elfinder',
-                               'Enter element selector', '' ],
-         flash         : [  9, 'Shockwave Flash', 'flash' ],
-         forecolor     : [ 50, 'Text Colour', 'forecolor',
-                               'Enter text colour', '#' ],
-         fullscreen    : [ 21, 'Full Screen', 'fullscreen' ],
-         h1            : [ 67, 'Header Level 1', 'formatblock', '<H1>' ],
-         h2            : [ 68, 'Header Level 2', 'formatblock', '<H2>' ],
-         h3            : [ 69, 'Header Level 3', 'formatblock', '<H3>' ],
-         hilitecolor   : [ 51, 'Highlight Colour', 'hilitecolor',
-                               'Enter highlight colour', '#' ],
-         horizontalrule: [ 18, 'Horizontal Rule', 'inserthorizontalrule',
-                               null ],
-         image         : [  8, 'Image', 'insertimage',
-                               'Enter the image URL:', 'http://' ],
-         indent        : [ 11, 'Indent', 'indent', null ],
-         italic        : [ 33, 'Italic', 'italic', null ],
-         justifycenter : [ 36, 'Justify Centre', 'justifycenter', null ],
-         justifyfull   : [ 17, 'Justify Full', 'justifyfull', null ],
-         justifyleft   : [ 35, 'Justify Left', 'justifyleft', null ],
-         justifyright  : [ 37, 'Justify Right', 'justifyright', null ],
-         link          : [ 31, 'Link', 'createlink', 'Enter the URL:',
-                               'http://' ],
-         nbsp          : [ 53, 'Non Breaking Space', 'nbsp', null ],
-         nexttoolbar   : [ 74, 'Next Toolbar', 'nexttoolbar' ],
-         orderedlist   : [ 15, 'Ordered List', 'insertorderedlist', null ],
-         outdent       : [ 10, 'Outdent', 'outdent', null ],
-         paragraph     : [ 70, 'Paragraph', 'formatblock', '<P>' ],
-         paste         : [  5, 'Paste from Clipboard', 'paste', null ],
-         preformatted  : [ 17, 'Preformatted Text', 'formatblock', '<PRE>' ],
-         redo          : [ 39, 'Redo Previous Action', 'redo', null ],
-         removeformat  : [  7, 'Remove Format', 'removeformat', null ],
-         smaller       : [ 71, 'Decrease Font Size', 'decreasefontsize', null ],
-         strikethrough : [ 16, 'Strikethrough', 'strikethrough', null ],
-         subscript     : [ 12, 'Subscript', 'subscript', null ],
-         superscript   : [ 13, 'Superscript', 'superscript', null ],
-         table         : [ 23, 'Insert Table', 'table' ],
-         tableprops    : [ 44, 'Table Properties', 'tableprops' ],
-         tablerm       : [ 28, 'Remove Table', 'tablerm' ],
-         tbrowbefore   : [ 48, 'Insert Row Before', 'tbrowbefore' ],
-         tbrowafter    : [ 47, 'Insert Row After', 'tbrowafter' ],
-         tbrowrm       : [ 26, 'Remove Row', 'tbrowrm' ],
-         tbcolbefore   : [ 59, 'Insert Column Before', 'tbcolbefore' ],
-         tbcolafter    : [ 63, 'Insert Column After', 'tbcolafter' ],
-         tbcolrm       : [ 29, 'Remove Column', 'tbcolrm' ],
-         tbcellprops   : [ 64, 'Cell Properties', 'tbcellprops' ],
-         tbcellsmerge  : [ 40, 'Merge Cells', 'tbcellsmerge' ],
-         tbcellsplit   : [ 55, 'Split Cell', 'tbcellsplit' ],
-         toggle        : [ 66, 'Toggle View', 'toggleview' ],
-         underline     : [ 34, 'Underline', 'underline', null ],
-         undo          : [ 38, 'Undo Last Action', 'undo', null ],
-         unlink        : [ 32, 'Unlink', 'unlink', null ],
-         unorderedlist : [ 14, 'Unordered List', 'insertunorderedlist', null ]
+         anchor        : [  20, 'Anchor', 'anchor', 'Enter anchor id', '#' ],
+         bigger        : [  72, 'Increase Font Size', 'increasefontsize',
+                                null ],
+         blockquote    : [  19, 'Blockquote', 'formatblock', '<BLOCKQUOTE>' ],
+         bold          : [  30, 'Bold', 'bold', null ],
+         clear         : [   0, 'Clear', 'selectall+delete', null ],
+         copy          : [   3, 'Copy to Clipboard', 'copy', null ],
+         cut           : [   4, 'Cut to Clipboard', 'cut', null ],
+         div           : [  56, 'Div Element', 'formatblock', '<DIV>' ],
+         elfinder      : [ 129, 'Find Element', 'elfinder',
+                                'Enter element selector', '' ],
+         flash         : [   9, 'Shockwave Flash', 'flash' ],
+         forecolor     : [  50, 'Text Colour', 'forecolor',
+                                'Enter text colour', '#' ],
+         fullscreen    : [  21, 'Full Screen', 'fullscreen' ],
+         h1            : [  67, 'Header Level 1', 'formatblock', '<H1>' ],
+         h2            : [  68, 'Header Level 2', 'formatblock', '<H2>' ],
+         h3            : [  69, 'Header Level 3', 'formatblock', '<H3>' ],
+         hilitecolor   : [  51, 'Highlight Colour', 'hilitecolor',
+                                'Enter highlight colour', '#' ],
+         horizontalrule: [  18, 'Horizontal Rule', 'inserthorizontalrule',
+                                null ],
+         image         : [   8, 'Image', 'insertimage',
+                                'Enter the image URL:', 'http://' ],
+         indent        : [  11, 'Indent', 'indent', null ],
+         italic        : [  33, 'Italic', 'italic', null ],
+         justifycenter : [  36, 'Justify Centre', 'justifycenter', null ],
+         justifyfull   : [  17, 'Justify Full', 'justifyfull', null ],
+         justifyleft   : [  35, 'Justify Left', 'justifyleft', null ],
+         justifyright  : [  37, 'Justify Right', 'justifyright', null ],
+         link          : [  31, 'Link', 'createlink', 'Enter the URL:',
+                                'http://' ],
+         nbsp          : [  53, 'Non Breaking Space', 'nbsp', null ],
+         nexttoolbar   : [  74, 'Next Toolbar', 'nexttoolbar' ],
+         orderedlist   : [  15, 'Ordered List', 'insertorderedlist', null ],
+         outdent       : [  10, 'Outdent', 'outdent', null ],
+         paragraph     : [  70, 'Paragraph', 'formatblock', '<P>' ],
+         paste         : [   5, 'Paste from Clipboard', 'paste', null ],
+         preformatted  : [  17, 'Preformatted Text', 'formatblock', '<PRE>' ],
+         redo          : [  39, 'Redo Previous Action', 'redo', null ],
+         removeformat  : [   7, 'Remove Format', 'removeformat', null ],
+         smaller       : [  71, 'Decrease Font Size', 'decreasefontsize',
+                                null ],
+         strikethrough : [  16, 'Strikethrough', 'strikethrough', null ],
+         subscript     : [  12, 'Subscript', 'subscript', null ],
+         superscript   : [  13, 'Superscript', 'superscript', null ],
+         table         : [  23, 'Insert Table', 'table' ],
+         tableprops    : [  44, 'Table Properties', 'tableprops' ],
+         tablerm       : [  28, 'Remove Table', 'tablerm' ],
+         tbrowbefore   : [  48, 'Insert Row Before', 'tbrowbefore' ],
+         tbrowafter    : [  47, 'Insert Row After', 'tbrowafter' ],
+         tbrowrm       : [  26, 'Remove Row', 'tbrowrm' ],
+         tbcolbefore   : [  59, 'Insert Column Before', 'tbcolbefore' ],
+         tbcolafter    : [  63, 'Insert Column After', 'tbcolafter' ],
+         tbcolrm       : [  29, 'Remove Column', 'tbcolrm' ],
+         tbcellprops   : [  64, 'Cell Properties', 'tbcellprops' ],
+         tbcellsmerge  : [  40, 'Merge Cells', 'tbcellsmerge' ],
+         tbcellsplit   : [  55, 'Split Cell', 'tbcellsplit' ],
+         toggle        : [  66, 'Toggle View', 'toggleview' ],
+         underline     : [  34, 'Underline', 'underline', null ],
+         undo          : [  38, 'Undo Last Action', 'undo', null ],
+         unlink        : [  32, 'Unlink', 'unlink', null ],
+         unorderedlist : [  14, 'Unordered List', 'insertunorderedlist', null ]
       },
       container     : 'content',
       defaultBody   : '\u00a0',
@@ -3734,11 +3973,11 @@ var WYSIWYG = new Class( {
       if (editor.height == -1) {
          var container = $( opt.container );
 
-         editor.width  = iframe.getSize().x;
-         editor.height = iframe.getSize().y;
-         width         = container.getSize().x - opt.iframeMargin;
-         height        = container.getSize().y - opt.iframeMargin
-                         - toolbar.getSize().y;
+         editor.width  = iframe.getWidth();
+         editor.height = iframe.getHeight();
+         width         = container.getWidth()  - opt.iframeMargin;
+         height        = container.getHeight() - opt.iframeMargin
+                         - toolbar.getHeight();
       }
       else { width = editor.width; height = editor.height; editor.height = -1; }
 

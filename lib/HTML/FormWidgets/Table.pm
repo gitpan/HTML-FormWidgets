@@ -1,15 +1,14 @@
-# @(#)$Id: Table.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Table.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Table;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-__PACKAGE__->mk_accessors( qw(add_tip assets data edit hide
-                              number_rows remove_tip select
-                              sort_tip sortable table_class) );
+__PACKAGE__->mk_accessors( qw(data edit hclass number_rows
+                              select sortable table_class) );
 
 my $HASH_CHAR = chr 35;
 my $NBSP      = '&#160;';
@@ -17,26 +16,17 @@ my $NUL       = q();
 my $TTS       = q( ~ );
 
 sub init {
-   my ($self, $args) = @_; my $text;
+   my ($self, $args) = @_;
 
-   $self->assets     ( $NUL );
-   $self->class      ( q(normal) );
+   $self->class      ( q(ifield) );
    $self->container  ( 0 );
    $self->data       ( { flds => [], values => [] } );
    $self->edit       ( 0 );
-   $self->hide       ( [] );
-   $self->hint_title ( $self->loc( q(Hint) ) ) unless ($self->hint_title);
+   $self->hclass     ( q(normal) );
    $self->number_rows( 0 );
-   $self->select     ( $NUL );
+   $self->select     ( 0 );
    $self->sortable   ( 0 );
    $self->table_class( undef );
-
-   $text = $self->loc( q(Add_table_row) );
-   $self->add_tip    ( $self->hint_title.$TTS.$text );
-   $text = $self->loc( q(Remove_table_row) );
-   $self->remove_tip ( $self->hint_title.$TTS.$text );
-   $text = $self->loc( q(Sort_table_rows) );
-   $self->sort_tip   ( $self->hint_title.$TTS.$text );
    return;
 }
 
@@ -78,9 +68,8 @@ sub render_field {
    $self->edit
       and $tfoot = $hacc->tfoot( $self->_add_edit_row( $data, $r_no ) );
 
-   $args = { editSide   => '"'.$self->edit.'"',
-             selectSide => '"'.$self->select.'"' };
-   $self->_js_config( 'tables', $self->id, $args );
+   $self->add_literal_js( 'tables', $self->id, {
+      editSide => '"'.$self->edit.'"', selectSide => '"'.$self->select.'"' } );
 
    $args = { cellspacing => 0, class => $self->table_class, id => $self->id };
 
@@ -98,52 +87,46 @@ sub _add_edit_row {
       my $args      = { id => $self->id.q(_add).$_ };
       my $field     = $data->{flds}->[ $_ ];
 
-      $args->{name} = q(_).$self->id.q(_).$field;
+      $args->{name} = q(_).$self->name.q(_).$field;
       $cells       .= $self->_editable_cell( $data, $field, $args, $c_no );
       $c_no++;
    }
 
-   my $text   = $hacc->span( { class => q(add_item_icon) }, q( ) );
-   my $args   = {
-      class   => q(icon_button tips add),
-      id      => $self->id.q(_add),
-      title   => $self->add_tip };
+   my $add_tip = $self->hint_title.$TTS.$self->loc( q(Add_table_row) );
+   my $text    = $hacc->span( { class => q(add_item_icon) }, q( ) );
+   my $args    = { class   => q(icon_button tips add),
+                   id      => $self->id.q(_add),
+                   title   => $add_tip };
 
-   $text      = $hacc->span( $args, $text );
+   $text       = $hacc->span( $args, $text );
 
-   my $text1  = $hacc->span( { class => q(remove_item_icon) }, q( ) );
+   my $rm_tip  = $self->hint_title.$TTS.$self->loc( q(Remove_table_row) );
+   my $text1   = $hacc->span( { class => q(remove_item_icon) }, q( ) );
 
-   $args      = {
-      class   => q(icon_button tips remove),
-      id      => $self->id.q(_remove),
-      title   => $self->remove_tip };
-   $text     .= $hacc->span( $args, $text1 );
-   $text      = $hacc->span( { class => q(table_edit_buttons) }, $text );
-   $cells    .= $hacc->td( $text );
+   $args       = { class   => q(icon_button tips remove),
+                   id      => $self->id.q(_remove),
+                   title   => $rm_tip };
+   $text      .= $hacc->span( $args, $text1 );
+   $text       = $hacc->span( { class => q(table_edit_buttons) }, $text );
+   $cells     .= $hacc->td( $text );
 
-   my $class  = ($data->{class} || q(edit_row)).__row_class( $r_no );
+   my $class   = ($data->{class} || q(edit_row)).__row_class( $r_no );
 
-   $args      = { class => $class, id => $self->id.q(_edit) };
+   $args       = { class => $class, id => $self->id.q(_edit) };
 
    return $hacc->tr( $args, $cells );
 }
 
 sub _add_row_count {
-   my ($self, $default) = @_;
+   my ($self, $n_rows) = @_;
 
-   my $content = $self->inflate( { name    => q(_).$self->id.q(_nrows),
-                                   default => $default,
-                                   type    => q(hidden),
-                                   widget  => 1 } );
-
-   push @{ $self->hide }, { content => $content };
-   return;
+   return $self->add_hidden( q(_).$self->name.q(_nrows), $n_rows );
 }
 
 sub _check_box {
    my ($self, $r_no, $c_no, $id) = @_; my $hacc = $self->hacc;
 
-   my $args = { name => $self->id.q(_select).$r_no };
+   my $args = { name => $self->name.q(.select).$r_no };
 
    $id and $args->{value} = $id;
 
@@ -165,7 +148,8 @@ sub _drag_icon {
 sub _drag_header {
    my ($self, $c_no) = @_; my $name = q(col).$c_no;
 
-   my $args = { class => $self->class.q( minimal), id => $self->id.q(_).$name };
+   my $args = { class => $self->hclass.q( minimal),
+                id    => $self->id.q(.).$name };
 
    return $self->hacc->th( $args, $self->loc( 'Drag' ) );
 }
@@ -173,7 +157,7 @@ sub _drag_header {
 sub _editable_cell {
    my ($self, $data, $field, $args, $c_no) = @_; my $hacc = $self->hacc;
 
-   $args->{class} = q(ifield);
+   $args->{class} = $data->{classes}->{ $field } || $self->class;
 
    exists $data->{maxlengths}->{ $field }
       and $args->{maxlength} = $data->{maxlengths}->{ $field };
@@ -181,14 +165,14 @@ sub _editable_cell {
    my $type = $data->{typelist}->{ $field } || q(textfield);
 
    if ($type eq q(textarea)) {
-      $args->{rows} = exists $data->{rows}->{ $field }
-                    ? $data->{rows}->{ $field } : 5;
-      $args->{cols} = exists $data->{cols}->{ $field }
-                    ? $data->{cols}->{ $field } : 60;
+      $args->{rows}  = exists $data->{rows}->{ $field }
+                     ? $data->{rows}->{ $field } : 5;
+      $args->{cols}  = exists $data->{cols}->{ $field }
+                     ? $data->{cols}->{ $field } : 60;
    }
    elsif ($type eq q(textfield)) {
-      $args->{size} = exists $data->{sizes}->{ $field }
-                    ? $data->{sizes}->{ $field } : 10;
+      $args->{size}  = exists $data->{sizes}->{ $field }
+                     ? $data->{sizes}->{ $field } : 40;
    }
 
    my $class = q(data_field).__column_class( $c_no );
@@ -199,7 +183,7 @@ sub _editable_cell {
 sub _field_header {
    my ($self, $data, $field, $c_no) = @_; my $name = q(col).$c_no;
 
-   my $args = { class => $self->class };
+   my $args = { class => $self->hclass };
 
    if (exists $data->{hclass}->{ $field }) {
       $data->{hclass}->{ $field } eq q(hide) and return;
@@ -217,7 +201,7 @@ sub _field_header {
    $args->{id} = $self->id.q(.).$name.($type ? q(.).$type : $NUL);
 
    if ($self->sortable) {
-      $args->{class} .= q( sort tips); $args->{title} = $self->sort_tip;
+      $args->{class} .= q( sort tips); $args->{title} = $self->_sort_tip;
    }
 
    return $self->hacc->th( $args, $data->{labels}->{ $field } );
@@ -226,11 +210,11 @@ sub _field_header {
 sub _number_header {
    my ($self, $c_no) = @_; my $name = q(col).$c_no;
 
-   my $args = { class => $self->class.q( minimal),
+   my $args = { class => $self->hclass.q( minimal),
                 id    => $self->id.q(.).$name.q(.numeric) };
 
    if ($self->sortable) {
-      $args->{class} .= q( sort tips); $args->{title} = $self->sort_tip;
+      $args->{class} .= q( sort tips); $args->{title} = $self->_sort_tip;
    }
 
    return $self->hacc->th( $args, $HASH_CHAR );
@@ -254,7 +238,7 @@ sub _render_row {
 
       if ($self->edit) {
          $args->{default} = $val->{ $field };
-         $args->{name   } = $self->id.q(_).$r_no.q(_).$c_no;
+         $args->{name   } = $self->name.q(_).$r_no.q(_).$c_no;
          $cells .= $self->_editable_cell( $data, $field, $args, $c_no );
       }
       else {
@@ -287,7 +271,7 @@ sub _render_row {
 
    $self->sortable and $class .= q( sortable_row);
 
-   my $args  = { class => $class, id => $self->id.q(_row).$r_no };
+   my $args  = { class => $class, id => $self->id.q(.row).$r_no };
 
    return $hacc->tr( $args, "\n".$cells );
 }
@@ -295,7 +279,7 @@ sub _render_row {
 sub _row_number {
    my ($self, $row, $col) = @_;
 
-   my $args = { class => $self->class.q( lineNumber minimal) };
+   my $args = { class => q(lineNumber minimal) };
 
    $args->{class} .= __column_class( $col );
 
@@ -305,11 +289,17 @@ sub _row_number {
 sub _select_header {
    my ($self, $c_no) = @_; my $name = q(col).$c_no;
 
-   my $args = { class => $self->class, id => $self->id.q(_).$name };
+   my $args = { class => $self->hclass, id => $self->id.q(.).$name };
 
    $args->{class} .= $self->edit ? q( select) : q( minimal);
 
    return $self->hacc->th( $args, $self->loc( 'Select' ) );
+}
+
+sub _sort_tip {
+   my $self = shift;
+
+   return $self->hint_title.$TTS.$self->loc( q(Sort_table_rows) );
 }
 
 # Private subroutines

@@ -48,6 +48,7 @@ lib/HTML/FormWidgets/Template.pm
 lib/HTML/FormWidgets/Textarea.pm
 lib/HTML/FormWidgets/Textfield.pm
 lib/HTML/FormWidgets/Tree.pm
+lib/HTML/FormWidgets/UnorderedList.pm
 LICENSE
 MANIFEST			This list of files
 META.json

@@ -14,72 +14,73 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 70be4f59c68676aefd68e174e32fb640918bf489 Build.PL
-SHA1 7293b146305c2d1936fefef8c391738651b17e4f Changes
+SHA1 186d07db0557dac77142cd7205c136a5ccd0efe8 Build.PL
+SHA1 49e0059ea97e75bfa1a247fd58338ebaf000f929 Changes
 SHA1 12e8c95d11cd08121fd9b8b5e5169b0cbf68b160 LICENSE
-SHA1 be3763b762e213841fbce06e319f0e0fb1c6953e MANIFEST
-SHA1 e00b372409be67ed14ee2394d9e33636ebd9a310 META.json
-SHA1 eac5f9c66ac938e89277dc55c3cbb06101883180 META.yml
-SHA1 a309e3875bb73e0a28e886800fccc0527b7246e8 README
+SHA1 3d1dec65840d21ce17fe88145ff1ed1b3fe45e33 MANIFEST
+SHA1 e7e353d8257c6b49cdc7869e37c271280822a7dd META.json
+SHA1 86f007e4fbccf8cd32e8602b14e0f9ede59828d2 META.yml
+SHA1 9dd739a65538d711d6cf3dea5107a84a021b42b2 README
 SHA1 f1b31d1dc30c34bcbb00ff419b0672ae890e1e91 css/colour-green.css
-SHA1 7ba9b38526d81707dbc7038ba8fdf62c48646948 css/green.css
-SHA1 98dfdac5c44b02a0094f4fcba06e61a97a1e7cac css/presentation.css
+SHA1 a2579f253efa45afdb1f434aa06ab240262f554e css/green.css
+SHA1 ed060ef76f8d7466173c2b0071b3abe89da47605 css/presentation.css
 SHA1 3901f1c40940ea94b33cf44c78d46c34c11ea9e9 images/icons.png
-SHA1 907408e13164f8a463f842d868987c1c30b841c3 inc/Bob.pm
+SHA1 41d23024bc1ae150b6f360529b589e113a578856 inc/Bob.pm
 SHA1 298b621a25a28c6019c3b0afba2bca66532bd745 javascript/05htmlparser.js
 SHA1 e2cd51d0c887c4480d7efd2a133a351bd19a65cb javascript/10mootools.js
-SHA1 e910e10774be95cfeb4dbd4717abff14a4f14732 javascript/15html-formwidgets.js
+SHA1 79826197d908b592cc27319c5e0d3c4952fa2f9f javascript/15html-formwidgets.js
 SHA1 c97702990f6774e30b9ea88d6a2fa3dba87063a3 javascript/50calendar.js
 SHA1 b7ee35fdd2c2ffb8ab5139a4e4f244585af621e8 javascript/51calendar-setup.js
-SHA1 a82a61744ebca09fef26ceebbc43d0c62ff08b17 javascript/behaviour.js
+SHA1 9c5bcaa98a502a71a6c7854f9db299539b02b846 javascript/behaviour.js
 SHA1 de85977bb656ff5313b44994627b95fd5fa3c4d5 javascript/lang/calendar-de.js
 SHA1 76250042c24ef04826eb632546dd6627448cd0da javascript/lang/calendar-en.js
 SHA1 d53134b7f86d825ed986dbfc2a51c55fa9a415ef javascript/lang/calendar-es.js
 SHA1 dea52d5d64db5827fbfb88794b03d576f7cf778e javascript/lang/calendar-nl.js
 SHA1 05a45213b2a0f3b5b89889d88e117db4921fe7e8 javascript/lang/calendar-pl.js
 SHA1 061a5722da745cce6c21f1a0a80f0a1f543117ac javascript/lang/calendar-ru.js
-SHA1 bc7ade3c6bd3c74851c6b6375115fbe843aed8fc lib/HTML/FormWidgets.pm
-SHA1 7608ba03c1bedf8fac2047ba18c0cf315f210dfc lib/HTML/FormWidgets/Anchor.pm
-SHA1 85ed44a0239ea3b4313181f7cc8895120d317add lib/HTML/FormWidgets/Button.pm
-SHA1 d276924229db73a000f1e6882ced6a60f6249f72 lib/HTML/FormWidgets/Checkbox.pm
-SHA1 583513866abe8980ce0301ff0f2e0e8d86244e35 lib/HTML/FormWidgets/Chooser.pm
-SHA1 7f918936d8866c3209667d1606bb1c6eb7f374bd lib/HTML/FormWidgets/Cloud.pm
-SHA1 44141753efa6aa61dfaa330054ee2607db0d536a lib/HTML/FormWidgets/Date.pm
-SHA1 0735e975d2a0d5ba02e4af2401ba7edb688e5f94 lib/HTML/FormWidgets/File.pm
-SHA1 e82dc4e6eed09d7d0210cb55f15718bc30cbb2db lib/HTML/FormWidgets/Freelist.pm
-SHA1 4e3b721d23a3a78ef2e998d66d70ac1d09eecd92 lib/HTML/FormWidgets/GroupMembership.pm
-SHA1 819f7600a5fd18274f0ce877f2aee6c882beb0e9 lib/HTML/FormWidgets/Hidden.pm
-SHA1 02a7647ee37c3b9919da2025962ae13be646b32a lib/HTML/FormWidgets/Image.pm
-SHA1 a1c61df7d89d5304b77a09486395c1a9440c6cc0 lib/HTML/FormWidgets/Label.pm
-SHA1 0526898f88ba94d6c238162aa475b40c1d9d14e9 lib/HTML/FormWidgets/Menu.pm
-SHA1 fdea0a5104f6874de66ce443a6927bc840e008f5 lib/HTML/FormWidgets/Note.pm
-SHA1 4bb3b6d13e5bb2813d065a7a304c556f225e95b0 lib/HTML/FormWidgets/POD.pm
-SHA1 4a004a50c24fd10b5a512c4fea57284767f816f8 lib/HTML/FormWidgets/Paragraphs.pm
-SHA1 6816d7fd555bd262f6dd5379dd2c32820d14e8ef lib/HTML/FormWidgets/Password.pm
-SHA1 06cbfd5cf533cf4e0608b70fc855999e6d4edd0a lib/HTML/FormWidgets/PopupMenu.pm
-SHA1 c458c8313e15127759198fae5906b30600485779 lib/HTML/FormWidgets/RadioGroup.pm
-SHA1 1c5267e182785697d3f0328778dd46e5a5fddd1d lib/HTML/FormWidgets/Rule.pm
-SHA1 32279dee951702da34caf7be95ef8912a905bb4c lib/HTML/FormWidgets/ScrollPin.pm
-SHA1 91194e4ed135cfa225b1699b35bf50b4a71b1a01 lib/HTML/FormWidgets/ScrollingList.pm
-SHA1 41e0ded4f9dfe944ce2164fa0b434c9ce265d94c lib/HTML/FormWidgets/SidebarPanel.pm
-SHA1 9970127f1ab7274aeb68177ecadc4044a2eb8fca lib/HTML/FormWidgets/Slider.pm
-SHA1 3241f4493f7db247575ecc91eeff0c3d3b14f83a lib/HTML/FormWidgets/TabSwapper.pm
-SHA1 240d96d60979c679e1fd95b8234781eb7bfb92b1 lib/HTML/FormWidgets/Table.pm
-SHA1 edefce76aa077f217151f1b01d505a552fffebca lib/HTML/FormWidgets/Template.pm
-SHA1 d1f30be044b3ff87f5faaa21d00702caec92c8f0 lib/HTML/FormWidgets/Textarea.pm
-SHA1 f7d0cf14d83416378335932788657b208f9a797d lib/HTML/FormWidgets/Textfield.pm
-SHA1 7ec6510f4b1846c61767bd7a0b118f2085060f70 lib/HTML/FormWidgets/Tree.pm
+SHA1 9e5a3ce9bab2800cf8180092204b3fa28c90e92e lib/HTML/FormWidgets.pm
+SHA1 f66bbdb5495b64d639fd58a95cdbe3279346fc33 lib/HTML/FormWidgets/Anchor.pm
+SHA1 7403320a0f755e7512abe4795cd5779eab5f8ec6 lib/HTML/FormWidgets/Button.pm
+SHA1 79738b067e8a09cade11c1d1632a1c14c29a1dfe lib/HTML/FormWidgets/Checkbox.pm
+SHA1 7fd18610fbe4e0545844556b4a7b5f6275108194 lib/HTML/FormWidgets/Chooser.pm
+SHA1 1a945691d226311815221076e568c42c58de420e lib/HTML/FormWidgets/Cloud.pm
+SHA1 bfe740143caf359a43d049df5a646f5653b7ba09 lib/HTML/FormWidgets/Date.pm
+SHA1 5433444d49bbe6ca46dcbb994ec895b3da1d976c lib/HTML/FormWidgets/File.pm
+SHA1 bd911088ed7fec907635952ad99494e35d6df438 lib/HTML/FormWidgets/Freelist.pm
+SHA1 197ea04f03d2a4c943d134fa51afebef7d729d48 lib/HTML/FormWidgets/GroupMembership.pm
+SHA1 86c64bbaa0e03abecf2aa6c76f14e301331aa365 lib/HTML/FormWidgets/Hidden.pm
+SHA1 bbb1ec2209dd70168f10b9f6ef884303b1a60c8d lib/HTML/FormWidgets/Image.pm
+SHA1 8c0e89377e3a44b87e57737edbf31cc7740873ac lib/HTML/FormWidgets/Label.pm
+SHA1 52fd24c5f3cf2f43eb7e67e0dc1315ce9da82850 lib/HTML/FormWidgets/Menu.pm
+SHA1 dc78f140df8d814042a9699d67758a2c5ff6b2ce lib/HTML/FormWidgets/Note.pm
+SHA1 7328c08f94aea61a9766b64d34eb1f6313bd6ee1 lib/HTML/FormWidgets/POD.pm
+SHA1 f7060adf739ecce8145ff0c0ad97a2820abf898a lib/HTML/FormWidgets/Paragraphs.pm
+SHA1 f9b47f42fb983cb2c5a56eb4cecb39d0844008b7 lib/HTML/FormWidgets/Password.pm
+SHA1 8b6c02296f1f05bb5a283325f1538d28cc8d8993 lib/HTML/FormWidgets/PopupMenu.pm
+SHA1 b500d265b48990a612170b17d0bab01db48e4547 lib/HTML/FormWidgets/RadioGroup.pm
+SHA1 988ee1967ec107bdec0a3c56e9fdc4d419d98971 lib/HTML/FormWidgets/Rule.pm
+SHA1 ca64f53e3cc2547cb72e3524667a9e3ef49c55ac lib/HTML/FormWidgets/ScrollPin.pm
+SHA1 3c0a68fba6823f8e6b92cd3f5d95fd4c8f707a88 lib/HTML/FormWidgets/ScrollingList.pm
+SHA1 c5b1faff27005f63bfb183f9baef4032e7812d8a lib/HTML/FormWidgets/SidebarPanel.pm
+SHA1 ad76880cf14e4a40f1c65ccd5e7d63e9b4c51806 lib/HTML/FormWidgets/Slider.pm
+SHA1 857d6c68d96cf00bc63277b69b169d3efbcca57c lib/HTML/FormWidgets/TabSwapper.pm
+SHA1 617bf7be13488d46ddec89a1971e46b0f3e49841 lib/HTML/FormWidgets/Table.pm
+SHA1 93ab1471ed63902f9ceb069d864d074f65f1f507 lib/HTML/FormWidgets/Template.pm
+SHA1 1c07000ad5ad12a4ba0bd413b30d8509ea8bf632 lib/HTML/FormWidgets/Textarea.pm
+SHA1 864d731ea0bcdd99692237f8fc36c1ff85c87109 lib/HTML/FormWidgets/Textfield.pm
+SHA1 5613007c43d1a9727b3222e3d2e03d9066d67843 lib/HTML/FormWidgets/Tree.pm
+SHA1 a87f65cc30bba4af1cffedbef98bde72001d9990 lib/HTML/FormWidgets/UnorderedList.pm
 SHA1 b8586f2fc94b25789ddb3a9420d2d2b5296a45af t/01always_pass.t
 SHA1 9259e2347e6261735abb5d0650532748ea29a6ee t/02pod.t
-SHA1 7a12255e7935968d3b14f970d1d29f7eb84d59b6 t/10base.t
+SHA1 84dce3479a541c9cd6f441ad53bf712b289da6d1 t/10base.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iQEcBAEBAgAGBQJOB4pmAAoJEK492j4Im1BpU9MH/ifSVmBCU0Zo8/lvAOZQg4dd
-xi+Q9Eid6nJB9XSRGpyTouSr+eA8fLqONhTyah7WF0Ko6nMouXzpqi0DHZ6yczuk
-FJbapbOeNQfeyusUx0R/QF6BlkT3K3iLawFrwpHFOB2BQVsdSZrxpEnGddPn8nY1
-FOVX+9dWJ5kHXTjQbMcba7SHvQLGKsQqh+uxocrXZOnQdZa84e64IEevW7waXinv
-SdYb3/O/HB3oNQ3B/MfffveD6A8FdoqTtSgqWvPNMNIMKZZ2zn5Voi0QOSUml9fJ
-OUPHSQlXyHKVsZXtuYd21181LR/RyLvxKeePcxsuBcut7EqEfMBjHzJLlVvMTI8=
-=zZeX
+iQEcBAEBAgAGBQJO5YNqAAoJEK492j4Im1Bp4vwIALjoGQgdZGZU49aKZBT8+fYY
+q4XYYBx2SMooAS/mTxaoX4Sg5ulSHIrC+YC88YRZzDsiIH0SK0QiUo/JSxqN78cM
+PHIR9i9L7F/+iKJnICvdF/TQ8dvy17Vyye7TMt0I0ie9ryXMpmeokhP2tVYvln45
+k24WNnEjHcfZqQPp+6f2zxyI5AkOA9Vb+Zj6sLGsvCrsfjjrEgv06Bnq1teCZicU
+JQnSg/oXZTv8CI8++kgGpRsS2IrMEj10rEOgjFVNwgle2NU4jsaV0saC8S6Bdmi4
+Xg4lAVJyGXloK7+LeiY7ER7D/CE25kYPh2FbBa0yRJYqA9Zhpu1z6B9gaB5Y5kk=
+=5zs7
 -----END PGP SIGNATURE-----

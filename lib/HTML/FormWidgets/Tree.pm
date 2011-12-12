@@ -1,16 +1,15 @@
-# @(#)$Id: Tree.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Tree.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Tree;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 use English qw(-no_match_vars);
 
-__PACKAGE__->mk_accessors( qw(base class_prefix data node_count
-                              selected static) );
+__PACKAGE__->mk_accessors( qw(class_prefix data node_count selected) );
 
 my $NUL = q();
 my $SPC = q( );
@@ -19,13 +18,11 @@ my $TTS = q( ~ );
 sub init {
    my ($self, $args) = @_;
 
-   $self->base           ( $NUL         );
    $self->class_prefix   ( q(tree)      );
    $self->container_class( q(container) );
    $self->data           ( {}           );
    $self->node_count     ( 0            );
    $self->selected       ( undef        );
-   $self->static         ( $NUL         );
    return;
 }
 
@@ -41,11 +38,8 @@ sub render_field {
    defined $root[ 1 ] and return $hacc->span
       ( { class => q(error) }, 'Your tree has more than one root' );
 
-   $self->hint_title
-      or $self->hint_title( $self->loc( q(handy_hint_title) ) );
-
-   my $html  = $self->_image_button( $hacc, q(expand),   q(Expand All)   );
-      $html .= $self->_image_button( $hacc, q(collapse), q(Collapse All) );
+   my $html  = $self->_image_button( q(expand),   q(Expand All)   );
+      $html .= $self->_image_button( q(collapse), q(Collapse All) );
    my $args  = { class => $self->class_prefix.q(_controls) };
       $html  = $hacc->span( $args, $html );
       $html .= "\n".$self->traverse( { data => $self->data, fill => $NUL } );
@@ -57,7 +51,7 @@ sub traverse {
    my ($self, $args) = @_;
 
    my @keys = sort  { lc $a cmp lc $b }
-              grep  { ! m{ \A _ }mx   }
+              grep  { not m{ \A _ }mx }
               keys %{ $args->{data}   };
 
    $keys[ 0 ] or return $NUL;
@@ -86,7 +80,7 @@ sub traverse {
       }
 
       if ($url) {
-         $url =~ m{ \A http: }mx or $url = $self->base.$url;
+         $url =~ m{ \A http: }mx or $url = $self->options->{base}.$url;
          $self->selected and $url .= q(?).$self->name.q(_node=).$node;
          $attrs->{href} = $url;
       }
@@ -120,7 +114,7 @@ sub traverse {
 }
 
 sub _image_button {
-   my ($self, $hacc, $dirn, $tip) = @_;
+   my ($self, $dirn, $tip) = @_; my $hacc = $self->hacc;
 
    return $hacc->span( {
       class => q(action tips ).$dirn,

@@ -1,34 +1,31 @@
-# @(#)$Id: Freelist.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Freelist.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Freelist;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-__PACKAGE__->mk_accessors( qw(add_tip height remove_tip values width) );
+__PACKAGE__->mk_accessors( qw(height values width) );
 
 my $TTS = q( ~ );
 
 sub init {
-   my ($self, $args) = @_; my $text;
+   my ($self, $args) = @_;
 
    $self->container_class( q(freelist_container) );
    $self->height         ( 5 );
-   $self->hint_title     ( $self->loc( q(Hint) ) ) unless ($self->hint_title);
    $self->values         ( [] );
    $self->width          ( 20 );
-
-   $text = $self->loc( q(freelistAddTip) );
-   $self->add_tip    ( $self->hint_title.$TTS.$text );
-   $text = $self->loc( q(freelistRemoveTip) );
-   $self->remove_tip ( $self->hint_title.$TTS.$text );
    return;
 }
 
 sub render_field {
    my ($self, $args) = @_; my $hacc = $self->hacc;
+
+   my $add_tip    = $self->hint_title.$TTS.$self->loc( q(freelistAddTip) );
+   my $remove_tip = $self->hint_title.$TTS.$self->loc( q(freelistRemoveTip) );
 
    $args              = {};
    $args->{class   } .= q( ifield freelist);
@@ -36,7 +33,7 @@ sub render_field {
    $args->{name    }  = q(_).$self->name;
    $args->{size    }  = $self->width;
 
-   my $html   = $hacc->textfield( $args );
+   my $html  = $hacc->textfield( $args );
 
    $args              = {};
    $args->{class   }  = q( ifield freelist);
@@ -56,18 +53,16 @@ sub render_field {
 
    my $text  = $hacc->span( { class => q(add_item_icon) }, q( ) );
 
-   $args     = {
-      class  => q(icon_button tips add),
-      id     => $self->id.q(_add),
-      title  => $self->add_tip };
+   $args     = { class  => q(icon_button tips add),
+                 id     => $self->id.q(_add),
+                 title  => $add_tip };
 
    my $text1 = $hacc->span( $args, $text );
 
    $text     = $hacc->span( { class => q(remove_item_icon) }, q( ) );
-   $args     = {
-      class  => q(icon_button tips remove),
-      id     => $self->id.q(_remove),
-      title  => $self->remove_tip };
+   $args     = { class  => q(icon_button tips remove),
+                 id     => $self->id.q(_remove),
+                 title  => $remove_tip };
    $text1   .= $hacc->span( $args, $text );
    $html    .= $hacc->span( { class => q(freelist_buttons) }, $text1 );
 

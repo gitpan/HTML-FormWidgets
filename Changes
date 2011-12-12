@@ -1,5 +1,18 @@
 Revision history for HTML::FormWidgets
 
+0.8.334  2011-12-12
+         - Fixed input field names in Table
+         - Updated pod and added more tests
+         - Added globals attr to separate class wide defaults from obj defaults
+         - Set separator to break to have prompt appear above input field
+         - Popupmenu sorts values into label order if labels are provided
+         - Fields attr contains localized text strings
+         - Updated inc::Bob
+         - Textarea simplified
+         - If render_field return null then so does render
+         - Tweaked row and col ids in Table
+         - Added Unordered list subclass
+
 0.7.312  2011-06-26
          - Stepno can be a hash ref which will get inflated
 

@@ -1,43 +1,18 @@
 Name
-    HTML::FormWidgets - Create HTML form markup
+    HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.7.$Rev: 312 $
+    0.8.$Rev: 334 $
 
 Synopsis
-       package CatalystX::Usul::View;
-
-       use parent qw(Catalyst::View CatalystX::Usul);
        use HTML::FormWidgets;
 
-       sub build_widgets {
-          my ($self, $c, $sources, $config) = @_; my $s = $c->stash; my $data = [];
+       my $widget = HTML::FormWidgets->new( id => q(test) );
 
-          $sources ||= []; $config ||= {};
-
-          for my $part (map { $s->{ $_ } } grep { $s->{ $_ } } @{ $sources }) {
-             if (ref $part eq q(ARRAY) and $part->[ 0 ]) {
-                push @{ $data }, $_ for (@{ $part });
-             }
-             else { push @{ $data }, $part }
-          }
-
-          $config->{assets      } = $s->{assets};
-          $config->{base        } = $c->req->base;
-          $config->{content_type} = $s->{content_type};
-          $config->{fields      } = $s->{fields} || {};
-          $config->{form        } = $s->{form};
-          $config->{hide        } = $s->{hidden}->{items};
-          $config->{messages    } = $s->{messages};
-          $config->{pwidth      } = $s->{pwidth};
-          $config->{root        } = $c->config->{root};
-          $config->{static      } = $s->{static};
-          $config->{swidth      } = $s->{width} if ($s->{width});
-          $config->{template_dir} = $c->config->{template_dir};
-
-          HTML::FormWidgets->build( $config, $data );
-          return $data;
-       }
+       print $widget->render;
+       # <div class="container">
+       # <input value="" name="test" type="text" id="test" class="ifield" size="40">
+       # </div>
 
 Description
     Transforms a Perl data structure which defines one or more "widgets"
@@ -54,136 +29,6 @@ Description
 
     This module is used by CatalystX::Usul::View and as such its main use is
     as a form generator within a Catalyst application
-
-Subroutines/Methods
-  build
-          $class->build( $config, $data );
-
-    The "build" method iterates over a data structure that represents the
-    form. One or more lists of widget definitions are processed in turn. New
-    widgets are created and their rendered output replaces their definitions
-    in the data structure
-
-  new
-       $widget = $class->new( [{] key1 => value1, ... [}] );
-
-    Construct a widget. Mostly this is called by the "build" method. It
-    requires the factory subclass for the widget type.
-
-    This method takes a large number of options with each widget using only
-    few of them. Each option is described in the factory subclasses which
-    use that option
-
-  inflate
-       $widget->inflate( $args );
-
-    Creates new objects and returns their rendered output. Called by the
-    "_render" methods in the factory subclasses to inflate embeded widget
-    definitions
-
-  init
-       $widget->init( $args );
-
-    Initialises this object with data from the passed arguments. This is
-    usually overridden in the factory subclass which sets the default for
-    it's own attributes and then calls this method in the base class
-
-  loc
-  localize
-       $message_text = $widget->localize( $message_id, @args );
-
-    Use the supplied key to return a value from the *messages* hash. This
-    hash was passed to the constructor and should contain any literal text
-    used by any of the widgets
-
-  render
-       $html = $widget->render;
-
-    Assemble the components of the generated widget. Each component is
-    concatenated onto a scalar which is the returned value. This method
-    calls "_render" which should be defined in the factory subclass for this
-    widget type.
-
-    This method uses these attributes:
-
-    clear
-       If set to left the widget begins with an "<br>" element
-
-    stepno
-       If true it's value is wrapped in a "<span class="lineNumber">"
-       element and appended to the return value
-
-    prompt
-       If true it's value is wrapped in a "<label class="prompt">" element
-       and appended to the return value. The *id* attribute is used to set
-       the *for* attribute of the "<label>" element. The *palign* attribute
-       sets the text align style for the "<label>" element. The *nowrap*
-       attribute sets whitespace style to nowrap in the "<label>" element.
-       The *pwidth* attribute sets the width style attribute in the
-       "<label>" element
-
-    sep
-       If true it's value is wrapped in a "<span class="separator">" element
-       and appended to the return value
-
-    container
-       If true the value return by the "_render" method is wrapped in "<span
-       class="container">" element. The value of the *align* attribute is
-       added to the space separated class list
-
-    tip
-       The text of the field help. If *tiptype* is set to dagger (which is
-       the default) then a dagger symbol is wrapped in a "<span class="help
-       tips">" and this is appended to the returned input field. The tip
-       text is used as the *title* attribute. If the *tiptype* is not set to
-       dagger then the help text is wrapped around the input field itself
-
-    ajaxid
-       The text of the message which is displayed if the field's value fails
-       server side validation
-
-  _bootstrap
-       $widget->_bootstrap( $args );
-
-    Determine the *id*, *name* and *type* attributes of the widget from the
-    supplied arguments
-
-  _ensure_class_loaded
-       $widget->_ensure_class_loaded( $class );
-
-    Once the factory subclass is known this method ensures that it is loaded
-    and then re-blesses the self referential object into the correct class
-
-  _render
-       $html = $widget->_render( $args );
-
-    This should have been overridden in the factory subclass. If it gets
-    called its probably an error so return the value of the *text* attribute
-    if set or an error message otherwise
-
-  _set_error
-       $widget->_set_error( $error_text );
-
-    Stores the passed error message in the *text* attribute so that it gets
-    rendered in place of the widget
-
-  __arg_list
-       $args = __arg_list( @rest );
-
-    Accepts either a single argument of a hash ref or a list of key/value
-    pairs. Returns a hash ref in either case.
-
-  __group_fields
-       $html = __group_fields( $hacc, $item, $stack );
-
-    Wraps the top *nitems* number of widgets on the build stack in a
-    "<fieldset>" element with a legend
-
-  __merge_hashes
-       $widget = $class->new( __merge_hashes( $config, $item->{content} ) );
-
-    Does a simple merging of the two hash refs that are passed as arguments.
-    The second argument takes precedence over the first
 
 Configuration and Environment
     The following are passed to "build" in the *config* hash (they reflect
@@ -206,10 +51,7 @@ Configuration and Environment
        number of attributes that have to be passed in the call to the
        constructor
 
-    form
-       Used by the "Chooser" subclass
-
-    hide
+    hidden
        So that the "File" and "Table" subclasses can store the number of
        rows added as the hidden form attribute *nRows*
 
@@ -217,14 +59,10 @@ Configuration and Environment
        This is the name of the global Javascript variable that holds config
        object. Defaults to html_formwidgets
 
-    messages
-       Many of the subclasses use this hash to supply literal text in a
-       language of the users choosing
-
     root
        The path to the document root for this application
 
-    swidth
+    width
        Width in pixels of the browser window. This is used to calculate the
        width of the field prompt. The field prompt needs to be a fixed
        length so that the separator colons align vertically
@@ -234,6 +72,169 @@ Configuration and Environment
 
     Sensible defaults are provided by "new" if any of the above are
     undefined
+
+Subroutines/Methods
+  Public Methods
+   build
+          HTML::FormWidgets->build( $config_hash );
+
+    The "build" method iterates over a data structure that represents the
+    form. One or more lists of widget definitions are processed in turn. New
+    widgets are created and their rendered output replaces their definitions
+    in the data structure
+
+   new
+       $widget = HTML::FormWidgets->new( [{] key1 => value1, ... [}] );
+
+    Construct a widget. Mostly this is called by the "build" method. It
+    requires the factory subclass for the widget type.
+
+    This method takes a large number of options with each widget using only
+    few of them. Each option is described in the factory subclasses which
+    use that option
+
+   add_hidden
+       $widget->add_hidden( $key, $value );
+
+    The key / value pair are added to list of hidden input elements that
+    will be included in the page
+
+   add_literal_js
+       $widet->add_literal_js( $js_class_name, $id, $config );
+
+    The config hash will be serialised and added to the literal Javascript
+    on the page
+
+   add_optional_js
+       $widget->add_optional_js( @filenames );
+
+    The list of Javascript filenames (with extension, without path) are
+    added to the list of files which will be included on the page
+
+   inflate
+       $widget->inflate( $args );
+
+    Creates new objects and returns their rendered output. Called by the
+    "_render" methods in the factory subclasses to inflate embeded widget
+    definitions
+
+   init
+       $widget->init( $args );
+
+    Initialises this object with data from the passed arguments. This is
+    usually overridden in the factory subclass which sets the default for
+    it's own attributes. In the base class this method does nothing
+
+   is_xml
+       $bool = $widget->is_xml;
+
+    Returns true if the content type matches *xml*
+
+   loc
+       $message_text = $widget->loc( $message_id, @args );
+
+    Use the supplied key to return a value from the *l10n* object. This
+    object was passed to the constructor and should localize the key to the
+    required language. The @args list contains parameters to substituted in
+    place of the placeholders which have the form *[_n]*
+
+   render
+       $html = $widget->render;
+
+    Assemble the components of the generated widget. Each component is
+    concatenated onto a scalar which is the returned value. This method
+    calls "render_field" which should be defined in the factory subclass for
+    this widget type.
+
+    This method uses these attributes:
+
+    clear
+       If set to left the widget begins with an "<br>" element
+
+    stepno
+       If true it's value is wrapped in a "<span class="lineNumber">"
+       element and appended to the return value
+
+    prompt
+       If true it's value is wrapped in a "<label class="prompt_class">"
+       element and appended to the return value. The prompt class is set by
+       the "pclass" attribute. The *id* attribute is used to set the *for*
+       attribute of the "<label>" element. The *pwidth* attribute sets the
+       width style attribute in the "<label>" element
+
+    sep
+       If true it's value is wrapped in a "<span class="separator">" element
+       and appended to the return value
+
+    container
+       If true the value return by the "_render" method is wrapped in "<span
+       class="container">" element. The value of the *align* attribute is
+       added to the space separated class list
+
+    tip
+       The text of the field help. If *tiptype* is set to dagger (which is
+       the default) then a dagger symbol is wrapped in a "<span class="help
+       tips">" and this is appended to the returned input field. The tip
+       text is used as the *title* attribute. If the *tiptype* is not set to
+       dagger then the help text is wrapped around the input field itself
+
+    ajaxid
+       The text of the message which is displayed if the field's value fails
+       server side validation
+
+   render_check_field
+    Adds markup for the Ajax field validation
+
+   render_container
+    Wraps the rendered field in a containing div
+
+   render_field
+    Should be overridden in the factory subclass. It should return the
+    markup for the specified field type
+
+   render_prompt
+    Adds a label element to the generated markup
+
+   render_separator
+    Insert a spacing element between the prompt and the field
+
+   render_stepno
+    Markup containing the step number on the form if required
+
+   render_tip
+    Flyover tooltip field help text
+
+  Private Methods
+   _bootstrap
+       $widget->_bootstrap( $args );
+
+    Determine the *id*, *name* and *type* attributes of the widget from the
+    supplied arguments
+
+   _ensure_class_loaded
+       $widget->_ensure_class_loaded( $class );
+
+    Once the factory subclass is known this method ensures that it is loaded
+    and then re-blesses the self referential object into the correct class
+
+   _set_error
+       $widget->_set_error( $error_text );
+
+    Stores the passed error message in the *text* attribute so that it gets
+    rendered in place of the widget
+
+  Private Subroutines
+   __arg_list
+       $args = __arg_list( @rest );
+
+    Accepts either a single argument of a hash ref or a list of key/value
+    pairs. Returns a hash ref in either case.
+
+   __group_fields
+       $html = __group_fields( $hacc, $item, $stack );
+
+    Wraps the top *nitems* number of widgets on the build stack in a
+    "<fieldset>" element with a legend
 
 Factory Subclasses
     These are the possible values for the *type* attribute which defaults to
@@ -324,10 +325,10 @@ Factory Subclasses
     is defaulted to normal (wraps the image in a span with a JS tooltip)
 
   Label
-    Calls "localize" with the *name* attribute as the message key. If the
-    message does not exist the value of the *text* attribute is used. If
-    *dropcap* is true the first character of the text is wrapped in a "<span
-    class="dropcap">"
+    Calls "loc" with the *text* attribute if set otherwise returns nothing.
+    If *dropcap* is true the first character of the text is wrapped in a
+    "<span class="dropcap">". Wraps the text in a span of class *class*
+    which defaults to label_text
 
   Menu
     Generates an unordered list of links. Used with some applied CSS to
@@ -360,7 +361,7 @@ Factory Subclasses
        and *text*.
 
     hclass
-       Each paragraph can have a heading. This is the class of then "<span>"
+       Each paragraph can have a heading. This is the class of the "<div>"
        that wraps the heading text. Defaults to null
 
     max_width
@@ -396,10 +397,31 @@ Factory Subclasses
   Rule
     Generates a horizontal rule with optional clickable action
 
+  ScrollPin
+    Implements clickable navigation markers that scroll the page to given
+    location. Returns an unordered list of class *class* which defaults to
+    pintray. This is the default selector class for the JS "ScrollPins"
+    object
+
   ScrollingList
-    The *height* attribute controls the height of the scrolling list. The
-    list of options is passed in *values* with the display labels in
-    *labels*. The onchange event handler will be set to *onchange*
+    The *height* attribute controls the number of options the scrolling list
+    displays. The list of options is passed in *values* with the display
+    labels in *labels*. The onchange event handler will be set to *onchange*
+
+  SidebarPanel
+    Generates the markup for a sidebar accordion panel (a "header" "div" and
+    a "body" "div"). The panel contents are requested asyncronously by the
+    browser. The "SidebarPanel" widget defines these attributes:
+
+    config
+       A hash ref whose keys and values are written out as literal JS by
+       "add_literal_js"
+
+    header
+       A hash that provides the *id*, *class*, and *text* for header "div"
+
+    panel
+       A hash that provides the *id* and *class* for body "div"
 
   Slider
     Implements a dragable slider which returns an integer value. The
@@ -438,6 +460,10 @@ Factory Subclasses
     wheel
        Use the mouse wheel? Defaults to 1
 
+  TabSwapper
+    A list of *div*s is constructed that can be styled to display only one
+    at a time. Clicking the tab header displays the coresponding *div*
+
   Table
     The input data is in *$data->{values}* which is an array ref for which
     each element is an array ref containing the list of field values.
@@ -458,16 +484,17 @@ Factory Subclasses
   Tree
     Implements an expanding tree of selectable objects
 
+  UnorderedList
+    Generates an unordered list of list items
+
 Diagnostics
     None
 
 Dependencies
     Class::Accessor::Fast
-    Class::Inspector
     Class::MOP
     HTML::Accessors
     Syntax::Highlight::Perl
-    Text::Markdown
     Text::ParseWords
     Text::Tabs
     Try::Tiny

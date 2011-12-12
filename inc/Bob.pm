@@ -1,4 +1,4 @@
-# @(#)$Id: Bob.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Bob.pm 334 2011-12-12 04:30:18Z pjf $
 
 package Bob;
 
@@ -14,21 +14,28 @@ BEGIN {
    $ENV{PATH}   =~ m{ \A /home/sand }mx and whimper 'Stopped Konig';
 }
 
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 
 use File::Spec::Functions;
 use Module::Build;
 
 sub new {
-   my ($class, $params) = @_;
+   my ($class, $params) = @_; $params ||= {};
 
-   ($params and ref $params eq q(HASH)) or whimper 'No params hash';
-
-   my $module     = $params->{module};
+   my $module     = $params->{module} or whimper 'No module name';
    my $distname   = $module; $distname =~ s{ :: }{-}gmx;
    my $class_path = catfile( q(lib), split m{ :: }mx, $module.q(.pm) );
+   my $sub_class  = Module::Build->subclass( code => q{
+      sub ACTION_distmeta {
+         my $self = shift; use Pod::Select;
 
-   return Module::Build->new
+         $self->notes->{create_readme_pod} and podselect( {
+            -output => q(README.pod) }, $self->dist_version_from );
+
+         return $self->SUPER::ACTION_distmeta;
+      } }, );
+
+   return $sub_class->new
       ( add_to_cleanup     => [ q(Debian_CPANTS.txt), $distname.q(-*),
                                 map { ( q(*/) x $_ ).q(*~) } 0..5 ],
         build_requires     => $params->{build_requires},
@@ -37,7 +44,7 @@ sub new {
         create_packlist    => 0,
         create_readme      => 1,
         dist_version_from  => $class_path,
-        license            => $params->{license},
+        license            => $params->{license} || q(perl),
         meta_merge         => __get_resources( $params, $distname ),
         module_name        => $module,
         no_index           => __get_no_index( $params ),
@@ -61,7 +68,8 @@ sub __get_no_index {
 sub __get_notes {
    my $params = shift; my $notes = $params->{notes} || {};
 
-   $notes->{stop_tests} = $params->{stop_tests} && __cpan_testing()
+   $notes->{create_readme_pod} = $params->{create_readme_pod} || 0;
+   $notes->{stop_tests} = ($params->{stop_tests} || 0) && __cpan_testing()
                         ? 'CPAN Testing stopped' : 0;
 
    return $notes;

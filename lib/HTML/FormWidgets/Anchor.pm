@@ -1,10 +1,10 @@
-# @(#)$Id: Anchor.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Anchor.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Anchor;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(config fhelp href imgclass target) );
@@ -14,11 +14,11 @@ sub init {
 
    $self->class   ( q(anchor_button fade) );
    $self->config  ( undef     );
-   $self->fhelp   ( q()       );
+   $self->fhelp   ( ''        );
    $self->href    ( undef     );
    $self->imgclass( undef     );
    $self->target  ( undef     );
-   $self->text    ( q(link)   );
+   $self->text    ( $self->loc( q(link) ) );
    $self->tiptype ( q(normal) );
    return;
 }
@@ -27,7 +27,7 @@ sub render_field {
    my ($self, $args) = @_; my $hacc = $self->hacc;
 
    $self->id and $self->config
-      and $self->_js_config( 'anchors', $self->id, $self->config );
+      and $self->add_literal_js( 'anchors', $self->id, $self->config );
 
    my $html = $self->imgclass
             ? $self->text

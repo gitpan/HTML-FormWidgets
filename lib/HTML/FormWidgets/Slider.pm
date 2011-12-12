@@ -1,15 +1,15 @@
-# @(#)$Id: Slider.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: Slider.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::Slider;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/g );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/g );
 use parent qw(HTML::FormWidgets);
 
 my $NUL = q();
 
-__PACKAGE__->mk_accessors( qw(config display hide) );
+__PACKAGE__->mk_accessors( qw(config display) );
 
 sub init {
    my ($self, $args) = @_;
@@ -23,7 +23,6 @@ sub init {
                      wheel      => q(true), } );
    $self->default( 50 );
    $self->display( 1  );
-   $self->hide   ( [] );
 
    return;
 }
@@ -44,12 +43,7 @@ sub render_field {
                                    size     => $size,
                                    value    => $args->{default} } );
    }
-   else {
-      push @{ $self->hide }, {
-         content => $hacc->input( { name  => $args->{name},
-                                    type  => q(hidden),
-                                    value => $args->{default} } ) };
-   }
+   else { $self->add_hidden( $args->{name}, $args->{default} ) }
 
    $text  = $hacc->span( { class => q(knob) } );
    $text  = $hacc->span( { class => q(slider), id => $id }, $text );
@@ -65,7 +59,7 @@ sub render_field {
    $self->config->{default_v} = $args->{default};
    $self->config->{name     } = '"'.$args->{name}.'"';
 
-   $self->_js_config( 'sliders', $id, $self->config );
+   $self->add_literal_js( 'sliders', $id, $self->config );
 
    return $html;
 }

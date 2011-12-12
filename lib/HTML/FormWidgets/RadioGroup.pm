@@ -1,10 +1,10 @@
-# @(#)$Id: RadioGroup.pm 312 2011-06-26 19:36:57Z pjf $
+# @(#)$Id: RadioGroup.pm 334 2011-12-12 04:30:18Z pjf $
 
 package HTML::FormWidgets::RadioGroup;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.7.%d', q$Rev: 312 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(columns labels values) );
@@ -12,14 +12,15 @@ __PACKAGE__->mk_accessors( qw(columns labels values) );
 sub init {
    my ($self, $args) = @_;
 
-   $self->columns( undef );
-   $self->labels(  undef );
-   $self->values(  [] );
+   $self->columns        ( undef );
+   $self->container_class( q(checkbox_container) );
+   $self->labels         ( undef );
+   $self->values         ( [] );
    return;
 }
 
 sub render_field {
-   my ($self, $args)   = @_;
+   my ($self, $args) = @_;
 
    $args->{label_class} = q(radio_group);
    $args->{columns    } = $self->columns  if ($self->columns);
