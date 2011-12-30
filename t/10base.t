@@ -1,8 +1,8 @@
-# @(#)$Id: 10base.t 334 2011-12-12 04:30:18Z pjf $
+# @(#)$Id: 10base.t 336 2011-12-30 00:08:12Z pjf $
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.9.%d', q$Rev: 336 $ =~ /\d+/gmx );
 use File::Spec::Functions;
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
@@ -31,6 +31,8 @@ $widget = HTML::FormWidgets->new( href => q(test), type => q(anchor) );
 
 ok( $widget->render =~ m{ a \s href="test" \s class="anchor_button \s fade" }mx,
     'Anchor' );
+
+# Async
 
 $widget = HTML::FormWidgets->new( id => q(test), type => q(button) );
 

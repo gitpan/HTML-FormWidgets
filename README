@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.8.$Rev: 334 $
+    0.9.$Rev: 336 $
 
 Synopsis
        use HTML::FormWidgets;
@@ -247,6 +247,12 @@ Factory Subclasses
     Returns an "<anchor>" element with a class set from the *class* arg
     (which defaults to linkFade). It's *href* attribute set to the *href*
     arg. The anchor body is set to the *text* arg
+
+  Async
+    Returns a "<div>" element with a class set from the *class* arg (which
+    defaults to server). The div body is set to the *text* arg. When the JS
+    onload event handler fires it will asynchronously load the content of
+    the div if it is visible
 
   Button
     Generates an image button where *name* identifies the image file in

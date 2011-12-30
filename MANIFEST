@@ -19,6 +19,7 @@ javascript/lang/calendar-pl.js
 javascript/lang/calendar-ru.js
 lib/HTML/FormWidgets.pm
 lib/HTML/FormWidgets/Anchor.pm
+lib/HTML/FormWidgets/Async.pm
 lib/HTML/FormWidgets/Button.pm
 lib/HTML/FormWidgets/Checkbox.pm
 lib/HTML/FormWidgets/Chooser.pm

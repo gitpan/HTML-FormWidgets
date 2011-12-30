@@ -1,10 +1,10 @@
-# @(#)$Id: Template.pm 334 2011-12-12 04:30:18Z pjf $
+# @(#)$Id: Template.pm 335 2011-12-29 23:59:43Z pjf $
 
 package HTML::FormWidgets::Template;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.8.%d', q$Rev: 334 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.9.%d', q$Rev: 335 $ =~ /\d+/gmx );
 use parent q(HTML::FormWidgets);
 
 use English qw(-no_match_vars);
@@ -24,7 +24,7 @@ sub render_field {
    my $content = do { local $RS = undef; <$rdr> }; $rdr->close();
    my $id      = $self->id;
 
-   return "[% ref = template_data.${id}; %]\n${content}";
+   return "[% ref = template_data_${id}; %]\n${content}";
 }
 
 1;
