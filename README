@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.9.$Rev: 336 $
+    0.10.$Rev: 345 $
 
 Synopsis
        use HTML::FormWidgets;
@@ -336,6 +336,10 @@ Factory Subclasses
     "<span class="dropcap">". Wraps the text in a span of class *class*
     which defaults to label_text
 
+  List
+    Generates an ordered and unordered lists of items. Set the *ordered*
+    attribute to true for an ordered list. Defaults to false
+
   Menu
     Generates an unordered list of links. Used with some applied CSS to
     implement a navigation menu
@@ -490,9 +494,6 @@ Factory Subclasses
   Tree
     Implements an expanding tree of selectable objects
 
-  UnorderedList
-    Generates an unordered list of list items
-
 Diagnostics
     None
 
@@ -554,7 +555,7 @@ Author
     Peter Flanigan, "<Support at RoxSoft.co.uk>"
 
 License and Copyright
-    Copyright (c) 2011 Peter Flanigan. All rights reserved
+    Copyright (c) 2012 Peter Flanigan. All rights reserved
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself. See perlartistic

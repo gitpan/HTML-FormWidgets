@@ -1,31 +1,34 @@
-# @(#)$Id: Image.pm 335 2011-12-29 23:59:43Z pjf $
+# @(#)$Id: Image.pm 345 2012-03-03 17:50:47Z pjf $
 
 package HTML::FormWidgets::Image;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.9.%d', q$Rev: 335 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 345 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-__PACKAGE__->mk_accessors( qw(fhelp) );
+__PACKAGE__->mk_accessors( qw(fhelp subtype) );
 
 sub init {
    my ($self, $args) = @_;
 
    $self->fhelp  ( q()       );
+   $self->subtype( q(normal) );
    $self->tiptype( q(normal) );
    return;
 }
 
 sub render_field {
-   my ($self, $args) = @_;
+   my ($self, $args) = @_; my $hacc = $self->hacc;
 
    $args = { alt => $self->fhelp, src => $self->text };
 
    $self->class and $args->{class} = $self->class;
    $self->id    and $args->{id   } = $self->id;
 
-   return $self->hacc->img( $args );
+   $self->subtype eq q(icon) and return $hacc->span( $args );
+
+   return $hacc->img( $args );
 }
 
 1;

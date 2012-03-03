@@ -31,6 +31,7 @@ lib/HTML/FormWidgets/GroupMembership.pm
 lib/HTML/FormWidgets/Hidden.pm
 lib/HTML/FormWidgets/Image.pm
 lib/HTML/FormWidgets/Label.pm
+lib/HTML/FormWidgets/List.pm
 lib/HTML/FormWidgets/Menu.pm
 lib/HTML/FormWidgets/Note.pm
 lib/HTML/FormWidgets/Paragraphs.pm
@@ -49,7 +50,6 @@ lib/HTML/FormWidgets/Template.pm
 lib/HTML/FormWidgets/Textarea.pm
 lib/HTML/FormWidgets/Textfield.pm
 lib/HTML/FormWidgets/Tree.pm
-lib/HTML/FormWidgets/UnorderedList.pm
 LICENSE
 MANIFEST			This list of files
 META.json

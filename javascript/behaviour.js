@@ -1,4 +1,4 @@
-/* $Id: behaviour.js 1230 2011-10-02 21:41:05Z pjf $ */
+/* $Id: behaviour.js 338 2011-12-30 00:13:45Z pjf $ */
 
 var Behaviour = new Class( {
    Implements: [ Events, Options ],
@@ -74,9 +74,8 @@ var Behaviour = new Class( {
          submit        : this.submit } );
       this.freeList    = new FreeList();
       this.groupMember = new GroupMember();
-      this.loadMore    = new LoadMore( this, opt.defaultURL );
       this.rotateList  = new RotateList( { config: cfg.lists } );
-      this.server      = new ServerUtils( {
+      this.server      = new ServerUtils( this, {
             config     : cfg.server,
             url        : opt.defaultURL } );
       this.sidebar     = new Sidebar ( this, { config: cfg.sidebars } );

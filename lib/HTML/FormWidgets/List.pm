@@ -1,13 +1,13 @@
-# @(#)$Id: UnorderedList.pm 335 2011-12-29 23:59:43Z pjf $
+# @(#)$Id: List.pm 345 2012-03-03 17:50:47Z pjf $
 
-package HTML::FormWidgets::UnorderedList;
+package HTML::FormWidgets::List;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.9.%d', q$Rev: 335 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 345 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-__PACKAGE__->mk_accessors( qw(config data item_class) );
+__PACKAGE__->mk_accessors( qw(config data item_class ordered) );
 
 my $NBSP = '&#160;';
 
@@ -18,6 +18,7 @@ sub init {
    $self->class     ( q(plain) );
    $self->data      ( [] );
    $self->item_class( undef );
+   $self->ordered   ( 0 );
    return;
 }
 
@@ -42,6 +43,8 @@ sub render_field {
    }
 
    $args = { class => $self->class }; $self->id and $args->{id} = $self->id;
+
+   $self->ordered and return $hacc->ol( $args, $html );
 
    return $hacc->ul( $args, $html );
 }

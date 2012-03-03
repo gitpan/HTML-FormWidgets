@@ -1,10 +1,10 @@
-# @(#)$Id: FormWidgets.pm 336 2011-12-30 00:08:12Z pjf $
+# @(#)$Id: FormWidgets.pm 345 2012-03-03 17:50:47Z pjf $
 
 package HTML::FormWidgets;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.9.%d', q$Rev: 336 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 345 $ =~ /\d+/gmx );
 use parent qw(Class::Accessor::Fast);
 
 use Class::MOP;
@@ -487,7 +487,7 @@ HTML::FormWidgets - Create HTML user interface components
 
 =head1 Version
 
-0.9.$Rev: 336 $
+0.10.$Rev: 345 $
 
 =head1 Synopsis
 
@@ -901,6 +901,11 @@ If I<dropcap> is true the first character of the text is wrapped
 in a C<< <span class="dropcap"> >>. Wraps the text in a span of class
 I<class> which defaults to B<label_text>
 
+=head2 List
+
+Generates an ordered and unordered lists of items. Set the I<ordered>
+attribute to true for an ordered list. Defaults to false
+
 =head2 Menu
 
 Generates an unordered list of links. Used with some applied CSS to
@@ -1106,10 +1111,6 @@ to sixty characters wide (I<width>)
 
 Implements an expanding tree of selectable objects
 
-=head2 UnorderedList
-
-Generates an unordered list of list items
-
 =head1 Diagnostics
 
 None
@@ -1194,7 +1195,7 @@ Peter Flanigan, C<< <Support at RoxSoft.co.uk> >>
 
 =head1 License and Copyright
 
-Copyright (c) 2011 Peter Flanigan. All rights reserved
+Copyright (c) 2012 Peter Flanigan. All rights reserved
 
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself. See L<perlartistic>
