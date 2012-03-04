@@ -1,10 +1,10 @@
-# @(#)$Id: FormWidgets.pm 345 2012-03-03 17:50:47Z pjf $
+# @(#)$Id: FormWidgets.pm 346 2012-03-04 11:11:42Z pjf $
 
 package HTML::FormWidgets;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 345 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 346 $ =~ /\d+/gmx );
 use parent qw(Class::Accessor::Fast);
 
 use Class::MOP;
@@ -487,7 +487,7 @@ HTML::FormWidgets - Create HTML user interface components
 
 =head1 Version
 
-0.10.$Rev: 345 $
+0.10.$Rev: 346 $
 
 =head1 Synopsis
 
@@ -1210,3 +1210,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE
 # mode: perl
 # tab-width: 3
 # End:
+

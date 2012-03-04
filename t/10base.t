@@ -1,8 +1,8 @@
-# @(#)$Id: 10base.t 345 2012-03-03 17:50:47Z pjf $
+# @(#)$Id: 10base.t 346 2012-03-04 11:11:42Z pjf $
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 345 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 346 $ =~ /\d+/gmx );
 use File::Spec::Functions;
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
@@ -17,7 +17,7 @@ BEGIN {
    $current and $current->notes->{stop_tests}
             and plan skip_all => $current->notes->{stop_tests};
 
-   plan tests => 22;
+   plan tests => 23;
 }
 
 use_ok q(HTML::FormWidgets);
@@ -177,7 +177,13 @@ ok( $widget->render =~ m{ input \s value="test" \s name="textfield" \s type="tex
 my $data = [ { content => { text => q(t1), type => q(label) } },
              { content => { text => q(t2), type => q(label) } } ];
 
-$widget = HTML::FormWidgets->new( data => $data, type => q(unorderedList) );
+$widget = HTML::FormWidgets->new( data => $data, ordered => 1,
+                                  type => q(list) );
+
+ok $widget->render =~ m{ ol \s class="plain"><li }msx,
+   'Ordered List';
+
+$widget = HTML::FormWidgets->new( data => $data, type => q(list) );
 
 ok $widget->render =~ m{ ul \s class="plain"><li }msx,
    'Unordered List';
