@@ -1,9 +1,9 @@
-# @(#)$Id: Build.PL 345 2012-03-03 17:50:47Z pjf $
+# @(#)$Id: Build.PL 347 2012-03-09 14:58:00Z pjf $
 
 use strict;
 use warnings;
 use inc::Bob; # Module::Build subclass
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 345 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 347 $ =~ /\d+/gmx );
 
 Bob->new( {
    module     => q(HTML::FormWidgets),

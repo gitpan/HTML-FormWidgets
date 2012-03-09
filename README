@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.10.$Rev: 346 $
+    0.11.$Rev: 347 $
 
 Synopsis
        use HTML::FormWidgets;
@@ -230,8 +230,14 @@ Subroutines/Methods
     Accepts either a single argument of a hash ref or a list of key/value
     pairs. Returns a hash ref in either case.
 
+   __form_wrapper
+       $item = __form_wrapper( $options, $item, $stack );
+
+    Wraps the top *nitems* number of widgets on the build stack in a
+    "<form>" element
+
    __group_fields
-       $html = __group_fields( $hacc, $item, $stack );
+       $item = __group_fields( $options, $item, $stack );
 
     Wraps the top *nitems* number of widgets on the build stack in a
     "<fieldset>" element with a legend

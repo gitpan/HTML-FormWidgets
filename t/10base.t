@@ -1,8 +1,8 @@
-# @(#)$Id: 10base.t 346 2012-03-04 11:11:42Z pjf $
+# @(#)$Id: 10base.t 348 2012-03-09 15:01:33Z pjf $
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.10.%d', q$Rev: 346 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 348 $ =~ /\d+/gmx );
 use File::Spec::Functions;
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
@@ -127,7 +127,7 @@ ok( $widget->render =~ m{ value="6" \s name="test" \s type="radio" }mx,
 $widget = HTML::FormWidgets->new( class => q(test), type => q(rule) );
 
 ok $widget->render =~
-   m{ td \s class="rule_section"><hr \s class="test" }msx, 'Rule';
+   m{ td \s class="most \s rule_section"><hr \s class="test" }msx, 'Rule';
 
 # ScrollPin
 
