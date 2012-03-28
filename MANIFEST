@@ -5,6 +5,7 @@ css/green.css
 css/presentation.css
 images/icons.png
 inc/Bob.pm
+inc/CPANTesting.pm
 javascript/05htmlparser.js
 javascript/10mootools.js
 javascript/15html-formwidgets.js

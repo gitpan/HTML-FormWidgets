@@ -1,19 +1,20 @@
-# @(#)$Id: Build.PL 347 2012-03-09 14:58:00Z pjf $
+# @(#)$Id: Build.PL 351 2012-03-28 23:41:55Z pjf $
 
 use strict;
 use warnings;
 use inc::Bob; # Module::Build subclass
-use version; our $VERSION = qv( sprintf '0.11.%d', q$Rev: 347 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 351 $ =~ /\d+/gmx );
 
 Bob->new( {
+   stop_tests => 1,
    module     => q(HTML::FormWidgets),
    home_page  => q(http://www.roxsoft.co.uk),
    requires   => {
-      'perl'                    => 5.008,
+      'perl'                    => 5.010,
       'parent'                  => 0.221,
       'version'                 => 0.74,
       'Class::Accessor::Fast'   => 0.31,
-      'HTML::Accessors'         => q(0.5.0),
+      'HTML::Accessors'         => q(0.6.117),
       'Moose'                   => 2.0402,
       'Pod::Xhtml'              => 1.61,
       'Scalar::Util'            => 1.23,
