@@ -1,12 +1,11 @@
-# @(#)$Id: Build.PL 351 2012-03-28 23:41:55Z pjf $
+# @(#)$Id: Build.PL 358 2012-04-19 15:20:34Z pjf $
 
 use strict;
 use warnings;
 use inc::Bob; # Module::Build subclass
-use version; our $VERSION = qv( sprintf '0.12.%d', q$Rev: 351 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
 
 Bob->new( {
-   stop_tests => 1,
    module     => q(HTML::FormWidgets),
    home_page  => q(http://www.roxsoft.co.uk),
    requires   => {
@@ -14,7 +13,7 @@ Bob->new( {
       'parent'                  => 0.221,
       'version'                 => 0.74,
       'Class::Accessor::Fast'   => 0.31,
-      'HTML::Accessors'         => q(0.6.117),
+      'HTML::Accessors'         => q(0.7.0),
       'Moose'                   => 2.0402,
       'Pod::Xhtml'              => 1.61,
       'Scalar::Util'            => 1.23,

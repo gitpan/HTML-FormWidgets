@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.12.$Rev: 351 $
+    0.13.$Rev: 358 $
 
 Synopsis
        use HTML::FormWidgets;
