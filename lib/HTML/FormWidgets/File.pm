@@ -1,10 +1,10 @@
-# @(#)$Id: File.pm 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: File.pm 368 2012-07-09 23:45:58Z pjf $
 
 package HTML::FormWidgets::File;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 use English qw(-no_match_vars);
@@ -44,7 +44,6 @@ my %SCHEME    =
 sub init {
    my ($self, $args) = @_;
 
-   $self->container   ( 0         );
    $self->header      ( []        );
    $self->header_class( q(normal) );
    $self->number      ( 1         );
@@ -65,7 +64,7 @@ sub render_field {
    $self->subtype or return 'Subtype not specified';
    $self->subtype eq q(html) and return $self->_render_html( $path );
 
-   -f $path or return "Path $path not found";
+   -f $path or return "Path ${path} not found";
 
    my $rdr    = IO::File->new( $path, q(r) ) or return "Path $path cannot read";
    my $text   = do { local $RS = undef; <$rdr> }; $rdr->close;
@@ -87,18 +86,17 @@ sub _add_line_number {
 sub _add_row_count {
    my ($self, $n_rows) = @_;
 
-   return $self->add_hidden( q(_).($self->id || q()).q(_nrows), $n_rows );
+   return $self->add_hidden( q(_).($self->name || q()).q(_nrows), $n_rows );
 }
 
 sub _add_select_box {
    my ($self, $r_no, $c_no, $val) = @_; my $hacc = $self->hacc;
 
-   my $box   = $hacc->checkbox( { label => q(),
-                                  name  => q(select).$r_no,
-                                  value => $val } );
+   my $args  = { label => q(), name => $self->name.".select${r_no}",
+                 value => $val };
    my $class = $self->subtype.__column_class( $c_no );
 
-   return $hacc->td( { class => $class }, $box );
+   return $hacc->td( { class => $class }, $hacc->checkbox( $args ) );
 }
 
 sub _build_table {
@@ -179,7 +177,7 @@ sub _render_csv {
 sub _render_html {
    my ($self, $path) = @_;  my $hacc = $self->hacc;
 
-   my $pat = $self->options->{root};
+   my $pat = $self->options->{root}; $self->container( 0 );
 
    $path  =~ m{ \A $pat }msx
       and $path = $self->options->{base}.($path =~ s{ \A $pat }{/}msx);
@@ -193,7 +191,7 @@ sub _render_html {
 sub _render_logfile {
    my ($self, $text) = @_; my $hacc = $self->hacc;
 
-   my $r_no = 0; my $rows = q(); my $cells;
+   my $r_no = 0; my $rows = q(); my $cells; $self->container( 0 );
 
    # TODO: Add Prev and next links to append div
    my $header_cells = sub {
@@ -216,7 +214,7 @@ sub _render_logfile {
 sub _render_source {
    my ($self, $text) = @_; my $hacc = $self->hacc;
 
-   my $fmt = Syntax::Highlight::Perl->new();
+   my $fmt = Syntax::Highlight::Perl->new(); $self->container( 0 );
 
    $fmt->set_format( $self->scheme );
    $fmt->define_substitution( q(<) => q(&lt;),
@@ -245,7 +243,7 @@ sub _render_source {
 sub _render_text {
    my ($self, $text) = @_; my $hacc = $self->hacc;
 
-   $self->container( 1 ); $self->container_class( q(container textfile) );
+   $self->container_class( q(container textfile) );
 
    return $hacc->pre( $hacc->escape_html( $text, 0 ) );
 }

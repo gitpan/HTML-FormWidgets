@@ -1,16 +1,28 @@
-# @(#)$Id: Textarea.pm 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: Textarea.pm 368 2012-07-09 23:45:58Z pjf $
 
 package HTML::FormWidgets::Textarea;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
+
+__PACKAGE__->mk_accessors( qw(cols rows) );
+
+sub init {
+   my ($self, $args) = @_;
+
+   $self->cols( 60 );
+   $self->rows( 1  );
+   return;
+}
 
 sub render_field {
    my ($self, $args)  = @_;
 
    $args->{class} .= ($args->{class} ? q( ): q()).($self->class || q(ifield));
+
+   $args->{cols }  = $self->cols; $args->{rows} = $self->rows;
 
    return $self->hacc->textarea( $args );
 }

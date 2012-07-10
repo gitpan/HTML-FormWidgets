@@ -1,10 +1,10 @@
-# @(#)$Id: ScrollPin.pm 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: ScrollPin.pm 368 2012-07-09 23:45:58Z pjf $
 
 package HTML::FormWidgets::ScrollPin;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(config) );
@@ -29,11 +29,13 @@ sub init {
 }
 
 sub render_field {
-   my ($self, $args) = @_;
+   my ($self, $args) = @_; my $hacc = $self->hacc;
 
    $self->add_literal_js( 'scrollPins', $self->id, $self->config );
 
-   return $self->hacc->ul( { class => $self->class, id => $self->id } );
+   my $li = $hacc->li( { style => q(display: none;) } );
+
+   return $hacc->ul( { class => $self->class, id => $self->id }, $li );
 }
 
 1;

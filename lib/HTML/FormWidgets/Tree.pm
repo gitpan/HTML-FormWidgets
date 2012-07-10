@@ -1,10 +1,10 @@
-# @(#)$Id: Tree.pm 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: Tree.pm 368 2012-07-09 23:45:58Z pjf $
 
 package HTML::FormWidgets::Tree;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 use English qw(-no_match_vars);
@@ -18,11 +18,10 @@ my $TTS = q( ~ );
 sub init {
    my ($self, $args) = @_;
 
-   $self->class_prefix   ( q(tree)      );
-   $self->container_class( q(container) );
-   $self->data           ( {}           );
-   $self->node_count     ( 0            );
-   $self->selected       ( undef        );
+   $self->class_prefix( q(tree) );
+   $self->data        ( {}      );
+   $self->node_count  ( 0       );
+   $self->selected    ( undef   );
    return;
 }
 

@@ -1,10 +1,10 @@
-# @(#)$Id: Checkbox.pm 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: Checkbox.pm 368 2012-07-09 23:45:58Z pjf $
 
 package HTML::FormWidgets::Checkbox;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(checked label_class labels value) );
@@ -12,11 +12,10 @@ __PACKAGE__->mk_accessors( qw(checked label_class labels value) );
 sub init {
    my ($self, $args) = @_;
 
-   $self->checked        ( 0 );
-   $self->container_class( q(checkbox_container) );
-   $self->label_class    ( q(checkbox_label) );
-   $self->labels         ( {} );
-   $self->value          ( 1 );
+   $self->checked    ( 0 );
+   $self->label_class( q(checkbox_label) );
+   $self->labels     ( {} );
+   $self->value      ( 1 );
    return;
 }
 
@@ -32,7 +31,7 @@ sub render_field {
 
    $label and $html .= $hacc->span( { class => $self->label_class }, $label );
 
-   return $html;
+   return $hacc->div( { class => q(checkbox_container) }, $html );
 }
 
 1;

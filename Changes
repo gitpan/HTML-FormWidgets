@@ -1,5 +1,15 @@
 Revision history for HTML::FormWidgets
 
+0.14.368 2012-07-10
+         - Container now wraps whole of widget
+         - Replaced ajaxid with check_field
+         - Slider adds numeric class to textfield
+         - Date no longer wraps buttons in a span. Fixes vertical alignment
+         - Textarea now has mandatory rows and cols. Thanks W3C
+         - Added class per cell in tables
+         - Better classing for table cells
+         - Made _init_options more efficient
+
 0.13.358 2012-04-19
          - Turned CPAN testing on
          - Added more tests

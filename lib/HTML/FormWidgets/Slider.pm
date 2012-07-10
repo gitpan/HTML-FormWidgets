@@ -1,10 +1,10 @@
-# @(#)$Id: Slider.pm 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: Slider.pm 368 2012-07-09 23:45:58Z pjf $
 
 package HTML::FormWidgets::Slider;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/g );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/g );
 use parent qw(HTML::FormWidgets);
 
 my $NUL = q();
@@ -37,7 +37,7 @@ sub render_field {
    my $text;
 
    if ($self->display) {
-      $html .= $hacc->textfield( { class    => q(ifield),
+      $html .= $hacc->textfield( { class    => q(ifield numeric),
                                    name     => $args->{name},
                                    readonly => q(readonly),
                                    size     => $size,

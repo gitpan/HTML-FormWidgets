@@ -1,10 +1,10 @@
-# @(#)$Id: GroupMembership.pm 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: GroupMembership.pm 368 2012-07-09 23:45:58Z pjf $
 
 package HTML::FormWidgets::GroupMembership;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
 use parent q(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(all current fhelp height labels) );

@@ -1,8 +1,8 @@
-# @(#)$Id: 10base.t 358 2012-04-19 15:20:34Z pjf $
+# @(#)$Id: 10base.t 368 2012-07-09 23:45:58Z pjf $
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.13.%d', q$Rev: 358 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
 use File::Spec::Functions;
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
@@ -186,7 +186,7 @@ like $widget->render, qr{ tr \s class=".*" \s id="table.row0" }mx, 'Table';
 $widget = HTML::FormWidgets->new( default => q(test), type => q(textarea) );
 
 like $widget->render,
-   qr{ textarea \s name="textarea" \s class="ifield">test }mx, 'Textarea';
+   qr{ textarea \s name="textarea" \s class="ifield" \s rows="1" \s cols="60">test }mx, 'Textarea';
 
 $widget = HTML::FormWidgets->new( default => q(test), type => q(textfield) );
 

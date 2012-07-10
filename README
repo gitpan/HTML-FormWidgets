@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.13.$Rev: 358 $
+    0.14.$Rev: 368 $
 
 Synopsis
        use HTML::FormWidgets;
@@ -168,8 +168,7 @@ Subroutines/Methods
 
     container
        If true the value return by the "_render" method is wrapped in "<span
-       class="container">" element. The value of the *align* attribute is
-       added to the space separated class list
+       class="container">" element
 
     tip
        The text of the field help. If *tiptype* is set to dagger (which is
@@ -178,9 +177,9 @@ Subroutines/Methods
        text is used as the *title* attribute. If the *tiptype* is not set to
        dagger then the help text is wrapped around the input field itself
 
-    ajaxid
-       The text of the message which is displayed if the field's value fails
-       server side validation
+    check_field
+       Boolean which if true causes the field to generate server side check
+       field requests
 
    render_check_field
     Adds markup for the Ajax field validation
@@ -353,8 +352,8 @@ Factory Subclasses
   Note
     Calls "localize" with the *name* attribute as the message key. If the
     message does not exist the value if the *text* attribute is used. The
-    text is wrapped in a c<< <span class="note"> >> with *align* setting the
-    style text alignment and *width* setting the style width
+    text is wrapped in a c<< <span class="note"> >> with *width* setting the
+    style width
 
   POD
     Uses Pod::Html to render the POD in the given module as HTML
