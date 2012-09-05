@@ -15,31 +15,31 @@ not run its Makefile.PL or Build.PL.
 Hash: SHA1
 
 SHA1 40c61d6359f70882ba72120260fe85fc334a835c Build.PL
-SHA1 d67866778f87b0b123294f981300ad9d6392dbd7 Changes
+SHA1 020948663d652d46514060897cfad9c24d43c541 Changes
 SHA1 0890c7d901c3958ec8476f1edc1c11ae676990fb LICENSE
-SHA1 d10d1541efb7eb10abe92c4a802bf7ff0b7fddf4 MANIFEST
-SHA1 3f18183fde2a9beb104dd337087ea4f0f03ced65 META.json
-SHA1 bd80a5a0506dccdf43997759dae297b48c4efc0c META.yml
-SHA1 92713b503cb4b91a793122de10012148c60b975e README
+SHA1 838a2f8653e0df9562961aa5841048a00cc1dd2c MANIFEST
+SHA1 cde70d3a693e829274547f29dbdeacfdd5d41fcb META.json
+SHA1 11338e82b55ff69cccf242db740b819b8f477091 META.yml
+SHA1 705fe9d74c73c28133469ef1b429881061328e1c README
 SHA1 f1b31d1dc30c34bcbb00ff419b0672ae890e1e91 css/colour-green.css
-SHA1 d347e22d45f71f7447c087cf94a5ce5743256a32 css/green.css
-SHA1 e4f600c790102e9dc2afbdbeadb75867d741a48c css/presentation.css
+SHA1 3de53a9e24647c14b9bd912d6bfc4abaf53a0e9a css/green.css
+SHA1 5be586ff4290681a325a6abc19556e8cce846d70 css/presentation.css
 SHA1 3901f1c40940ea94b33cf44c78d46c34c11ea9e9 images/icons.png
-SHA1 2a1ec4fbf08586989ecd1edf5287b08f2fb0b958 inc/Bob.pm
-SHA1 ccf98823f2f34e4bf4cc630513ebd23781e258db inc/CPANTesting.pm
+SHA1 407de7e50ad54412a79d8fd1921da5faaa0010ba inc/Bob.pm
+SHA1 8e17180587d8e8a08ab6d4ab96747c4cd3428347 inc/CPANTesting.pm
 SHA1 298b621a25a28c6019c3b0afba2bca66532bd745 javascript/05htmlparser.js
-SHA1 e2cd51d0c887c4480d7efd2a133a351bd19a65cb javascript/10mootools.js
-SHA1 c94120d8cc8dba20260581d2c52739543e301519 javascript/15html-formwidgets.js
+SHA1 f117e8c9a95cb3018a39946e2c928f440f3e2b81 javascript/10mootools.js
+SHA1 b2fcb443973cecb2046ecbce93f71a8ce40f49f3 javascript/15html-formwidgets.js
 SHA1 c97702990f6774e30b9ea88d6a2fa3dba87063a3 javascript/50calendar.js
 SHA1 b7ee35fdd2c2ffb8ab5139a4e4f244585af621e8 javascript/51calendar-setup.js
-SHA1 60b211e5487832185aec6d58ca1de8e17f841d12 javascript/behaviour.js
+SHA1 1f97ef4c25d8bc482230f36a9e59f528f5c4b6b0 javascript/behaviour.js
 SHA1 de85977bb656ff5313b44994627b95fd5fa3c4d5 javascript/lang/calendar-de.js
 SHA1 76250042c24ef04826eb632546dd6627448cd0da javascript/lang/calendar-en.js
 SHA1 d53134b7f86d825ed986dbfc2a51c55fa9a415ef javascript/lang/calendar-es.js
 SHA1 dea52d5d64db5827fbfb88794b03d576f7cf778e javascript/lang/calendar-nl.js
 SHA1 05a45213b2a0f3b5b89889d88e117db4921fe7e8 javascript/lang/calendar-pl.js
 SHA1 061a5722da745cce6c21f1a0a80f0a1f543117ac javascript/lang/calendar-ru.js
-SHA1 f5c07f95fc2cb6e5727e1705755e911ea686b327 lib/HTML/FormWidgets.pm
+SHA1 8617c3185522fefb5a01f0c731ae15c360fc8ac9 lib/HTML/FormWidgets.pm
 SHA1 ed520c610ad9e20af1b1b61c0981ebf7e299f579 lib/HTML/FormWidgets/Anchor.pm
 SHA1 9eca2a8dc595565c995b709d3f557511af556915 lib/HTML/FormWidgets/Async.pm
 SHA1 5faaa845c6a98398241e62947718b30e2f672a01 lib/HTML/FormWidgets/Button.pm
@@ -74,15 +74,16 @@ SHA1 84a385d176c2870277ebf0147ab421c2c4f7f2fc lib/HTML/FormWidgets/Textfield.pm
 SHA1 9d9735ec1e2dec0c227e50a84c014928e8c140de lib/HTML/FormWidgets/Tree.pm
 SHA1 b8586f2fc94b25789ddb3a9420d2d2b5296a45af t/01always_pass.t
 SHA1 9259e2347e6261735abb5d0650532748ea29a6ee t/02pod.t
+SHA1 bd57a75726bef931fc82e6fac7aa8a5d6febd39a t/07podspelling.t
 SHA1 9cfdb724d5804f1b1c63a8a7aed0f2cb2f3039bc t/10base.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iQEcBAEBAgAGBQJP+3DTAAoJEK492j4Im1BplPcH/3VDQuOi8eNhq9KZpm4/EhXQ
-MDkVGJ214GHPWoefrN2xXmESz2bg5eNqRC08OMC0Kwuue8FSfK4MCh+lGg9qeJq8
-PaYZYX6Q9fQCiXfjIFXcl5XSm5UkGGXAELih9iOSMGWoBE90NtFmXwGCeXeBjliK
-3eywRX6wWD8j4aGCSpsGgdjk5yJq3zrUgQ7mTSvsuZUujFemJWMOiAcHvvRc/3KQ
-++fV/OQmlGFWNe0aWq5zMRSMIbzJcEcSaZbx1xIe8R2DsJ7SOWHE+NtiWrmvyHMo
-z8nCSVSCE3UcJjC8r8uKyxVASk8qFyQGmuXwVfjcWwNomhlpYusrdrzFpghsPp4=
-=htZO
+iQEcBAEBAgAGBQJQR3kDAAoJEK492j4Im1BpcpYIAJ2mynae8lezxiVuIPgWoUDS
+eNIWbL6Ep3S3TKqCk34XxDR8NZCoz42R8ndBqXkQPGCJ9Xds1MBKmbUuaqFOgnHo
+c8vtanL5SrCZcwJw7G8df6LX6zScuXZJGYe/kDzNMnvES4RlzAss+z6xf4nseT4X
+ZKknBgYjb/+FyeHl2wu0shddaxMM64GWAkmOvMv1p+ZrSYUMwuZw47Mhyk3yPR3A
+47XgsVUlipkvIA0MMSSiZcvDXx5CT5Rj5mKCFTFT3CSzj4gTLurAmlUrd6Nd349r
+cEAlow4Ja96xahtMdEKrKwtvoNqD6n2PWMibBiTOxAwDhl7QtAOkLilUGYVpZMM=
+=qMmj
 -----END PGP SIGNATURE-----

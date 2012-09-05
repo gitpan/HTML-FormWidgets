@@ -52,7 +52,7 @@
    "provides" : {
       "HTML::FormWidgets" : {
          "file" : "lib/HTML/FormWidgets.pm",
-         "version" : "v0.14.368"
+         "version" : "v0.14.370"
       },
       "HTML::FormWidgets::Anchor" : {
          "file" : "lib/HTML/FormWidgets/Anchor.pm",
@@ -193,5 +193,5 @@
          "http://dev.perl.org/licenses/"
       ]
    },
-   "version" : "0.14.368"
+   "version" : "0.14.370"
 }
