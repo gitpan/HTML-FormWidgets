@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.14.$Rev: 370 $
+    0.15.$Rev: 377 $
 
 Synopsis
        use HTML::FormWidgets;
@@ -486,6 +486,10 @@ Factory Subclasses
   Table
     The input data is in "$data->{values}" which is an array ref for which
     each element is an array ref containing the list of field values.
+
+  TableRow
+    Returns markup for a table row. Used to generate responses for the
+    "LiveGrid" JavaScript class
 
   Template
     Look in "templatedir" for a Template::Toolkit template called "id" with

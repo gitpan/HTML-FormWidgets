@@ -1,10 +1,10 @@
-# @(#)$Id: FormWidgets.pm 370 2012-09-05 16:07:57Z pjf $
+# @(#)$Id: FormWidgets.pm 377 2012-10-20 14:52:32Z pjf $
 
 package HTML::FormWidgets;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 370 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 377 $ =~ /\d+/gmx );
 use parent qw(Class::Accessor::Fast);
 
 use Class::MOP;
@@ -22,29 +22,30 @@ my $SPC     = q( );
 my $TTS     = q( ~ );
 my $OPTIONS = {
    content_type    => q(text/html),
-   hidden          => {},
+   hidden          => sub { {} },
    js_object       => q(html_formwidgets),
+   language        => q(en),
    list_key        => q(items),
-   literal_js      => [],
-   optional_js     => [],
+   literal_js      => sub { [] },
+   ns              => q(default),
+   optional_js     => sub { [] },
    pwidth          => 30,
-   skip            => { qw(options 1 id 1 name 1 type 1) },
+   skip            => sub { return { qw(options 1 id 1 name 1 type 1) } },
    width           => 1000, };
 my $ATTRS   = {
    check_field     => undef,        class           => $NUL,
    clear           => $NUL,         container       => 1,
    container_class => q(container), container_id    => undef,
    default         => undef,        frame_class     => $NUL,
-   hacc            => undef,        hint_title      => $NUL,
-   id              => undef,        name            => undef,
-   onblur          => undef,        onchange        => undef,
-   onkeypress      => undef,        options         => $OPTIONS,
-   pclass          => q(prompt),    pwidth          => undef,
-   prompt          => $NUL,         readonly        => 0,
-   required        => 0,            sep             => undef,
-   stepno          => undef,        text            => $NUL,
-   tip             => $NUL,         tiptype         => q(dagger),
-   type            => undef, };
+   hacc            => undef,        id              => undef,
+   name            => undef,        onblur          => undef,
+   onchange        => undef,        onkeypress      => undef,
+   options         => undef,        pclass          => q(prompt),
+   pwidth          => undef,        prompt          => $NUL,
+   readonly        => 0,            required        => 0,
+   sep             => undef,        stepno          => undef,
+   text            => $NUL,         tip             => $NUL,
+   tiptype         => q(dagger),    type            => undef, };
 
 __PACKAGE__->mk_accessors( keys %{ $ATTRS } );
 
@@ -76,7 +77,7 @@ sub build {
 }
 
 sub new {
-   my ($self, @rest) = @_; my $args = __arg_list( @rest );
+   my ($self, @args) = @_; my $args = __arg_list( @args );
 
    # Start with some hard coded defaults;
    my $new = bless { %{ $ATTRS } }, ref $self || $self;
@@ -206,6 +207,10 @@ sub add_optional_js {
    return;
 }
 
+sub hint_title {
+   return $_[ 0 ]->{hint_title} ||= $_[ 0 ]->loc( q(form_hint_title) );
+}
+
 sub inflate {
    my ($self, $args) = @_;
 
@@ -223,9 +228,13 @@ sub is_xml {
 }
 
 sub loc {
-   my ($self, $text, @rest) = @_; my $l10n = $self->options->{l10n};
+   my ($self, $text, @rest) = @_; my $opt = $self->options; my $l10n;
 
-   defined $l10n and return $l10n->( $text, @rest );
+   if (defined ($l10n = $opt->{l10n})) {
+      my $args = { language => $opt->{language}, ns => $opt->{ns} };
+
+      return $l10n->loc( $args, $text, @rest );
+   }
 
    $text or return; $text = $NUL.$text; # Stringify
 
@@ -378,12 +387,6 @@ sub _build_hacc {
    return $hacc
 }
 
-sub _build_hint_title {
-   my $self = shift;
-
-   return $self->hint_title || $self->loc( q(form_hint_title) );
-}
-
 sub _build_pwidth {
    # Calculate the prompt width
    my $self   = shift;
@@ -436,15 +439,15 @@ sub _ensure_class_loaded {
 sub _init {
    my ($self, $args) = @_;
 
-   $self->_init_options( $args );
-   $self->init         ( $args ); # Allow subclass to set it's own defaults
-   $self->_init_fields ( $args );
-   $self->_init_args   ( $args );
-   $self->hacc         ( $self->_build_hacc       );
-   $self->hint_title   ( $self->_build_hint_title );
-   $self->pwidth       ( $self->_build_pwidth     );
-   $self->sep          ( $self->_build_sep        );
-   $self->stepno       ( $self->_build_stepno     );
+   $self->_init_options   ( $args );
+   $self->init            ( $args ); # Allow subclass to set it's own defaults
+   $self->_init_fields    ( $args );
+   $self->_init_args      ( $args );
+   $self->_init_hint_title( $args );
+   $self->hacc            ( $self->_build_hacc       );
+   $self->pwidth          ( $self->_build_pwidth     );
+   $self->sep             ( $self->_build_sep        );
+   $self->stepno          ( $self->_build_stepno     );
    return;
 }
 
@@ -452,8 +455,7 @@ sub _init_args {
    my ($self, $args) = @_; my $skip = $self->options->{skip}; my $v;
 
    for (grep { not $skip->{ $_ } } keys %{ $args }) {
-      exists $self->{ $_ } and defined ($v = $args->{ $_ })
-         and $self->{ $_ } = $v;
+      exists $self->{ $_ } and defined ($v = $args->{ $_ }) and $self->$_( $v );
    }
 
    return;
@@ -468,8 +470,13 @@ sub _init_fields {
    return;
 }
 
+sub _init_hint_title {
+   $_[ 1 ]->{hint_title} and $_[ 0 ]->hint_title( $_[ 1 ]->{hint_title} );
+   return;
+}
+
 sub _init_options {
-   $_[ 0 ]->options( { %{ $_[ 0 ]->options }, %{ $_[ 1 ]->{options} || {} } } );
+   $_[ 0 ]->options( __merge_attributes( $_[ 1 ]->{options}, $OPTIONS ) );
    return;
 }
 
@@ -501,6 +508,25 @@ sub _set_error {
    my ($self, $error) = @_; return $self->text( $error );
 }
 
+sub __downgrade {
+   # TODO: Remove downgrade fix
+   my $x = shift || q(); my ($y) = $x =~ m{ (.*) }msx; return $y;
+}
+
+sub __merge_attributes {
+   my ($dest, $src, $attrs) = @_; $attrs ||= [ keys %{ $src } ];
+
+   for (grep { not exists $dest->{ $_ } or not defined $dest->{ $_ } }
+            @{ $attrs }) {
+      my $v = $src->{ $_ };
+
+      defined $v and ref $v eq q(CODE) and $v = $v->();
+      defined $v and $dest->{ $_ } = $v;
+   }
+
+   return $dest;
+}
+
 1;
 
 __END__
@@ -513,7 +539,7 @@ HTML::FormWidgets - Create HTML user interface components
 
 =head1 Version
 
-0.14.$Rev: 370 $
+0.15.$Rev: 377 $
 
 =head1 Synopsis
 
@@ -1121,6 +1147,11 @@ a time. Clicking the tab header displays the corresponding C<div>
 The input data is in C<< $data->{values} >> which is an array
 ref for which each element is an array ref containing the list of
 field values.
+
+=head2 TableRow
+
+Returns markup for a table row. Used to generate responses for the C<LiveGrid>
+JavaScript class
 
 =head2 Template
 

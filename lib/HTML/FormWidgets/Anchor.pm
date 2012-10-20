@@ -1,10 +1,10 @@
-# @(#)$Id: Anchor.pm 368 2012-07-09 23:45:58Z pjf $
+# @(#)$Id: Anchor.pm 377 2012-10-20 14:52:32Z pjf $
 
 package HTML::FormWidgets::Anchor;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 377 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(config fhelp href imgclass target) );
@@ -18,7 +18,6 @@ sub init {
    $self->href    ( undef     );
    $self->imgclass( undef     );
    $self->target  ( undef     );
-   $self->text    ( $self->loc( q(link) ) );
    $self->tiptype ( q(normal) );
    return;
 }
@@ -35,7 +34,7 @@ sub render_field {
                              class => $self->imgclass,
                              src   => $self->text } )
             : $hacc->span( { class => $self->imgclass } )
-            : $self->text;
+            : $self->text || $self->loc( q(link) );
 
    $self->href or return $html; delete $args->{name};
 

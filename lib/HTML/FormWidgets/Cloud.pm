@@ -1,10 +1,10 @@
-# @(#)$Id: Cloud.pm 368 2012-07-09 23:45:58Z pjf $
+# @(#)$Id: Cloud.pm 377 2012-10-20 14:52:32Z pjf $
 
 package HTML::FormWidgets::Cloud;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 368 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 377 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(data height width) );
@@ -53,8 +53,7 @@ sub render_field {
 
       $ref->{href} and next;
 
-      $style     = 'display: none; ';
-      $style    .= 'width: '.$self->width.'px;' if ($self->width);
+      $style     = defined $self->width ? 'width: '.$self->width.'px;' : q();
       $html     .= $hacc->div( { class => $self->class.q(_panel),
                                  id    => $id.q(Disp),
                                  style => $style }, 'Loading...' );

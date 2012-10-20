@@ -1,5 +1,18 @@
 Revision history for HTML::FormWidgets
 
+0.15.377 2012-10-20
+         - Harded coded element class to server in Async
+         - Re-added setting the outer div width for Cloud
+
+0.14.373 2012-10-13
+         - Only localise our own text, not text passed in
+         - Refactored the calling of the localisation method
+         - Refactored the initialisation of the options hash
+         - Changed flds attr to fields in Table
+         - Add TableRow type to support LiveGrids
+         - Bug fix data lookup in Template
+         - Added modalDialogs to Chooser
+
 0.14.370 2012-09-05
          - Add POD spelling test
          - Updated inc::Bob to 1.5

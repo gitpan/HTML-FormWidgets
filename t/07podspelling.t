@@ -1,8 +1,8 @@
-# @(#)$Id: 07podspelling.t 370 2012-09-05 16:07:57Z pjf $
+# @(#)$Id: 07podspelling.t 377 2012-10-20 14:52:32Z pjf $
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.14.%d', q$Rev: 370 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 377 $ =~ /\d+/gmx );
 use File::Spec::Functions qw(catdir catfile updir);
 use FindBin qw( $Bin );
 use lib catdir( $Bin, updir, q(lib) );
@@ -63,6 +63,7 @@ scrollinglist
 scrollpin
 sidebarpanel
 subdirectory
+tablerow
 tabswapper
 textfield
 tooltip

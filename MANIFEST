@@ -46,6 +46,7 @@ lib/HTML/FormWidgets/ScrollPin.pm
 lib/HTML/FormWidgets/SidebarPanel.pm
 lib/HTML/FormWidgets/Slider.pm
 lib/HTML/FormWidgets/Table.pm
+lib/HTML/FormWidgets/TableRow.pm
 lib/HTML/FormWidgets/TabSwapper.pm
 lib/HTML/FormWidgets/Template.pm
 lib/HTML/FormWidgets/Textarea.pm
