@@ -1,24 +1,28 @@
-# @(#)$Id: Textarea.pm 377 2012-10-20 14:52:32Z pjf $
+# @(#)$Id: Textarea.pm 382 2012-10-28 23:52:22Z pjf $
 
 package HTML::FormWidgets::Textarea;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 377 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.16.%d', q$Rev: 382 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
-__PACKAGE__->mk_accessors( qw(cols rows) );
+__PACKAGE__->mk_accessors( qw(cols config rows) );
 
 sub init {
    my ($self, $args) = @_;
 
-   $self->cols( 60 );
-   $self->rows( 1  );
+   $self->cols  ( 60 );
+   $self->config( undef );
+   $self->rows  ( 1  );
    return;
 }
 
 sub render_field {
    my ($self, $args)  = @_;
+
+   $self->id and $self->config
+      and $self->add_literal_js( 'inputs', $self->id, $self->config );
 
    $args->{class} .= ($args->{class} ? q( ): q()).($self->class || q(ifield));
 

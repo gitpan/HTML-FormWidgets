@@ -1,10 +1,10 @@
-# @(#)$Id: FormWidgets.pm 377 2012-10-20 14:52:32Z pjf $
+# @(#)$Id: FormWidgets.pm 382 2012-10-28 23:52:22Z pjf $
 
 package HTML::FormWidgets;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 377 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.16.%d', q$Rev: 382 $ =~ /\d+/gmx );
 use parent qw(Class::Accessor::Fast);
 
 use Class::MOP;
@@ -186,11 +186,14 @@ sub add_hidden {
 sub add_literal_js {
    my ($self, $js_class, $id, $config) = @_; my $list = $NUL;
 
-   ($js_class and $id and $config and ref $config eq q(HASH)) or return;
+   ($js_class and $id and $config) or return;
 
-   while (my ($k, $v) = each %{ $config }) {
-      if ($k) { $list and $list .= ', '; $list .= $k.': '.($v || 'null') }
+   if (ref $config eq q(HASH)) {
+      while (my ($k, $v) = each %{ $config }) {
+         if ($k) { $list and $list .= ', '; $list .= $k.': '.($v || 'null') }
+      }
    }
+   else { $list = $config };
 
    my $obj = $self->options->{js_object}; $self->options->{literal_js} ||= [];
 
@@ -539,7 +542,7 @@ HTML::FormWidgets - Create HTML user interface components
 
 =head1 Version
 
-0.15.$Rev: 377 $
+0.16.$Rev: 382 $
 
 =head1 Synopsis
 

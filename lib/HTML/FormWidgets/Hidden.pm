@@ -1,10 +1,10 @@
-# @(#)$Id: Hidden.pm 377 2012-10-20 14:52:32Z pjf $
+# @(#)$Id: Hidden.pm 382 2012-10-28 23:52:22Z pjf $
 
 package HTML::FormWidgets::Hidden;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.15.%d', q$Rev: 377 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.16.%d', q$Rev: 382 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 sub init {

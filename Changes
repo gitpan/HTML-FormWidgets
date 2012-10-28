@@ -1,5 +1,10 @@
 Revision history for HTML::FormWidgets
 
+0.16.381 2012-10-28
+         - Replaced Syntax::Highlight::Perl with PPI::HTML
+         - Textareas can have literal js in the inputs js config group
+         - Can pass scalars as well as hash refs as config to add_literal_js
+
 0.15.377 2012-10-20
          - Harded coded element class to server in Async
          - Re-added setting the outer div width for Cloud
