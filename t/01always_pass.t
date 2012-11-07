@@ -1,9 +1,18 @@
-# @(#)$Id: 01always_pass.t 377 2012-10-20 14:52:32Z pjf $
+# @(#)$Id: 01always_pass.t 385 2012-11-02 01:30:29Z pjf $
+# Bob-Version: 1.6
 
 use strict;
 use warnings;
 
-use Sys::Hostname; my $host = lc hostname; warn "Hostname: ${host}\n";
+use Module::Build;
+use Sys::Hostname;
+
+my $host    = lc hostname;
+my $current = eval { Module::Build->current };
+my $notes   = {}; $current and $notes = $current->notes || {};
+my $version = $notes->{version} // '< 1.6';
+
+$notes->{is_cpan_testing} and warn "Host: ${host}, Bob-Version: ${version}\n";
 
 print "1..1\n";
 print "ok\n";

@@ -22,106 +22,106 @@ no_index:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: v0.16.382
+    version: v0.17.386
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Async:
     file: lib/HTML/FormWidgets/Async.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Button:
     file: lib/HTML/FormWidgets/Button.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Checkbox:
     file: lib/HTML/FormWidgets/Checkbox.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Chooser:
     file: lib/HTML/FormWidgets/Chooser.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Cloud:
     file: lib/HTML/FormWidgets/Cloud.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Date:
     file: lib/HTML/FormWidgets/Date.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::File:
     file: lib/HTML/FormWidgets/File.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Freelist:
     file: lib/HTML/FormWidgets/Freelist.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::GroupMembership:
     file: lib/HTML/FormWidgets/GroupMembership.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Hidden:
     file: lib/HTML/FormWidgets/Hidden.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Image:
     file: lib/HTML/FormWidgets/Image.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Label:
     file: lib/HTML/FormWidgets/Label.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::List:
     file: lib/HTML/FormWidgets/List.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Menu:
     file: lib/HTML/FormWidgets/Menu.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Note:
     file: lib/HTML/FormWidgets/Note.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::POD:
     file: lib/HTML/FormWidgets/POD.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Paragraphs:
     file: lib/HTML/FormWidgets/Paragraphs.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Password:
     file: lib/HTML/FormWidgets/Password.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::PopupMenu:
     file: lib/HTML/FormWidgets/PopupMenu.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::RadioGroup:
     file: lib/HTML/FormWidgets/RadioGroup.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Rule:
     file: lib/HTML/FormWidgets/Rule.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::ScrollPin:
     file: lib/HTML/FormWidgets/ScrollPin.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::ScrollingList:
     file: lib/HTML/FormWidgets/ScrollingList.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::SidebarPanel:
     file: lib/HTML/FormWidgets/SidebarPanel.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Slider:
     file: lib/HTML/FormWidgets/Slider.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::TabSwapper:
     file: lib/HTML/FormWidgets/TabSwapper.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Table:
     file: lib/HTML/FormWidgets/Table.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::TableRow:
     file: lib/HTML/FormWidgets/TableRow.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Template:
     file: lib/HTML/FormWidgets/Template.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Textarea:
     file: lib/HTML/FormWidgets/Textarea.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Textfield:
     file: lib/HTML/FormWidgets/Textfield.pm
-    version: v0.16.382
+    version: v0.17.384
   HTML::FormWidgets::Tree:
     file: lib/HTML/FormWidgets/Tree.pm
-    version: v0.16.382
+    version: v0.17.384
 requires:
   Class::Accessor::Fast: 0.31
   HTML::Accessors: v0.7.0
@@ -140,4 +140,4 @@ resources:
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-FormWidgets
   homepage: http://www.roxsoft.co.uk
   license: http://dev.perl.org/licenses/
-version: 0.16.382
+version: 0.17.386

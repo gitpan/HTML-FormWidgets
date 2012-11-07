@@ -1,10 +1,10 @@
-# @(#)$Id: Table.pm 382 2012-10-28 23:52:22Z pjf $
+# @(#)$Id: Table.pm 384 2012-10-31 01:21:58Z pjf $
 
 package HTML::FormWidgets::Table;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.16.%d', q$Rev: 382 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.17.%d', q$Rev: 384 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(data edit hclass number_rows

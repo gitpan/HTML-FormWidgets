@@ -1,10 +1,10 @@
-# @(#)$Id: Password.pm 382 2012-10-28 23:52:22Z pjf $
+# @(#)$Id: Password.pm 384 2012-10-31 01:21:58Z pjf $
 
 package HTML::FormWidgets::Password;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.16.%d', q$Rev: 382 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.17.%d', q$Rev: 384 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(subtype width) );
@@ -12,25 +12,38 @@ __PACKAGE__->mk_accessors( qw(subtype width) );
 sub init {
    my ($self, $args) = @_;
 
-   $self->subtype( undef );
-   $self->width(   20 );
+   $self->subtype( q(normal) );
+   $self->width  ( 20        );
    return;
 }
 
 
 sub render_field {
-   my ($self, $args) = @_; my $html;
+   my ($self, $args) = @_;
 
-   $args->{class} .= q( ifield);
-   $args->{size }  = $self->width;
-   $html           = $self->hacc->password_field( $args );
+   my $hacc        =  $self->hacc;
+   my $subtype     =  $self->subtype;
+   my $reveal      =  $subtype =~ m{ reveal }msx ? 1 : 0;
 
-   return $html unless ($self->subtype && $self->subtype eq q(verify));
+   if ($reveal) {
+      my $id2      =  $args->{id}; $id2 =~ s{ 1 }{2}mx;
+      my $options  = { event  => "[ 'focus', 'blur' ]",
+                       method => "[ 'show_password', 'hide_password' ]" };
 
-   $html .= $self->hacc->span( { class => q(prompt) },
-                               $self->loc( q(vPasswordPrompt) ) );
-   $args->{name} =~ s{ 1 }{2}mx; $args->{id} =~ s{ 1 }{2}mx;
-   $html .= $self->hacc->password_field( $args );
+      $self->add_literal_js( 'inputs', $self->id, $options );
+      $self->add_literal_js( 'inputs', $id2, $options );
+   }
+
+   $args->{class} .=  q( ifield).($reveal ? q( reveal) : q());
+   $args->{size }  =  $self->width;
+
+   my $html        =  $hacc->password_field( $args );
+
+   $subtype        =~ m{ verify }msx or return $html;
+   $html          .=  $hacc->span( { class => q(prompt) },
+                                   $self->loc( q(vPasswordPrompt) ) );
+   $args->{name}   =~ s{ 1 }{2}mx; $args->{id} =~ s{ 1 }{2}mx;
+   $html          .=  $hacc->password_field( $args );
    return $html;
 }
 
