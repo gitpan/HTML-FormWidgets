@@ -6,6 +6,7 @@ css/presentation.css
 images/icons.png
 inc/Bob.pm
 inc/CPANTesting.pm
+inc/SubClass.pm
 javascript/05htmlparser.js
 javascript/10mootools.js
 javascript/15html-formwidgets.js

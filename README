@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.17.$Rev: 386 $
+    0.17.$Rev: 387 $
 
 Synopsis
        use HTML::FormWidgets;
@@ -24,8 +24,8 @@ Description
     subclass implements the method that generates the HTML or XHTML for that
     input field type. Adding more widget types is straightforward
 
-    This module is using the <MooTools> Javascript library to modify default
-    browser behaviour
+    This module is using the MooTools <http://mootools.net/> Javascript
+    library to modify default browser behaviour
 
     This module is used by CatalystX::Usul::View and as such its main use is
     as a form generator within a Catalyst application
