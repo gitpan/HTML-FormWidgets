@@ -22,7 +22,7 @@ no_index:
 provides:
   HTML::FormWidgets:
     file: lib/HTML/FormWidgets.pm
-    version: v0.17.387
+    version: v0.17.389
   HTML::FormWidgets::Anchor:
     file: lib/HTML/FormWidgets/Anchor.pm
     version: v0.17.384
@@ -140,4 +140,4 @@ resources:
   bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=HTML-FormWidgets
   homepage: http://www.roxsoft.co.uk
   license: http://dev.perl.org/licenses/
-version: 0.17.387
+version: 0.17.389
