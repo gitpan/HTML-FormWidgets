@@ -1,10 +1,10 @@
-# @(#)$Id: Slider.pm 384 2012-10-31 01:21:58Z pjf $
+# @(#)$Id: Slider.pm 391 2013-04-18 13:34:53Z pjf $
 
 package HTML::FormWidgets::Slider;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.17.%d', q$Rev: 384 $ =~ /\d+/g );
+use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 391 $ =~ /\d+/g );
 use parent qw(HTML::FormWidgets);
 
 my $NUL = q();

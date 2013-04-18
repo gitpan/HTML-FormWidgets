@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.17.$Rev: 389 $
+    0.18.$Rev: 391 $
 
 Synopsis
        use HTML::FormWidgets;
@@ -565,7 +565,7 @@ Bugs and Limitations
     address below. Patches are welcome
 
 Author
-    Peter Flanigan, "<Support at RoxSoft.co.uk>"
+    Peter Flanigan, "<pjfl@cpan.org>"
 
 License and Copyright
     Copyright (c) 2012 Peter Flanigan. All rights reserved
