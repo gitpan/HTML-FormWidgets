@@ -28,7 +28,6 @@ lib/HTML/FormWidgets/Button.pm
 lib/HTML/FormWidgets/Checkbox.pm
 lib/HTML/FormWidgets/Chooser.pm
 lib/HTML/FormWidgets/Cloud.pm
-lib/HTML/FormWidgets/Columnizer.pm
 lib/HTML/FormWidgets/Date.pm
 lib/HTML/FormWidgets/File.pm
 lib/HTML/FormWidgets/Freelist.pm
