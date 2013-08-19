@@ -1,25 +1,28 @@
-# @(#)$Id: 10base.t 391 2013-04-18 13:34:53Z pjf $
+# @(#)$Ident: 10base.t 2013-08-19 16:46 pjf ;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 391 $ =~ /\d+/gmx );
-use File::Spec::Functions;
-use FindBin qw( $Bin );
-use lib catdir( $Bin, updir, q(lib) );
+use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 2 $ =~ /\d+/gmx );
+use File::Spec::Functions   qw( catdir updir );
+use FindBin                 qw( $Bin );
+use lib                 catdir( $Bin, updir, 'lib' );
 
 use Module::Build;
 use Test::More;
 
-BEGIN {
-   my $current = eval { Module::Build->current };
+my $notes = {}; my $perl_ver;
 
-   $current and $current->notes->{stop_tests}
-            and plan skip_all => $current->notes->{stop_tests};
+BEGIN {
+   my $builder = eval { Module::Build->current };
+      $builder and $notes = $builder->notes;
+      $perl_ver = $notes->{min_perl_version} || 5.008;
 }
 
-use HTML::FormWidgets;
+use Test::Requires "${perl_ver}";
 
-my $widget = HTML::FormWidgets->new( id => q(test) );
+use_ok 'HTML::FormWidgets';
+
+my $widget = HTML::FormWidgets->new( id => 'test' );
 my $r      = $widget->render;
 
 like $r, qr{ input }mx,       'Default textfield 1';
@@ -82,7 +85,7 @@ like $r, qr{ Path \s honestly \s not \s found }mx, 'File not found';
 
 $widget->path( q(t/10base.t) ); $r = $widget->render;
 
-like $r, qr{ use \s HTML::FormWidgets }mx, 'File found';
+like $r, qr{ use_ok \s 'HTML::FormWidgets' }mx, 'File found';
 
 $widget = HTML::FormWidgets->new( id => q(test), type => q(freelist) );
 $r      = $widget->render;

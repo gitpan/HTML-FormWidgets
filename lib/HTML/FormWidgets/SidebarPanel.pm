@@ -1,10 +1,10 @@
-# @(#)$Id: SidebarPanel.pm 391 2013-04-18 13:34:53Z pjf $
+# @(#)$Ident: SidebarPanel.pm 2013-05-16 14:21 pjf ;
 
 package HTML::FormWidgets::SidebarPanel;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 391 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.20.%d', q$Rev: 1 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(config header panel) );

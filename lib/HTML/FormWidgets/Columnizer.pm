@@ -1,10 +1,10 @@
-# @(#)$Id: Columnizer.pm 257 2010-06-26 01:12:33Z pjf $
+# @(#)$Ident: Columnizer.pm 2013-05-16 14:22 pjf ;
 
 package HTML::FormWidgets::Columnizer;
 
 use strict;
 use warnings;
-use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 257 $ =~ /\d+/gmx );
+use version; our $VERSION = qv( sprintf '0.6.%d', q$Rev: 1 $ =~ /\d+/gmx );
 use parent qw(HTML::FormWidgets);
 
 __PACKAGE__->mk_accessors( qw(column_class columns data hclass

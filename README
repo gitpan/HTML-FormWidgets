@@ -2,7 +2,7 @@ Name
     HTML::FormWidgets - Create HTML user interface components
 
 Version
-    0.18.$Rev: 391 $
+    Describes version v0.20.$Rev: 1 $ of HTML::FormWidgets
 
 Synopsis
        use HTML::FormWidgets;
@@ -224,7 +224,7 @@ Subroutines/Methods
 
   Private Subroutines
    __arg_list
-       $args = __arg_list( @rest );
+       $args = __arg_list( @args );
 
     Accepts either a single argument of a hash ref or a list of key/value
     pairs. Returns a hash ref in either case.
@@ -512,7 +512,7 @@ Diagnostics
 
 Dependencies
     Class::Accessor::Fast
-    Class::MOP
+    Class::Load
     HTML::Accessors
     Syntax::Highlight::Perl
     Text::ParseWords

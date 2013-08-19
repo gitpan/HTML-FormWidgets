@@ -1,35 +1,48 @@
-# @(#)$Id: Build.PL 391 2013-04-18 13:34:53Z pjf $
+# @(#)$Ident: DZ_Build.PL 2013-08-15 13:04 pjf ;
 
 use strict;
 use warnings;
-use inc::Bob; # Module::Build subclass
-use version; our $VERSION = qv( sprintf '0.18.%d', q$Rev: 391 $ =~ /\d+/gmx );
 
-Bob->new( {
-   module     => q(HTML::FormWidgets),
-   home_page  => q(http://www.roxsoft.co.uk),
-   requires   => {
-      'perl'                    => 5.010,
-      'parent'                  => 0.221,
-      'version'                 => 0.74,
-      'Class::Accessor::Fast'   => 0.31,
-      'HTML::Accessors'         => q(0.7.0),
-      'Moose'                   => 2.0402,
-      'Pod::Xhtml'              => 1.61,
-      'PPI'                     => 1.213,
-      'PPI::HTML'               => 1.08,
-      'Scalar::Util'            => 1.23,
-      'Text::ParseWords'        => 3.22,
-      'Text::Tabs'              => 98.112801,
-      'Try::Tiny'               => 0.06, },
-   configure_requires => { 'Module::Build' => 0.32,
-                           'version'       => 0.74, },
-   build_requires     => { 'Test::More'    => 0.74, },
-} )->create_build_script; # Goal!
+use Module::Build;
 
-# Local Variables:
-# tab-title: FormWidgets
-# eval: (load-project-state "html-formwidgets")
-# mode: perl
-# tab-width: 3
-# End:
+sub whimper { print {*STDOUT} $_[ 0 ]."\n"; exit 0 }
+
+my $perl_ver = 5.01;
+my $name     = 'HTML-FormWidgets'; $name =~ s{ - }{::}gmx;
+
+$] >= $perl_ver or $ENV{PERL5_CPANPLUS_IS_VERSION}
+   or whimper "Minimum required Perl version is ${perl_ver}";
+
+Module::Build->subclass( code => do { local $/; <DATA> } )->new(
+  'module_name' => $name,
+  'notes'       => { min_perl_version => $perl_ver },
+  'build_requires' => {
+    'Module::Build' => '0.4004',
+    'Test::Requires' => '0.06',
+    'version' => '0.88'
+  },
+  'configure_requires' => {
+    'Module::Build' => '0.4004',
+    'version' => '0.88'
+  },
+  'requires' => {
+    'Class::Accessor' => '0.34',
+    'Class::Load' => '0.18',
+    'HTML::Accessors' => 'v0.8.0',
+    'PPI' => '1.215',
+    'PPI::HTML' => '1.08',
+    'Pod::Xhtml' => '1.61',
+    'Try::Tiny' => '0.09',
+    'parent' => '0.224',
+    'perl' => '5.01'
+  },
+
+)->create_build_script;
+
+exit 0;
+
+__DATA__
+
+sub _normalize_prereqs { # Dynamic config
+   my $self = shift; my $p = $self->SUPER::_normalize_prereqs; return $p;
+}
